@@ -44,9 +44,16 @@ public class ActivitiStepAction implements JavaDelegate {
     public void execute(DelegateExecution execution) throws Exception {
         ProcessToolContext ptc = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessInstanceDAO dao = ptc.getProcessInstanceDAO();
-        String processInstanceId = execution.getProcessInstanceId();
-        ProcessInstance pi = dao.getProcessInstanceByInternalId(processInstanceId);
-
+        String internalId = execution.getProcessInstanceId();
+        ProcessInstance pi = dao.getProcessInstanceByInternalId(internalId);
+        
+        //the process started from an automatic step, and the internalId is not in the processinstance
+        if(pi == null) {
+	        pi = dao.getProcessInstance(new Long(String.valueOf(execution.getVariable("processInstanceId"))));
+	        pi.setInternalId(internalId);
+	        dao.saveProcessInstance(pi);
+        }
+        
         String res;
         String stepName = (String) this.stepName.getValue(execution);
         Map params = new HashMap();
