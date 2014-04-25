@@ -78,8 +78,6 @@
         <remoteable>true</remoteable>
         <ajaxable>true</ajaxable>
         <private-session-attributes>false</private-session-attributes>
-        <control-panel-entry-category>configuration</control-panel-entry-category>
-        <control-panel-entry-weight>0.7</control-panel-entry-weight>
         <header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jqModal.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/json3.min.js</header-portlet-javascript>
