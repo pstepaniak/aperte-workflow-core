@@ -140,18 +140,17 @@
     <portlet>
 		<portlet-name>Aperte Workflow Process Definition Manager</portlet-name>
 		<display-name>Aperte Workflow Process Definitions</display-name>
-        <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
+		<portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
 		<init-param>
-			<name>application</name>
-			<value>org.aperteworkflow.portlets.ProcessDefinitionManagerPortlet</value>
+			<name>contextConfigLocation</name>
+			<value>/WEB-INF/spring/adminViewRendererContext.xml</value>
 		</init-param>
-        <init-param>
-            <name>widgetset</name>
-            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
-        </init-param>
+		<init-param>
+			<name>view-jsp</name>
+			<value>admin/process/processdefinitions</value>
+		</init-param>
 		<supports>
 			<mime-type>text/html</mime-type>
-			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
 			<title>Aperte Workflow Process Definitions</title>
