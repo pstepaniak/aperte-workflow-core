@@ -11,6 +11,7 @@ import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
@@ -23,6 +24,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import static pl.net.bluesoft.util.lang.DateUtil.beginOfDay;
@@ -30,121 +32,101 @@ import static pl.net.bluesoft.util.lang.DateUtil.endOfDay;
 import static pl.net.bluesoft.util.lang.Formats.parseShortDate;
 
 /**
- *
+ * 
  * Substitution operations controller for admin portlet
- *
+ * 
  * @author: mpawlak@bluesoft.net.pl
  */
-@OsgiController(name="substitutionController")
-public class SubstitutionController implements IOsgiWebController
-{
-    @Autowired
-    protected IPortalUserSource portalUserSource;
+@OsgiController(name = "substitutionController")
+public class SubstitutionController implements IOsgiWebController {
+	@Autowired
+	protected IPortalUserSource portalUserSource;
 
-    @Autowired
-    protected ProcessToolRegistry processToolRegistry;
+	@Autowired
+	protected ProcessToolRegistry processToolRegistry;
 
-    @ControllerMethod(action="loadSubstitutions")
-    public GenericResultBean loadSubstitutions(final OsgiWebRequest invocation)
-    {
+	@ControllerMethod(action = "loadSubstitutions")
+	public GenericResultBean loadSubstitutions(final OsgiWebRequest invocation) {
 
-        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
-        ProcessToolContext ctx = invocation.getProcessToolContext();
+		IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
+		ProcessToolContext ctx = invocation.getProcessToolContext();
 
-        JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
-        JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
+		JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
+		JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
 
-        List<UserSubstitution> substitutionList =
-                (List<UserSubstitution>)ctx.getHibernateSession()
-                        .createCriteria(UserSubstitution.class)
-                        .addOrder(                        sortingColumn.getSortedAsc() ?
-                                Order.asc(sortingColumn.getPropertyName()) :
-                                Order.desc(sortingColumn.getPropertyName()))
-                        .setMaxResults(dataTable.getPageLength())
-                        .setFirstResult(dataTable.getPageOffset())
-                        .list();
+		List<UserSubstitution> substitutionList = (List<UserSubstitution>) ctx
+				.getHibernateSession()
+				.createCriteria(UserSubstitution.class)
+				.addOrder(
+						sortingColumn.getSortedAsc() ? Order.asc(sortingColumn.getPropertyName()) : Order.desc(sortingColumn
+								.getPropertyName())).setMaxResults(dataTable.getPageLength()).setFirstResult(dataTable.getPageOffset())
+				.list();
 
+		DataPagingBean<UserSubstitution> dataPagingBean = new DataPagingBean<UserSubstitution>(substitutionList, substitutionList.size(),
+				dataTable.getEcho());
 
-        DataPagingBean<UserSubstitution> dataPagingBean =
-                new DataPagingBean<UserSubstitution>(substitutionList, substitutionList.size(), dataTable.getEcho());
+		return dataPagingBean;
+	}
 
+	@ControllerMethod(action = "deleteSubtitution")
+	public GenericResultBean deleteSubtitution(final OsgiWebRequest invocation) {
 
+		GenericResultBean result = new GenericResultBean();
 
-        return dataPagingBean;
-    }
+		String substitutionId = invocation.getRequest().getParameter("substitutionId");
 
-    @ControllerMethod(action="deleteSubtitution")
-    public GenericResultBean deleteSubtitution(final OsgiWebRequest invocation)
-    {
+		IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
+		ProcessToolContext ctx = invocation.getProcessToolContext();
 
-        GenericResultBean result = new GenericResultBean();
-       
+		ctx.getUserSubstitutionDAO().deleteById(Long.parseLong(substitutionId));
 
-        String substitutionId = invocation.getRequest().getParameter("substitutionId");
+		return result;
+	}
 
-        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
-        ProcessToolContext ctx = invocation.getProcessToolContext();
+	@ControllerMethod(action = "deleteSubstitutions")
+	public GenericResultBean deleteSubtitutions(final OsgiWebRequest invocation) {
 
-        ctx.getUserSubstitutionDAO().deleteById(Long.parseLong(substitutionId));
+		GenericResultBean result = new GenericResultBean();
 
-        return result;
-    }
-    
-    @ControllerMethod(action="deleteSubtitutions")
-    public GenericResultBean deleteSubtitutions(final OsgiWebRequest invocation)
-    {
+		String jsonIds = invocation.getRequest().getParameter("ids");
 
-        GenericResultBean result = new GenericResultBean();
-       
-        
-
-        String jsonIds = invocation.getRequest().getParameter("ids");
-        
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-			String[] strIds = mapper.readValue(jsonIds, String[].class);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
+		ObjectMapper mapper = new ObjectMapper();
+		Long[] Ids = null;
+		try {
+			Ids = mapper.readValue(jsonIds, Long[].class);
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result.addError(e.getClass().toString(), e.getMessage());
 		}
 
+		ProcessToolContext ctx = invocation.getProcessToolContext();
+		for (Long id : Ids)
+			ctx.getUserSubstitutionDAO().deleteById(id);
 
-        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
-        ProcessToolContext ctx = invocation.getProcessToolContext();
+		return result;
+	}
 
-    //    ctx.getUserSubstitutionDAO().deleteById(Long.parseLong(substitutionId));
+	@ControllerMethod(action = "addNewSubstitution")
+	public GenericResultBean addNewSubstitution(final OsgiWebRequest invocation) {
+		GenericResultBean result = new GenericResultBean();
 
-        return result;
-    }
+		String userLogin = invocation.getRequest().getParameter("UserLogin");
+		String userSubstituteLogin = invocation.getRequest().getParameter("UserSubstituteLogin");
+		Date dateFrom = beginOfDay(parseShortDate(invocation.getRequest().getParameter("SubstitutingDateFrom")));
+		Date dateTo = endOfDay(parseShortDate(invocation.getRequest().getParameter("SubstitutingDateTo")));
 
-    @ControllerMethod(action="addNewSubstitution")
-    public GenericResultBean addNewSubstitution(final OsgiWebRequest invocation)
-    {
-        GenericResultBean result = new GenericResultBean();
+		UserSubstitution userSubstitution = new UserSubstitution();
 
-        String userLogin = invocation.getRequest().getParameter("UserLogin");
-        String userSubstituteLogin = invocation.getRequest().getParameter("UserSubstituteLogin");
-        String dateFrom = invocation.getRequest().getParameter("SubstitutingDateFrom");
-        String dateTo = invocation.getRequest().getParameter("SubstitutingDateTo");
+		userSubstitution.setUserLogin(userLogin);
+		userSubstitution.setUserSubstituteLogin(userSubstituteLogin);
+		userSubstitution.setDateFrom(dateFrom);
+		userSubstitution.setDateTo(dateTo);
 
-        UserSubstitution userSubstitution = new UserSubstitution();
+		IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
+		ProcessToolContext ctx = invocation.getProcessToolContext();
 
-        userSubstitution.setUserLogin(userLogin);
-        userSubstitution.setDateFrom(beginOfDay(parseShortDate(dateFrom)));
-        userSubstitution.setDateTo(endOfDay(parseShortDate(dateTo)));
-        userSubstitution.setUserSubstituteLogin(userSubstituteLogin);
+		ctx.getUserSubstitutionDAO().saveOrUpdate(userSubstitution);
 
-        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
-        ProcessToolContext ctx = invocation.getProcessToolContext();
-
-        ctx.getUserSubstitutionDAO().saveOrUpdate(userSubstitution);
-
-        return result;
-    }
+		return result;
+	}
 }

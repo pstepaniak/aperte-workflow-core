@@ -1,5 +1,5 @@
 <!-- Aperte Workflow Substitution Manager -->
-<!-- @author: mpawlak@bluesoft.net.pl -->
+<!-- @author: mpawlak@bluesoft.net.pl, mkrol@bluesoft.net.pl -->
 
 <%@ page
 	import="org.springframework.web.servlet.support.RequestContextUtils"%>
@@ -9,8 +9,9 @@
 
 <%@include file="../../utils/globals.jsp"%>
 <%@include file="../../utils/apertedatatable.jsp"%>
+<%@include file="../../actionsList.jsp"%>
 
-<form id="NewSubmission">
+<form id="NewSubstitution">
 	<!-- Modal -->
 	<div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
 		role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
@@ -97,6 +98,11 @@
 			<span class="glyphicon glyphicon-plus"></span>
 			<spring:message code="admin.substitution.action.add" />
 		</button>
+		<button class="btn btn-danger" id="RemoveSubstitutions"
+			data-original-title="" title="">
+			<span class="glyphicon glyphicon-trash"></span>
+			<spring:message code="admin.substitution.action.remove" />
+		</button>
 	</div>
 </div>
 
@@ -118,41 +124,85 @@
 		<tbody></tbody>
 	</table>
 </div>
-<button class="btn btn-danger" type="button" id="RemoveSubstitutions"
-	data-original-title="" title="">
-	<span class="glyphicon glyphicon-trash"></span>Remove
-</button>
+
 
 <script type="text/javascript">
+	function validateRemoveSubstitutions() {
+		clearAlerts();
+		selections = $("#substitutionTable input:checkbox:checked");
+
+		if (selections.length == 0) {
+			addAlert('<spring:message code="admin.substitution.alert.remove.select" />');
+			return false;
+		}
+
+		return true;
+	}
+
+	function onRemoveSubstitutions(e) {
+		e.preventDefault();
+
+		if (!validateRemoveSubstitutions())
+			return;
+
+		selections = $("#substitutionTable input:checkbox:checked");
+		ids = [];
+		selections.each(function(i, val) {
+			ids.push(val.name);
+		});
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : {
+				controller : 'substitutionController',
+				action : 'deleteSubstitutions',
+				ids : JSON.stringify(ids)
+			}
+		}).done(function(resp) {
+			dataTable.reloadTable(dispatcherPortlet);
+		});
+	}
+
+	function validateNewSubstitution() {
+		clearAlerts();
+
+		if (new Date($("#SubstitutingDateFrom").val()) > new Date($(
+				"#SubstitutingDateTo").val())) {
+			addAlert('<spring:message code="validate.item.val.dates" />');
+			return false;
+		}
+
+		return true;
+	}
+
+	function onNewSubstitution(e) {
+		e.preventDefault();
+
+		if (!validateNewSubstitution())
+			return;
+
+		var form = this;
+		var postData = $(form).serializeObject();
+		postData.controller = 'substitutionController'
+		postData.action = 'addNewSubstitution'
+		var formUrl = dispatcherPortlet
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : postData,
+			success : function(data, textStatus, jqXHR) {
+			}
+		}).done(function(resp) {
+			$("#NewSubstitutionModal").modal("hide");
+			form.reset();
+			dataTable.reloadTable(dispatcherPortlet)
+		});
+	}
+
 	$(document)
 			.ready(
 					function() {
-						$("#RemoveSubstitutions")
-								.click(
-										function() {
-											selections = $("#substitutionTable input");
-											selections
-													.each(function(i, val) {
-														if (val.checked)
-															$
-																	.ajax(
-																			{
-																				url : dispatcherPortlet,
-																				type : "POST",
-																				data : {
-																					controller : 'substitutionController',
-																					action : 'deleteSubtitution',
-																					substitutionId : val.name
-																				}
-																			})
-																	.done(
-																			function(
-																					resp) {
-																				dataTable
-																						.reloadTable(dispatcherPortlet);
-																			})
-													})
-										});
+						$("#RemoveSubstitutions").click(onRemoveSubstitutions);
 
 						$("#SubstitutingDateFromPicker").datepicker().on(
 								'changeDate',
@@ -167,7 +217,7 @@
 											"hide")
 								});
 
-						var dataTable = new AperteDataTable(
+						dataTable = new AperteDataTable(
 								"substitutionTable",
 								[
 										{
@@ -211,22 +261,6 @@
 						dataTable.addParameter("action", "loadSubstitutions");
 						dataTable.reloadTable(dispatcherPortlet);
 
-						$("#NewSubmission").submit(function(e) {
-							e.preventDefault();
-							var postData = $(this).serializeObject();
-							postData.controller = 'substitutionController'
-							postData.action = 'addNewSubstitution'
-							var formUrl = dispatcherPortlet
-							$.ajax({
-								url : dispatcherPortlet,
-								type : "POST",
-								data : postData,
-								success : function(data, textStatus, jqXHR) {
-								}
-							}).done(function(resp) {
-								$("#NewSubstitutionModal").modal("hide")
-								dataTable.reloadTable(dispatcherPortlet)
-							});
-						});
+						$("#NewSubstitution").submit(onNewSubstitution);
 					});
 </script>
