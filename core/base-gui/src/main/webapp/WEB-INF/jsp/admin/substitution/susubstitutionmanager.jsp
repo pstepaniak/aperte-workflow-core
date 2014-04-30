@@ -28,62 +28,63 @@
 					</h4>
 				</div>
 				<div class="modal-body">
-
-					<div class="simple_form form-horizontal" role="form">
-					
-						<div class="form-group">
+					<div class="form-horizontal" role="form">
+						<div class="control-group">
 							<label name="tooltip"
 								title="<spring:message code='substituting.user.label.tooltip' />"
 								for="UserLogin" class="col-sm-2 control-label"><spring:message
 									code="substituting.user.label" /></label>
-							<div class="col-sm-10">
-								<input style="width:100%" type="hidden" name="UserLogin" id="UserLogin"
-									class="form-control"
+							<div class="controls">
+								<input style="width: 215px" type="hidden" name="UserLogin"
+									id="UserLogin" class="form-control select2"
 									data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 							</div>
 						</div>
-						<div class="form-group">
+						<div class="control-group">
 							<label name="tooltip"
 								title="<spring:message code='substitute.user.label.tooltip' />"
-								for="UserSubstituteLogin"
-								class="col-sm-2 control-label required"><spring:message
+								for="UserSubstituteLogin" class="col-sm-2 control-label"><spring:message
 									code="substitute.user.label" /></label>
-							<div class="col-sm-10">
-								<input style="width:100%" type="hidden" name="UserSubstituteLogin"
-									id="UserSubstituteLogin" class="form-control"
+							<div class="controls">
+								<input style="width: 215px" type="hidden"
+									name="UserSubstituteLogin" id="UserSubstituteLogin"
+									class="form-control select2 required"
 									data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 							</div>
 						</div>
-						<div class="form-group">
+						<div class="control-group">
 							<label name="tooltip"
 								title="<spring:message code='substituting.date.from.tooltip' />"
-								for="SubstitutingDateFrom"
-								class="col-sm-2 control-label required"><spring:message
+								for="SubstitutingDateFrom" class="col-sm-2 control-label"><spring:message
 									code="substituting.date.from.label" /></label>
-							<div class="col-sm-10 input-append date"
+							<div class="controls input-append date"
 								id="SubstitutingDateFromPicker" data-date-format="yyyy-mm-dd">
-								<input style="width: 100%" name="SubstitutingDateFrom" id="SubstitutingDateFrom"
-									class="span2 form-control" size="16" type="text"> <span
-									class="add-on"><i class="icon-th"></i></span>
+								<input style="width: 100%" name="SubstitutingDateFrom"
+									id="SubstitutingDateFrom" class="span2 form-control required"
+									size="16" type="text"> <span class="add-on"><i
+									class="icon-th"></i></span>
 							</div>
 						</div>
-						<div class="form-group">
+						<div class="control-group">
 							<label name="tooltip"
 								title="<spring:message code='substituting.date.to.tooltip' />"
-								for="SubstitutingDateTo" class="col-sm-2 control-label required"><spring:message
+								for="SubstitutingDateTo" class="col-sm-2 control-label"><spring:message
 									code="substituting.date.to.label" /></label>
-							<div class="col-sm-10 input-append date"
+							<div class="controls input-append date"
 								id="SubstitutingDateToPicker" data-date-format="yyyy-mm-dd">
-								<input style="width: 100%" name="SubstitutingDateTo" id="SubstitutingDateTo"
-									class="span2 form-control" size="16" type="text"> <span
-									class="add-on"><i class="icon-th"></i></span>
+								<input style="width: 100%" name="SubstitutingDateTo"
+									id="SubstitutingDateTo" class="span2 form-control required"
+									size="16" type="text"> <span class="add-on"><i
+									class="icon-th"></i></span>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
-					<button type="submit" class="btn btn-primary">Wybierz</button>
+					<button type="reset" class="btn btn-default" data-dismiss="modal"><spring:message
+									code="button.cancel" /></button>
+					<button type="submit" class="btn btn-primary"><spring:message
+									code="admin.substitution.modal.action.submit" /></button>
 				</div>
 			</div>
 			<!-- /.modal-content -->
@@ -117,8 +118,10 @@
 					code="admin.substitution.table.dateFrom" /></th>
 			<th style="width: 20%;"><spring:message
 					code="admin.substitution.table.dateTo" /></th>
-			<c:if test="${isPermitted}"><th style="width: 20%;"><spring:message
-					code="admin.substitution.table.action" /></th></c:if>
+			<c:if test="${isPermitted}">
+				<th style="width: 20%;"><spring:message
+						code="admin.substitution.table.action" /></th>
+			</c:if>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -143,22 +146,52 @@
 		});
 	}
 
-	function validateNewSubstitution() {
+	function validateSubstitution() {
 		clearAlerts();
+		
+		isValid=true;
+
+		if ($("#SubstitutingDateFrom").val() == "") {
+			addAlert('<spring:message code="admin.substitution.alert.required.dateFrom" />');
+			isValid=false;
+		}
+		
+		if ($("#SubstitutingDateTo").val() == "") {
+			addAlert('<spring:message code="admin.substitution.alert.required.dateTo" />');
+			isValid=false;
+		}
+		
+		if ($("#UserLogin").val() == "") {
+			addAlert('<spring:message code="admin.substitution.alert.required.UserLogin" />');
+			isValid=false;
+		}
+		
+		if ($("#UserSubstituteLogin").val() == "") {
+			addAlert('<spring:message code="admin.substitution.alert.required.UserSubstituteLogin" />');
+			isValid=false;
+		}
 
 		if (new Date($("#SubstitutingDateFrom").val()) > new Date($(
 				"#SubstitutingDateTo").val())) {
-			addAlert('<spring:message code="validate.item.val.dates" />');
-			return false;
+			addAlert('<spring:message code="admin.substitution.alert.invalid.date" />');
+			isValid=false;
 		}
 
-		return true;
+		return isValid;
+	}
+	
+	function onCancel(e)
+	{
+		e.preventDefault();
+		
+		$("#NewSubstitution")[0].reset();
+		$("#NewSubstitution input.select2").select2("val", "");
 	}
 
 	function onNewSubstitution(e) {
 		e.preventDefault();
 
-		if (!validateNewSubstitution())
+		if (!validateSubstitution())
 			return;
 
 		var form = this;
@@ -175,11 +208,12 @@
 		}).done(function(resp) {
 			$("#NewSubstitutionModal").modal("hide");
 			form.reset();
+			$("#NewSubstitution input.select2").select2("val", "");
 			dataTable.reloadTable(dispatcherPortlet)
 		});
 	}
 	
-	usersSelector=
+	var usersSelector =
 	{
 		 ajax: {
              url: dispatcherPortlet,
@@ -290,7 +324,7 @@
 						dataTable.reloadTable(dispatcherPortlet);
 
 						$("#NewSubstitution").submit(onNewSubstitution);
-						
+						$("#NewSubstitution button[type=reset]").click(onCancel);
 						$("#UserLogin").select2(usersSelector);
 						$("#UserSubstituteLogin").select2(usersSelector);
 					});
