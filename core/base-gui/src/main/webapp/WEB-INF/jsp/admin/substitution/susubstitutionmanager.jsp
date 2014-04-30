@@ -11,6 +11,9 @@
 <%@include file="../../utils/apertedatatable.jsp"%>
 <%@include file="../../actionsList.jsp"%>
 
+<c:set var="isPermitted" scope="session"
+	value="${aperteUser.hasRole('Administrator')}" />
+
 <form id="NewSubstitution">
 	<!-- Modal -->
 	<div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
@@ -26,14 +29,15 @@
 				</div>
 				<div class="modal-body">
 
-					<div class="form-horizontal" role="form">
+					<div class="simple_form form-horizontal" role="form">
+					
 						<div class="form-group">
 							<label name="tooltip"
 								title="<spring:message code='substituting.user.label.tooltip' />"
 								for="UserLogin" class="col-sm-2 control-label"><spring:message
 									code="substituting.user.label" /></label>
 							<div class="col-sm-10">
-								<input type="text" name="UserLogin" id="UserLogin"
+								<input style="width:100%" type="hidden" name="UserLogin" id="UserLogin"
 									class="form-control"
 									data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 							</div>
@@ -45,7 +49,7 @@
 								class="col-sm-2 control-label required"><spring:message
 									code="substitute.user.label" /></label>
 							<div class="col-sm-10">
-								<input type="text" name="UserSubstituteLogin"
+								<input style="width:100%" type="hidden" name="UserSubstituteLogin"
 									id="UserSubstituteLogin" class="form-control"
 									data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 							</div>
@@ -58,7 +62,7 @@
 									code="substituting.date.from.label" /></label>
 							<div class="col-sm-10 input-append date"
 								id="SubstitutingDateFromPicker" data-date-format="yyyy-mm-dd">
-								<input name="SubstitutingDateFrom" id="SubstitutingDateFrom"
+								<input style="width: 100%" name="SubstitutingDateFrom" id="SubstitutingDateFrom"
 									class="span2 form-control" size="16" type="text"> <span
 									class="add-on"><i class="icon-th"></i></span>
 							</div>
@@ -70,7 +74,7 @@
 									code="substituting.date.to.label" /></label>
 							<div class="col-sm-10 input-append date"
 								id="SubstitutingDateToPicker" data-date-format="yyyy-mm-dd">
-								<input name="SubstitutingDateTo" id="SubstitutingDateTo"
+								<input style="width: 100%" name="SubstitutingDateTo" id="SubstitutingDateTo"
 									class="span2 form-control" size="16" type="text"> <span
 									class="add-on"><i class="icon-th"></i></span>
 							</div>
@@ -98,11 +102,6 @@
 			<span class="glyphicon glyphicon-plus"></span>
 			<spring:message code="admin.substitution.action.add" />
 		</button>
-		<button class="btn btn-danger" id="RemoveSubstitutions"
-			data-original-title="" title="">
-			<span class="glyphicon glyphicon-trash"></span>
-			<spring:message code="admin.substitution.action.remove" />
-		</button>
 	</div>
 </div>
 
@@ -118,8 +117,8 @@
 					code="admin.substitution.table.dateFrom" /></th>
 			<th style="width: 20%;"><spring:message
 					code="admin.substitution.table.dateTo" /></th>
-			<th style="width: 20%;"><spring:message
-					code="admin.substitution.table.action" /></th>
+			<c:if test="${isPermitted}"><th style="width: 20%;"><spring:message
+					code="admin.substitution.table.action" /></th></c:if>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -127,36 +126,17 @@
 
 
 <script type="text/javascript">
-	function validateRemoveSubstitutions() {
-		clearAlerts();
-		selections = $("#substitutionTable input:checkbox:checked");
-
-		if (selections.length == 0) {
-			addAlert('<spring:message code="admin.substitution.alert.remove.select" />');
-			return false;
-		}
-
-		return true;
+	function editSubstitution(id) {
 	}
-
-	function onRemoveSubstitutions(e) {
-		e.preventDefault();
-
-		if (!validateRemoveSubstitutions())
-			return;
-
-		selections = $("#substitutionTable input:checkbox:checked");
-		ids = [];
-		selections.each(function(i, val) {
-			ids.push(val.name);
-		});
+	
+	function removeSubstitution(id) {
 		$.ajax({
 			url : dispatcherPortlet,
 			type : "POST",
 			data : {
 				controller : 'substitutionController',
-				action : 'deleteSubstitutions',
-				ids : JSON.stringify(ids)
+				action : 'deleteSubstitution',
+				substitutionId : id
 			}
 		}).done(function(resp) {
 			dataTable.reloadTable(dispatcherPortlet);
@@ -184,7 +164,7 @@
 		var form = this;
 		var postData = $(form).serializeObject();
 		postData.controller = 'substitutionController'
-		postData.action = 'addNewSubstitution'
+		postData.action = 'addSubstitution'
 		var formUrl = dispatcherPortlet
 		$.ajax({
 			url : dispatcherPortlet,
@@ -198,12 +178,55 @@
 			dataTable.reloadTable(dispatcherPortlet)
 		});
 	}
+	
+	usersSelector=
+	{
+		 ajax: {
+             url: dispatcherPortlet,
+             dataType: 'json',
+             quietMillis: 200,
+             data: function (term, page) {
+                 return {
+                     q: term, // search term
+                     page_limit: 10,
+                     controller: "usercontroller",
+                     page: page,
+                     action: "getAllUsers"
+                 };
+             },
+             results: function (data, page)
+             {
+                 var results = [];
+                   $.each(data.data, function(index, item)
+                   {
+                     if('${user.getLogin()}' != item.login)
+                     {
+                         results.push({
+                           id: item.login,
+                           text: item.realName + ' ['+item.login+']'
+                         });
+                     }
+                   });
+                   return {
+                       results: results
+                   };
+             }
+         },
+         initSelection: function(element, callback)
+         {
+             var id=$(element).val();
+             if(id != "")
+             {
+                 var data = {id:'${substitutingUserLogin}',text:'${substitutingUserLoginFullName}'};
+                 callback(data);
+             }
+         }
+	}
+	
 
 	$(document)
 			.ready(
 					function() {
-						$("#RemoveSubstitutions").click(onRemoveSubstitutions);
-
 						$("#SubstitutingDateFromPicker").datepicker().on(
 								'changeDate',
 								function(ev) {
@@ -248,13 +271,18 @@
 														'dd-MM-yyyy, HH:mm:ss');
 											}
 										},
+										<c:if test="${isPermitted}">
 										{
 											"sName" : "action",
 											"bSortable" : true,
 											"mData" : function(o) {
-												return '<input name="'+o.id+'" type="checkbox" >';
+												out = '<button class="btn btn-mini" onclick="editSubstitution('+o.id+')" data-toggle="modal" data-target="#NewSubstitutionModal">';
+												out += '<i class="icon-edit"></i></button>';
+												out += '<button class="btn btn-danger btn-mini" onclick="removeSubstitution('+o.id+')">';
+												out += '<i class="icon-trash"></i></button>';
+												return out;
 											}
-										} ], [ [ 3, "desc" ] ]);
+										}</c:if> ], [ [ 3, "desc" ] ]);
 
 						dataTable.addParameter("controller",
 								"substitutionController");
@@ -262,5 +290,8 @@
 						dataTable.reloadTable(dispatcherPortlet);
 
 						$("#NewSubstitution").submit(onNewSubstitution);
+						
+						$("#UserLogin").select2(usersSelector);
+						$("#UserSubstituteLogin").select2(usersSelector);
 					});
 </script>
