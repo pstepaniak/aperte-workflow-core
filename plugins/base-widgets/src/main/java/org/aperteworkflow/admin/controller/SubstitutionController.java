@@ -7,11 +7,14 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
@@ -26,6 +29,8 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static pl.net.bluesoft.util.lang.DateUtil.beginOfDay;
 import static pl.net.bluesoft.util.lang.DateUtil.endOfDay;
@@ -54,13 +59,29 @@ public class SubstitutionController implements IOsgiWebController {
 		JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
 		JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
 
-		List<UserSubstitution> substitutionList = (List<UserSubstitution>) ctx
-				.getHibernateSession()
-				.createCriteria(UserSubstitution.class)
-				.addOrder(
-						sortingColumn.getSortedAsc() ? Order.asc(sortingColumn.getPropertyName()) : Order.desc(sortingColumn
-								.getPropertyName())).setMaxResults(dataTable.getPageLength()).setFirstResult(dataTable.getPageOffset())
-				.list();
+		UserData user = requestContext.getUser();
+
+		List<UserSubstitution> substitutionList;
+
+		if (user.hasRole("Administrator"))
+			substitutionList = (List<UserSubstitution>) ctx
+					.getHibernateSession()
+					.createCriteria(UserSubstitution.class)
+					.addOrder(
+							sortingColumn.getSortedAsc() ? Order.asc(sortingColumn.getPropertyName()) : Order.desc(sortingColumn
+									.getPropertyName())).setMaxResults(dataTable.getPageLength()).setFirstResult(dataTable.getPageOffset())
+					.list();
+
+		else
+			substitutionList = (List<UserSubstitution>) ctx
+					.getHibernateSession()
+					.createCriteria(UserSubstitution.class)
+					.add(Restrictions.or(Restrictions.eq("userLogin", user.getLogin()),
+							Restrictions.eq("userSubstituteLogin", user.getLogin())))
+					.addOrder(
+							sortingColumn.getSortedAsc() ? Order.asc(sortingColumn.getPropertyName()) : Order.desc(sortingColumn
+									.getPropertyName())).setMaxResults(dataTable.getPageLength()).setFirstResult(dataTable.getPageOffset())
+					.list();
 
 		DataPagingBean<UserSubstitution> dataPagingBean = new DataPagingBean<UserSubstitution>(substitutionList, substitutionList.size(),
 				dataTable.getEcho());
@@ -68,7 +89,7 @@ public class SubstitutionController implements IOsgiWebController {
 		return dataPagingBean;
 	}
 
-	@ControllerMethod(action = "deleteSubtitution")
+	@ControllerMethod(action = "deleteSubstitution")
 	public GenericResultBean deleteSubtitution(final OsgiWebRequest invocation) {
 
 		GenericResultBean result = new GenericResultBean();
@@ -83,40 +104,21 @@ public class SubstitutionController implements IOsgiWebController {
 		return result;
 	}
 
-	@ControllerMethod(action = "deleteSubstitutions")
-	public GenericResultBean deleteSubtitutions(final OsgiWebRequest invocation) {
-
-		GenericResultBean result = new GenericResultBean();
-
-		String jsonIds = invocation.getRequest().getParameter("ids");
-
-		ObjectMapper mapper = new ObjectMapper();
-		Long[] Ids = null;
-		try {
-			Ids = mapper.readValue(jsonIds, Long[].class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.addError(e.getClass().toString(), e.getMessage());
-		}
-
-		ProcessToolContext ctx = invocation.getProcessToolContext();
-		for (Long id : Ids)
-			ctx.getUserSubstitutionDAO().deleteById(id);
-
-		return result;
-	}
-
-	@ControllerMethod(action = "addNewSubstitution")
+	@ControllerMethod(action = "addOrEditSubstitution")
 	public GenericResultBean addNewSubstitution(final OsgiWebRequest invocation) {
 		GenericResultBean result = new GenericResultBean();
 
-		String userLogin = invocation.getRequest().getParameter("UserLogin");
-		String userSubstituteLogin = invocation.getRequest().getParameter("UserSubstituteLogin");
-		Date dateFrom = beginOfDay(parseShortDate(invocation.getRequest().getParameter("SubstitutingDateFrom")));
-		Date dateTo = endOfDay(parseShortDate(invocation.getRequest().getParameter("SubstitutingDateTo")));
+		HttpServletRequest request = invocation.getRequest();
+
+		Long id = request.getParameter("SubstitutionId").isEmpty() ? null : Long.parseLong(request.getParameter("SubstitutionId"));
+		String userLogin = request.getParameter("UserLogin");
+		String userSubstituteLogin = request.getParameter("UserSubstituteLogin");
+		Date dateFrom = beginOfDay(parseShortDate(request.getParameter("SubstitutingDateFrom")));
+		Date dateTo = endOfDay(parseShortDate(request.getParameter("SubstitutingDateTo")));
 
 		UserSubstitution userSubstitution = new UserSubstitution();
 
+		userSubstitution.setId(id);
 		userSubstitution.setUserLogin(userLogin);
 		userSubstitution.setUserSubstituteLogin(userSubstituteLogin);
 		userSubstitution.setDateFrom(dateFrom);

@@ -15,40 +15,48 @@ import java.util.LinkedList;
 /**
  * @author: mpawlak@bluesoft.net.pl
  */
-@OsgiController(name="usercontroller")
-public class UserController  implements IOsgiWebController
-{
-    @Autowired
-    protected IPortalUserSource portalUserSource;
+@OsgiController(name = "usercontroller")
+public class UserController implements IOsgiWebController {
+	@Autowired
+	protected IPortalUserSource portalUserSource;
 
-    @ControllerMethod(action="getAllUsers")
-    public GenericResultBean getSyncStatus(final OsgiWebRequest invocation)
-    {
-        GenericResultBean result = new GenericResultBean();
+	@ControllerMethod(action = "getAllUsers")
+	public GenericResultBean getSyncStatus(final OsgiWebRequest invocation) {
+		GenericResultBean result = new GenericResultBean();
 
-        String pageLimit = invocation.getRequest().getParameter("page_limit");
-        String queryTerm = invocation.getRequest().getParameter("q");
+		String pageLimit = invocation.getRequest().getParameter("page_limit");
+		String queryTerm = invocation.getRequest().getParameter("q");
 
-        Collection<UserData> users =  portalUserSource.getAllUsers();
+		Collection<UserData> users = portalUserSource.getAllUsers();
 
-        if(queryTerm == null || queryTerm.isEmpty())
-        {
-            result.setData(users);
+		if (queryTerm == null || queryTerm.isEmpty()) {
+			result.setData(users);
 
-            return result;
-        }
+			return result;
+		}
 
+		Collection<UserData> filtered = new LinkedList<UserData>();
+		for (UserData user : users) {
+			if (user.getRealName().toLowerCase().contains(queryTerm.toLowerCase())
+					|| user.getLogin().toLowerCase().contains(queryTerm.toLowerCase()))
+				filtered.add(user);
+		}
 
-        Collection<UserData> filtered = new LinkedList<UserData>();
-        for(UserData user: users)
-        {
-            if(user.getRealName().toLowerCase().contains(queryTerm.toLowerCase()) ||
-                    user.getLogin().toLowerCase().contains(queryTerm.toLowerCase()))
-                filtered.add(user);
-        }
+		result.setData(filtered);
 
-        result.setData(filtered);
+		return result;
+	}
 
-        return result;
-    }
+	@ControllerMethod(action = "getUserByLogin")
+	public GenericResultBean getUserByLogin(final OsgiWebRequest invocation) {
+		GenericResultBean result = new GenericResultBean();
+
+		String userLogin = invocation.getRequest().getParameter("userLogin");
+
+		UserData user = portalUserSource.getUserByLogin(userLogin);
+
+		result.setData(user);
+
+		return result;
+	}
 }

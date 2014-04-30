@@ -14,85 +14,89 @@
 <c:set var="isPermitted" scope="session"
 	value="${aperteUser.hasRole('Administrator')}" />
 
-<form id="NewSubstitution">
-	<!-- Modal -->
-	<div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
-		role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="categoryModalLabel">
-						<spring:message code="admin.substitution.modal.add.title" />
-					</h4>
-				</div>
-				<div class="modal-body">
-					<div class="form-horizontal" role="form">
-						<div class="control-group">
-							<label name="tooltip"
-								title="<spring:message code='substituting.user.label.tooltip' />"
-								for="UserLogin" class="col-sm-2 control-label"><spring:message
-									code="substituting.user.label" /></label>
-							<div class="controls">
-								<input style="width: 215px" type="hidden" name="UserLogin"
-									id="UserLogin" class="form-control select2"
-									data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
-							</div>
-						</div>
-						<div class="control-group">
-							<label name="tooltip"
-								title="<spring:message code='substitute.user.label.tooltip' />"
-								for="UserSubstituteLogin" class="col-sm-2 control-label"><spring:message
-									code="substitute.user.label" /></label>
-							<div class="controls">
-								<input style="width: 215px" type="hidden"
-									name="UserSubstituteLogin" id="UserSubstituteLogin"
-									class="form-control select2 required"
-									data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
-							</div>
-						</div>
-						<div class="control-group">
-							<label name="tooltip"
-								title="<spring:message code='substituting.date.from.tooltip' />"
-								for="SubstitutingDateFrom" class="col-sm-2 control-label"><spring:message
-									code="substituting.date.from.label" /></label>
-							<div class="controls input-append date"
-								id="SubstitutingDateFromPicker" data-date-format="yyyy-mm-dd">
-								<input style="width: 100%" name="SubstitutingDateFrom"
-									id="SubstitutingDateFrom" class="span2 form-control required"
-									size="16" type="text"> <span class="add-on"><i
-									class="icon-th"></i></span>
-							</div>
-						</div>
-						<div class="control-group">
-							<label name="tooltip"
-								title="<spring:message code='substituting.date.to.tooltip' />"
-								for="SubstitutingDateTo" class="col-sm-2 control-label"><spring:message
-									code="substituting.date.to.label" /></label>
-							<div class="controls input-append date"
-								id="SubstitutingDateToPicker" data-date-format="yyyy-mm-dd">
-								<input style="width: 100%" name="SubstitutingDateTo"
-									id="SubstitutingDateTo" class="span2 form-control required"
-									size="16" type="text"> <span class="add-on"><i
-									class="icon-th"></i></span>
-							</div>
+<!-- Modal -->
+<div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
+	role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="categoryModalLabel">
+					<spring:message code="admin.substitution.modal.add.title" />
+				</h4>
+			</div>
+			<div class="modal-body">
+				<form id="SubstitutionForm" class="form-horizontal" role="form">
+					<input type="hidden" id="SubstitutionId" name="SubstitutionId" />
+
+					<div class="control-group">
+						<label name="tooltip"
+							title="<spring:message code='substituting.user.label.tooltip' />"
+							for="UserLogin" class="col-sm-2 control-label"><spring:message
+								code="substituting.user.label" /></label>
+						<div class="controls">
+							<input style="width: 215px" type="hidden" name="UserLogin"
+								id="UserLogin" class="form-control select2"
+								data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 						</div>
 					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="reset" class="btn btn-default" data-dismiss="modal"><spring:message
-									code="button.cancel" /></button>
-					<button type="submit" class="btn btn-primary"><spring:message
-									code="admin.substitution.modal.action.submit" /></button>
-				</div>
+					<div class="control-group">
+						<label name="tooltip"
+							title="<spring:message code='substitute.user.label.tooltip' />"
+							for="UserSubstituteLogin" class="col-sm-2 control-label"><spring:message
+								code="substitute.user.label" /></label>
+						<div class="controls">
+							<input style="width: 215px" type="hidden"
+								name="UserSubstituteLogin" id="UserSubstituteLogin"
+								class="form-control select2 required"
+								data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
+						</div>
+					</div>
+					<div class="control-group">
+						<label name="tooltip"
+							title="<spring:message code='substituting.date.from.tooltip' />"
+							for="SubstitutingDateFrom" class="col-sm-2 control-label"><spring:message
+								code="substituting.date.from.label" /></label>
+						<div class="controls input-append date"
+							id="SubstitutingDateFromPicker" data-date-format="yyyy-mm-dd">
+							<input style="width: 100%" name="SubstitutingDateFrom"
+								id="SubstitutingDateFrom" class="span2 form-control required"
+								size="16" type="text"> <span class="add-on"><i
+								class="icon-th"></i></span>
+						</div>
+					</div>
+					<div class="control-group">
+						<label name="tooltip"
+							title="<spring:message code='substituting.date.to.tooltip' />"
+							for="SubstitutingDateTo" class="col-sm-2 control-label"><spring:message
+								code="substituting.date.to.label" /></label>
+						<div class="controls input-append date"
+							id="SubstitutingDateToPicker" data-date-format="yyyy-mm-dd">
+							<input style="width: 100%" name="SubstitutingDateTo"
+								id="SubstitutingDateTo" class="span2 form-control required"
+								size="16" type="text"> <span class="add-on"><i
+								class="icon-th"></i></span>
+						</div>
+					</div>
+				</form>
 			</div>
-			<!-- /.modal-content -->
+			<div class="modal-footer">
+				<button id="CancelSubstitutionForm" type="reset"
+					class="btn btn-default" data-dismiss="modal">
+					<spring:message code="button.cancel" />
+				</button>
+				<button id="SubmitNewSubstitution" type="submit"
+					class="btn btn-primary">
+					<spring:message code="admin.substitution.modal.action.submit" />
+				</button>
+			</div>
 		</div>
-		<!-- /.modal-dialog -->
+		<!-- /.modal-content -->
 	</div>
-	<!-- /.modal -->
-</form>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <div class="process-queue-name apw_highlight">
 	Aperte Workflow Substitution Manager
@@ -129,7 +133,19 @@
 
 
 <script type="text/javascript">
-	function editSubstitution(id) {
+	function editSubstitution(id, dateFrom, dateTo, userLogin, userSubstituteLogin) {
+		$("#UserLogin").select2('val', userLogin);
+		$("#UserSubstituteLogin").select2('val', userSubstituteLogin);
+		$("#SubstitutingDateFromPicker").datepicker("setDate", new Date(new Date($.format.date(dateFrom,'yyyy-MM-dd')).setHours(0)));
+		$("#SubstitutingDateToPicker").datepicker("setDate", new Date(new Date($.format.date(dateTo,'yyyy-MM-dd')).setHours(0)));
+		$("#SubstitutionId").val(id);
+	}
+	
+	function onSubmitNewSubstitution(e)
+	{
+		e.preventDefault();
+		
+		$("#SubstitutionForm").submit();
 	}
 	
 	function removeSubstitution(id) {
@@ -184,8 +200,14 @@
 	{
 		e.preventDefault();
 		
-		$("#NewSubstitution")[0].reset();
-		$("#NewSubstitution input.select2").select2("val", "");
+		resetSubstitutionForm();
+	}
+	
+	function resetSubstitutionForm()
+	{
+		$("#SubstitutionForm")[0].reset();
+		$("#SubstitutionId").val("");
+		$("#SubstitutionForm input.select2").select2("val", "");
 	}
 
 	function onNewSubstitution(e) {
@@ -194,10 +216,9 @@
 		if (!validateSubstitution())
 			return;
 
-		var form = this;
-		var postData = $(form).serializeObject();
+		var postData = $(this).serializeObject();
 		postData.controller = 'substitutionController'
-		postData.action = 'addSubstitution'
+		postData.action = 'addOrEditSubstitution'
 		var formUrl = dispatcherPortlet
 		$.ajax({
 			url : dispatcherPortlet,
@@ -207,8 +228,7 @@
 			}
 		}).done(function(resp) {
 			$("#NewSubstitutionModal").modal("hide");
-			form.reset();
-			$("#NewSubstitution input.select2").select2("val", "");
+			resetSubstitutionForm();
 			dataTable.reloadTable(dispatcherPortlet)
 		});
 	}
@@ -251,8 +271,18 @@
              var id=$(element).val();
              if(id != "")
              {
-                 var data = {id:'${substitutingUserLogin}',text:'${substitutingUserLoginFullName}'};
-                 callback(data);
+            	 $.ajax({
+         			url : dispatcherPortlet,
+         			type : "POST",
+         			data : {
+         				controller : 'usercontroller',
+         				action : 'getUserByLogin',
+         				userLogin : id
+         			}
+         		}).done(function(resp) {
+                    var data = {id:id, text:resp.data.realName + ' ['+resp.data.login+']'};
+                    callback(data);
+         		});
              }
          }
 	}
@@ -293,7 +323,7 @@
 											"mData" : function(object) {
 												return $.format.date(
 														object.dateFrom,
-														'dd-MM-yyyy, HH:mm:ss');
+														'yyyy-MM-dd');
 											}
 										},
 										{
@@ -302,7 +332,7 @@
 											"mData" : function(object) {
 												return $.format.date(
 														object.dateTo,
-														'dd-MM-yyyy, HH:mm:ss');
+														'yyyy-MM-dd');
 											}
 										},
 										<c:if test="${isPermitted}">
@@ -310,7 +340,7 @@
 											"sName" : "action",
 											"bSortable" : true,
 											"mData" : function(o) {
-												out = '<button class="btn btn-mini" onclick="editSubstitution('+o.id+')" data-toggle="modal" data-target="#NewSubstitutionModal">';
+												out = '<button class="btn btn-mini" onclick="editSubstitution('+o.id+','+o.dateFrom+','+o.dateTo+',\''+o.userLogin+'\',\''+o.userSubstituteLogin+'\')" data-toggle="modal" data-target="#NewSubstitutionModal">';
 												out += '<i class="icon-edit"></i></button>';
 												out += '<button class="btn btn-danger btn-mini" onclick="removeSubstitution('+o.id+')">';
 												out += '<i class="icon-trash"></i></button>';
@@ -323,9 +353,11 @@
 						dataTable.addParameter("action", "loadSubstitutions");
 						dataTable.reloadTable(dispatcherPortlet);
 
-						$("#NewSubstitution").submit(onNewSubstitution);
-						$("#NewSubstitution button[type=reset]").click(onCancel);
+						$("#SubstitutionForm").submit(onNewSubstitution);
+						$("#CancelSubstitutionForm").click(onCancel);
 						$("#UserLogin").select2(usersSelector);
 						$("#UserSubstituteLogin").select2(usersSelector);
+						
+						$("#SubmitNewSubstitution").click(onSubmitNewSubstitution);
 					});
 </script>
