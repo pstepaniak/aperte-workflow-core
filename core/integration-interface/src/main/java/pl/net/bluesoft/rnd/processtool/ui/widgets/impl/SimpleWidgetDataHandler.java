@@ -21,8 +21,8 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
     private IKeysToIgnoreProvider keysToIgnoreProvider = null;
 
     @Override
-    public Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data) {
-        ProcessInstance process = provider.getProcessInstance();
+    public Collection<HandlingResult> handleWidgetData(IAttributesConsumer consumer, WidgetData data) {
+        ProcessInstance process = consumer.getProcessInstance();
 
         ProcessInstance rootProcess = null;
         if (process != null) {
@@ -44,7 +44,9 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
             IAttributesConsumer consumerToSave = null;
             ProcessInstance processToSave = saveToRoot ? rootProcess : process;
             if (processToSave == null)
-                consumerToSave = (IAttributesConsumer) provider;
+                consumerToSave = consumer;
+            else
+                consumerToSave = processToSave;
 
             if (keysToIgnoreProvider == null || !keysToIgnoreProvider.getKeysToIgnore().contains(key)) {
                 String oldValue = getOldValue(consumerToSave, widgetData);

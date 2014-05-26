@@ -2,7 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets;
 
 import java.util.Collection;
 
-import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 
 /**
  * Widget data handler
@@ -13,6 +13,6 @@ import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 public interface IWidgetDataHandler
 {
     /** Handle widget data change */
-    Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data);
+    Collection<HandlingResult> handleWidgetData(IAttributesConsumer consumer, WidgetData data);
 
 }
