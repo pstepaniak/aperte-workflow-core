@@ -41,6 +41,10 @@ public class StepUtil {
 		return PlaceholderUtil.expand(pattern, new PlaceholderUtil.ReplacementCallback() {
 			@Override
 			public String getReplacement(String placeholderName) {
+				String largePrefix = "L:";
+				if (placeholderName.startsWith(largePrefix)) {
+					return pi.getSimpleLargeAttributeValue(placeholderName.substring(largePrefix.length()));
+				}
 				return pi.getSimpleAttributeValue(placeholderName);
 			}
 		});

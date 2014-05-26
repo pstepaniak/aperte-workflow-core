@@ -94,7 +94,7 @@ public interface ITemplateDataProvider extends IArgumentProviderHandler
 	ITemplateDataProvider addUserToNotifyData(TemplateData templateData, UserData userToNotify);
 	
 	/** Add entries from additional argument providers */
-	ITemplateDataProvider addArgumentProvidersData(TemplateData templateData, BpmNotificationConfig cfg, ProcessInstance pi);
+	ITemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, ProcessInstance pi);
 	
 	/** Add technical additional data. This method should be deleted in future refactoring */
 	ITemplateDataProvider addContextAdditionalData(TemplateData templateData, BpmNotificationConfig cfg, ProcessToolBpmSession bpmSession);

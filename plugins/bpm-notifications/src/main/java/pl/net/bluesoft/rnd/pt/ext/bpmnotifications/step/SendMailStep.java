@@ -41,6 +41,9 @@ public class SendMailStep implements ProcessToolProcessStep {
 	@AutoWiredProperty(substitute = true)
 	private String attachmentIds;
 
+	@AutoWiredProperty
+	private String templateArgumentProvider;
+
 	@Autowired
 	private IFilesRepositoryFacade filesRepository;
 
@@ -58,8 +61,9 @@ public class SendMailStep implements ProcessToolProcessStep {
 		
 		service.getTemplateDataProvider()
 			.addProcessData(templateData, step.getProcessInstance())
-			.addUserToNotifyData(templateData, user);
-		
+			.addUserToNotifyData(templateData, user)
+			.addArgumentProvidersData(templateData, templateArgumentProvider, step.getProcessInstance());
+
 		NotificationData notificationData = new NotificationData()
 			.setProfileName("Default")
 			.setRecipient(user)
