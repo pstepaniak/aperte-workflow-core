@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.datahandler;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
@@ -24,7 +25,7 @@ import java.util.List;
 public class CommentDataHandler implements IWidgetDataHandler {
     private static final String TYPE_COMMENT = "comment";
 
-    public Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data) {
+    public Collection<HandlingResult> handleWidgetData(IAttributesConsumer consumer, WidgetData data) {
         ObjectMapper mapper = new ObjectMapper();
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, ProcessCommentBean.class);
 
@@ -32,9 +33,9 @@ public class CommentDataHandler implements IWidgetDataHandler {
             String commentsJSON = commentData.getValue();
             try {
                 List<ProcessCommentBean> list = mapper.readValue(commentsJSON, type);
-                if (provider.getProcessInstance() != null) {
-                    List<ProcessComment> comments = convert(list, provider);
-                    provider.getProcessInstance().addComments(comments);
+                if (consumer.getProcessInstance() != null) {
+                    List<ProcessComment> comments = convert(list, consumer);
+                    consumer.getProcessInstance().addComments(comments);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
