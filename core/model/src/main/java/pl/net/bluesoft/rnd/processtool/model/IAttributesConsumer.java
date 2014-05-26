@@ -6,6 +6,8 @@ package pl.net.bluesoft.rnd.processtool.model;
 public interface IAttributesConsumer extends IAttributesProvider {
     void setSimpleAttribute(String key, String value);
 
+    void setSimpleLargeAttribute(String key, String value);
+
     void addAttribute(Object attribute);
 
     void setAttribute(String key, Object attribute);
