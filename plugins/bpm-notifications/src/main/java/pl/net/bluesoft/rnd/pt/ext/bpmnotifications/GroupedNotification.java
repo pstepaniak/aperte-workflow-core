@@ -37,15 +37,7 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ITemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistory;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistoryEntry;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentDescription;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.*;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
@@ -431,6 +423,15 @@ public class GroupedNotification implements IBpmNotificationService {
 		// TODO Auto-generated method stub
 
 	}
-	
-	
+
+
+	@Override
+	public void addNotificationSentListener(NotificationSentListener listener) {
+		// TODO
+	}
+
+	@Override
+	public void removeNotificationSentListener(NotificationSentListener listener) {
+		// TODO
+	}
 }

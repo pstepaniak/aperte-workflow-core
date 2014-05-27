@@ -44,6 +44,9 @@ public class SendMailStep implements ProcessToolProcessStep {
 	@AutoWiredProperty
 	private String templateArgumentProvider;
 
+	@AutoWiredProperty(substitute = true)
+	private String source;
+
 	@Autowired
 	private IFilesRepositoryFacade filesRepository;
 
@@ -70,6 +73,13 @@ public class SendMailStep implements ProcessToolProcessStep {
 			.setTemplateData(templateData);
 
 		notificationData.setAttachments(getAttachments(step.getProcessInstance()));
+
+		if (hasText(source)) {
+			notificationData.setSource(source);
+		}
+		else {
+			notificationData.setSource(String.valueOf(step.getProcessInstance().getId()));
+		}
 
         try {
         	EmailSender.sendEmail(service, notificationData);
