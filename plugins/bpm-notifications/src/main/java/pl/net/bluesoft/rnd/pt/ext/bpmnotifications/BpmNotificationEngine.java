@@ -663,7 +663,11 @@ public class BpmNotificationEngine implements IBpmNotificationService
     	String body = processTemplate(notificationData.getTemplateData().getTemplateName(), notificationData.getTemplateData());
     	String topic = processTemplate(notificationData.getTemplateData().getTemplateName() + SUBJECT_TEMPLATE_SUFFIX, notificationData.getTemplateData());
     	String sender = findTemplate(notificationData.getTemplateData().getTemplateName() + SENDER_TEMPLATE_SUFFIX);
-    	
+
+		if (sender == null) {
+			sender = notificationData.getDefaultSender();
+		}
+
         if (body == null || topic == null || sender == null) {
         	throw new Exception("Error sending email. Cannot find valid template configuration");
         }

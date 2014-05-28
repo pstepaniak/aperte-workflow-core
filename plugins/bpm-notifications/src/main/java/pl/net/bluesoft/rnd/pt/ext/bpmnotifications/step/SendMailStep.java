@@ -12,7 +12,9 @@ import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.dao.BpmNotificationMailPropertiesDAO;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmAttachment;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
@@ -32,10 +34,10 @@ public class SendMailStep implements ProcessToolProcessStep {
     @AutoWiredProperty(substitute = true)
     private String recipient;
     
-    @AutoWiredProperty
+    @AutoWiredProperty(substitute = true)
     private String profileName = "Default";
     
-    @AutoWiredProperty
+    @AutoWiredProperty(substitute = true)
     private String template;
 
 	@AutoWiredProperty(substitute = true)
@@ -58,6 +60,10 @@ public class SendMailStep implements ProcessToolProcessStep {
 			return STATUS_OK;
 		}
 
+		if (!hasText(profileName)) {
+			profileName = "Default";
+		}
+
 		UserData user = getRecipient();
 		
 		TemplateData templateData =	service.createTemplateData(template, Locale.getDefault());
@@ -68,7 +74,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 			.addArgumentProvidersData(templateData, templateArgumentProvider, step.getProcessInstance());
 
 		NotificationData notificationData = new NotificationData()
-			.setProfileName("Default")
+			.setProfileName(profileName)
 			.setRecipient(user)
 			.setTemplateData(templateData);
 
@@ -81,6 +87,8 @@ public class SendMailStep implements ProcessToolProcessStep {
 			notificationData.setSource(String.valueOf(step.getProcessInstance().getId()));
 		}
 
+		notificationData.setDefaultSender(getDefaultSender());
+
         try {
         	EmailSender.sendEmail(service, notificationData);
         }
@@ -91,6 +99,11 @@ public class SendMailStep implements ProcessToolProcessStep {
 
         return STATUS_OK;
     }
+
+	private String getDefaultSender() {
+		BpmNotificationMailProperties profile = new BpmNotificationMailPropertiesDAO().getProfile(profileName);
+		return profile.getDefaultSender();
+	}
 
 	private UserData getRecipient() {
 		if (recipient.contains("@")) {

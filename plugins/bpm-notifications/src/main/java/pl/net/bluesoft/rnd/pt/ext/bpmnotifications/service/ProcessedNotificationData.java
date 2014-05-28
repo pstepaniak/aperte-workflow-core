@@ -27,6 +27,7 @@ public class ProcessedNotificationData extends NotificationData
 		setProfileName(notificationData.getProfileName());
 		setAttachments(notificationData.getAttachments());
 		setSource(notificationData.getSource());
+		setDefaultSender(notificationData.getDefaultSender());
 	}
 
 	public String getBody() {
