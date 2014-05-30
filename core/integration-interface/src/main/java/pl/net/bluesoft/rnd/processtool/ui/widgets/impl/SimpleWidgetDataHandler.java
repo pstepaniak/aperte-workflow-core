@@ -55,9 +55,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
                 }
 
                 String newValue = widgetData.getValue();
-                if (oldValue != null && !oldValue.equals(newValue)) {
-                    results.add(new HandlingResult(new Date(), key, oldValue, newValue));
-                }
+	            logChanges(results, key, oldValue, newValue);
             }
 
             setNewValue(consumerToSave, widgetData);
@@ -65,8 +63,12 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
         return results;
     }
 
+	protected void logChanges(Collection<HandlingResult> results, String key, String oldValue, String newValue) {
+		//for audit logging
+	}
 
-    private String getOldValue(IAttributesProvider process, WidgetDataEntry data) {
+
+	private String getOldValue(IAttributesProvider process, WidgetDataEntry data) {
         if (TYPE_SIMPLE.equals(data.getType()))
             return process.getSimpleAttributeValue(data.getKey());
         else if (TYPE_SIMPLE_LARGE.equals(data.getType()))
@@ -75,7 +77,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
         return null;
     }
 
-    private void setNewValue(IAttributesConsumer process, WidgetDataEntry data) {
+	private void setNewValue(IAttributesConsumer process, WidgetDataEntry data) {
         String escapedData = data.getValue();
 
         if (TYPE_SIMPLE.equals(data.getType()))

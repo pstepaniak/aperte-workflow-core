@@ -90,28 +90,10 @@ public abstract class AbstractSaveProcessor {
             }
 
         }
-        ProcessInstance process = getProvider().getProcessInstance();
-
-        if (process != null && !results.isEmpty()) {
-            String json = null;
-            try {
-                json = mapper.writeValueAsString(results);
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-            }
-            ProcessInstanceLog log = new ProcessInstanceLog();
-            log.setState(null);
-            log.setEntryDate(new Date());
-            log.setEventI18NKey("process.log.process-change");
-            // todo
-            if (getProvider() instanceof BpmTask)
-                log.setUserLogin(((BpmTask) getProvider()).getAssignee());
-            log.setLogType(ProcessInstanceLog.LOG_TYPE_PROCESS_CHANGE);
-            log.setOwnProcessInstance(process);
-            log.setLogValue(json);
-            process.getRootProcessInstance().addProcessLog(log);
-        }
+	    auditLog(results);
     }
+
+	protected abstract void auditLog(Collection<HandlingResult> results);
 
 
 }
