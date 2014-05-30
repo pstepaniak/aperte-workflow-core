@@ -79,6 +79,7 @@
                         <ProcessTool-Spring-Beans>
                             pl.net.bluesoft.rnd.pt.dict.global.facade.GlobalDictionaryFacade
                         </ProcessTool-Spring-Beans>
+                        <ProcessTool-I18N-Property>globaldictionaries-messages</ProcessTool-I18N-Property>
                     </instructions>
                 </configuration>
             </plugin>
