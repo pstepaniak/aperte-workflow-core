@@ -17,6 +17,8 @@ public class NotificationData
 	private String profileName;
 	private TemplateData templateData;
 	private List<BpmAttachment> attachments;
+	private String source;
+	private String defaultSender;
 
 	public TemplateData getTemplateData() {
 		return templateData;
@@ -53,5 +55,21 @@ public class NotificationData
 
 	public List<BpmAttachment> getAttachments() {
 		return attachments;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getDefaultSender() {
+		return defaultSender;
+	}
+
+	public void setDefaultSender(String defailtSender) {
+		this.defaultSender = defailtSender;
 	}
 }

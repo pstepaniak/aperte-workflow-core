@@ -4,10 +4,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Util for steps
@@ -41,6 +38,10 @@ public class StepUtil {
 		return PlaceholderUtil.expand(pattern, new PlaceholderUtil.ReplacementCallback() {
 			@Override
 			public String getReplacement(String placeholderName) {
+				String largePrefix = "L:";
+				if (placeholderName.startsWith(largePrefix)) {
+					return pi.getSimpleLargeAttributeValue(placeholderName.substring(largePrefix.length()));
+				}
 				return pi.getSimpleAttributeValue(placeholderName);
 			}
 		});
@@ -74,13 +75,15 @@ public class StepUtil {
         return attributes;
     }
 
-    public static Collection<String> evaluateList(String query)
+    public static List<String> evaluateList(String query)
     {
-        if(query == null)
-            return null;
+        if(query == null) {
+			return Collections.emptyList();
+		}
 
-        Collection<String> attributes = new LinkedList<String>();
+		List<String> attributes = new ArrayList<String>();
         String[] parts = query.split("[,;]");
+
         for (String part : parts) {
             attributes.add(part);
         }

@@ -33,7 +33,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
  */
 public class TemplateDataProvider implements ITemplateDataProvider
 {
-	private final Set<TemplateArgumentProvider> argumentProviders = new HashSet<TemplateArgumentProvider>();
+	// must be static because there are many instances of this class!
+	private static final Set<TemplateArgumentProvider> argumentProviders = new HashSet<TemplateArgumentProvider>();
 	
 	/** Creates new empty template data object */
 	@Override
@@ -115,12 +116,12 @@ public class TemplateDataProvider implements ITemplateDataProvider
 	}
 	
 	@Override
-	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, BpmNotificationConfig cfg, ProcessInstance pi)
+	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, ProcessInstance pi)
 	{
-		if (hasText(cfg.getTemplateArgumentProvider())) 
+		if (hasText(templateArgumentProvider))
 		{
 			for (TemplateArgumentProvider argumentProvider : argumentProviders) {
-				if (cfg.getTemplateArgumentProvider().equalsIgnoreCase(argumentProvider.getName())) {
+				if (templateArgumentProvider.equalsIgnoreCase(argumentProvider.getName())) {
 					TemplateArgumentProviderParams params = new TemplateArgumentProviderParams();
 					params.setProcessInstance(pi);
 					argumentProvider.addData(templateData, params);
@@ -139,7 +140,7 @@ public class TemplateDataProvider implements ITemplateDataProvider
 
 	@Override
 	public void unregisterTemplateArgumentProvider(TemplateArgumentProvider provider) {
-		argumentProviders.add(provider);
+		argumentProviders.remove(provider);
 	}
 
 	@Override

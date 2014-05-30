@@ -40,4 +40,7 @@ public interface IBpmNotificationService
 	List<NotificationHistoryEntry> getNotificationHistoryEntries();
 
 	void invalidateCache();
+
+	void addNotificationSentListener(NotificationSentListener listener);
+	void removeNotificationSentListener(NotificationSentListener listener);
 }

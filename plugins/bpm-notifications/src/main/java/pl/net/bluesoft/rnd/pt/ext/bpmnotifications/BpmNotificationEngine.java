@@ -1,29 +1,9 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-
-import java.net.ConnectException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.activation.DataHandler;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
-
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.LockAcquisitionException;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -38,20 +18,30 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade.NotificationsFacade;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmAttachment;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ITemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistory;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistoryEntry;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentDescription;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.*;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import javax.activation.DataHandler;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import java.net.ConnectException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * E-mail notification engine. 
@@ -99,6 +89,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	private NotificationHistory history = new NotificationHistory(1000);
 	
 	final I18NSource messageSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
+
+	private final Set<NotificationSentListener> notificationSentListeners = new LinkedHashSet<NotificationSentListener>();
     
     public BpmNotificationEngine(ProcessToolRegistry registry)
     {
@@ -312,7 +304,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	                	.addTaskData(templateData, task)
 	                	.addProcessData(templateData, pi)
 	                	.addUserToNotifyData(templateData, getRegistry().getUserSource().getUserByLogin(userLogin))
-	                	.addArgumentProvidersData(templateData, cfg, pi)
+	                	.addArgumentProvidersData(templateData, cfg.getTemplateArgumentProvider(), pi)
 	                	.addContextAdditionalData(templateData, cfg, bpmSession);
 	                
 	                NotificationData notificationData = new NotificationData();
@@ -492,6 +484,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
         }
 
         notification.encodeAttachments(processedNotificationData.getAttachments());
+		notification.setSource(processedNotificationData.getSource());
         
         NotificationsFacade.addNotificationToBeSent(notification);
 
@@ -533,6 +526,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	    		Transport.send(message);
 	    	}
 
+			fireNotificationSent(notification, message);
+
 			history.notificationSent(notification);
 
 	    	logger.info("Emails sent");
@@ -544,8 +539,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
-    public static Message createMessageFromNotification(BpmNotification notification, javax.mail.Session mailSession) throws Exception 
+
+	public static Message createMessageFromNotification(BpmNotification notification, javax.mail.Session mailSession) throws Exception
     {
         Message message = new MimeMessage(mailSession);
         message.setFrom(new InternetAddress(notification.getSender()));
@@ -668,7 +663,11 @@ public class BpmNotificationEngine implements IBpmNotificationService
     	String body = processTemplate(notificationData.getTemplateData().getTemplateName(), notificationData.getTemplateData());
     	String topic = processTemplate(notificationData.getTemplateData().getTemplateName() + SUBJECT_TEMPLATE_SUFFIX, notificationData.getTemplateData());
     	String sender = findTemplate(notificationData.getTemplateData().getTemplateName() + SENDER_TEMPLATE_SUFFIX);
-    	
+
+		if (sender == null) {
+			sender = notificationData.getDefaultSender();
+		}
+
         if (body == null || topic == null || sender == null) {
         	throw new Exception("Error sending email. Cannot find valid template configuration");
         }
@@ -685,5 +684,24 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	@Override
 	public ITemplateDataProvider getTemplateDataProvider() {
 		return templateDataProvider;
+	}
+
+	public void addNotificationSentListener(NotificationSentListener listener) {
+		notificationSentListeners.add(listener);
+	}
+
+	public void removeNotificationSentListener(NotificationSentListener listener) {
+		notificationSentListeners.remove(listener);
+	}
+
+	private void fireNotificationSent(BpmNotification notification, Message message) {
+		for (NotificationSentListener listener : notificationSentListeners) {
+			try {
+				listener.notificationSent(notification, message);
+			}
+			catch (Exception e) {
+				logger.log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
 	}
 }

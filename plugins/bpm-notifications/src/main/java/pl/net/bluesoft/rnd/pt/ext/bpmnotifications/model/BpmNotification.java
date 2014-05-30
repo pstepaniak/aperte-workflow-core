@@ -64,6 +64,8 @@ public class BpmNotification extends PersistentEntity
 	@Lob
     @Type(type = "org.hibernate.type.StringClobType")
 	private String body;
+
+	private String source;
 	
 	public BpmNotification(){
 		/*Calendar cal = Calendar.getInstance();
@@ -178,5 +180,13 @@ public class BpmNotification extends PersistentEntity
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 }
