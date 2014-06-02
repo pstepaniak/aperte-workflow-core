@@ -309,148 +309,51 @@
         }
 
         function generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) {
-            // todo
+            $(nTd).empty();
+            var row = $('<div class="col-md-12" ></div>');
+            $.each(oData.extensions, function(index) {
+                console.log(this);
+                var innerRow = $('<div class="row"></div>');
+                var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.key"/></label>' +
+                                '<div><input type="text" class="form-control" value="'+this.key+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.key"/>"></input></div></div>');
+
+                /*$(lineKey).find('input').on('change',function(){
+                    currentItemClone[3][iRow][4][index][0] = $( this ).val() ;
+                });*/
+
+                var lineValue = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.value"/></label>' +
+                                '<div><input type="text" class="form-control" value="'+this.value+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.value"/>"></input></div></div>');
+
+                /*$(lineValue).find('input').on('change',function(){
+                    currentItemClone[3][iRow][4][index][1] = $( this ).val() ;
+                });*/
+
+                var lineButtonDiv = $('<div class="form-group col-md-2"></div>');
+
+                var removeButton = $('<span name="tooltip" title="<@spring.message 'dictionary.editor.valueExtensions.button.delete'/>" class="glyphicon glyphicon-trash" style="font-size: 16px!important;cursor:pointer;margin-top:25px"></span>');
+
+                removeButton.on('click',function(){
+                    removeExtension(this);
+                });
+
+                $(lineButtonDiv).append(removeButton);
+
+                $(innerRow).append(lineKey);
+                $(innerRow).append(lineValue);
+                $(innerRow).append(lineButtonDiv);
+
+                $(row).append(innerRow);
+            });
+            $(nTd).append(row);
+
+            var addExtensionButton = $('<button type="button" class="btn btn-info btn-xs" style="margin: 10px;"><@spring.message "dictionary.editor.itemValues.button.addExtension"/></button>');
+                addExtensionButton.button();
+                addExtensionButton.on('click',function(){
+                    addNewExtension(oData);
+                });
+            $(nTd).append("&nbsp;");
+            $(nTd).append(addExtensionButton);
         }
-
-        /*valuesTable = $('#valuesTable').dataTable({
-            "bPaginate": true,
-            "bLengthChange": true,
-            "bFilter": false,
-            "bSort": true,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "iDisplayLength": 5,
-            "aLengthMenu": [[25, 50, 100, -1],[25, 50, 100, "All"]],
-            "oLanguage": {
-                "sEmptyTable": " "
-            },
-            "aoColumnDefs":[
-                {
-                    "aTargets":[0],
-                    "sClass":"center",
-					"mData": null,
-                    "fnCreatedCell" : function(nTd, sData, oData, iRow, iCol){
-                            var valueControl = $('<input style="width:200px" type="text" class="form-control" id="actionDate" placeholder="Wartość">');
-							valueControl.val(oData[0]);
-							$(valueControl).on('change',function(){
-								currentItemClone[3][iRow][0] = $( this ).val() ;
-							});
-                            $(nTd).prepend(valueControl);
-                    }
-                },
-                {
-                    "aTargets":[1],
-                    "sClass":"center",
-					"mData": null,
-                    "fnCreatedCell" : function(nTd, sData, oData, iRow, iCol){
-                            var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="actionDate" placeholder="Data od"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
-							$(dataControl).datepicker({
-									"format": "yyyy-mm-dd",
-									"language": "pl",
-									autoclose: true
-							});
-							$(dataControl).datepicker('update', currentItemClone[3][iRow][1]);
-							$(dataControl).on('changeDate',function(e){
-								var dateString = $.format.date(e.dates[0], "yyyy-MM-dd");
-								currentItemClone[3][iRow][1] = dateString;
-
-							});
-                            $(nTd).prepend(dataControl);
-                    }
-                },
-                {
-                    "aTargets":[2],
-                    "sClass":"center",
-					"mData": null,
-                    "fnCreatedCell" : function(nTd, sData, oData, iRow, iCol){
-                            var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="actionDate" placeholder="Data do"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
-							$(dataControl).datepicker({
-									"format": "yyyy-mm-dd",
-									"language": "pl",
-									autoclose: true
-							});
-							$(dataControl).datepicker('update', currentItemClone[3][iRow][2]);
-							$(dataControl).on('changeDate',function(e){
-								var dateString = $.format.date(e.dates[0], "yyyy-MM-dd");
-								currentItemClone[3][iRow][2] = dateString;
-
-							});
-                            $(nTd).prepend(dataControl);
-                    }
-                },
-				{
-                    "aTargets":[3],
-                    "sClass":"center",
-					"mData": null,
-					"fnCreatedCell" : function(nTd, sData, oData, iRow, iCol)
-					{
-						$(nTd).empty();
-						var row = $('<div class="col-md-12" ></div>');
-						$.each(oData[4], function(index)
-						{
-							var innerRow = $('<div class="row"></div>');
-							var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label">Klucz</label>' +
-											'<div><input type="text" class="form-control" value="'+this[0]+'" placeholder="Klucz"></input></div></div>');
-
-							$(lineKey).find('input').on('change',function(){
-								currentItemClone[3][iRow][4][index][0] = $( this ).val() ;
-							});
-
-
-							var lineValue = $('<div class="form-group col-md-5"><label for="description" class="control-label">Wartość</label>' +
-											'<div><input type="text" class="form-control" value="'+this[1]+'" placeholder="Wartość"></input></div></div>');
-
-							$(lineValue).find('input').on('change',function(){
-								currentItemClone[3][iRow][4][index][1] = $( this ).val() ;
-							});
-
-							var lineButtonDiv = $('<div class="form-group col-md-2"></div>');
-
-							var removeButton = $('<span name="tooltip" title="Usuń" class="glyphicon glyphicon-trash" style="font-size: 16px!important;cursor:pointer;margin-top:25px"></span>');
-
-							removeButton.on('click',function(){
-                                removeExtension(iRow, index);
-                            });
-
-							$(lineButtonDiv).append(removeButton);
-
-							$(innerRow).append(lineKey);
-							$(innerRow).append(lineValue);
-							$(innerRow).append(lineButtonDiv);
-
-							$(row).append(innerRow);
-						});
-						$(nTd).append(row);
-
-
-						var addExtensionButton = $('<button type="button" class="btn btn-info btn-xs" style="margin: 10px;">Dodaj rozszerzenie</button>');
-                            addExtensionButton.button();
-                            addExtensionButton.on('click',function(){
-                                addNewExtension(iRow);
-                            });
-						$(nTd).append("&nbsp;");
-                        $(nTd).append(addExtensionButton);
-                    }
-                },
-				{
-                    "aTargets":[4],
-                    "sClass":"center",
-					"mData": null,
-                    "fnCreatedCell" : function(nTd, sData, oData, iRow, iCol){
-							var removeButton = $('<button type="button" class="btn btn-danger btn-xs">Usuń</button>');
-                            removeButton.button();
-                            removeButton.on('click',function(){
-                                removeValue(iRow);
-                            });
-							$(nTd).prepend("&nbsp;");
-                            $(nTd).prepend(removeButton);
-                        }
-                }
-            ],
-            "fnRowCallback" : function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
-            }
-        });*/
 
         itemsTable = new AperteDataTable("itemsTable",
             [
