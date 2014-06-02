@@ -72,4 +72,20 @@ public class DictionaryItemValueDTO {
         }
         return dto;
     }
+
+    public ProcessDBDictionaryItemValue toProcessDBDictionaryItemValue(String languageCode) {
+        final ProcessDBDictionaryItemValue value = new ProcessDBDictionaryItemValue();
+        if (this.getId() != null && !"".equals(this.getId()))
+            value.setId(Long.valueOf(this.getId()));
+        updateValue(value, languageCode);
+        return value;
+    }
+
+    public void updateValue(ProcessDBDictionaryItemValue value, String languageCode) {
+        value.setValue(languageCode, this.getValue());
+        if (this.getDateFrom() != null && !"".equals(this.getDateFrom()))
+            value.setValidFrom(FormatUtil.parseDate("yyyy-MM-dd", this.getDateFrom()));
+        if (this.getDateTo() != null && !"".equals(this.getDateTo()))
+            value.setValidTo(FormatUtil.parseDate("yyyy-MM-dd", this.getDateTo()));
+    }
 }

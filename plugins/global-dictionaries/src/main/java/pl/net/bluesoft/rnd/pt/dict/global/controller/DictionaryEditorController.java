@@ -88,12 +88,7 @@ public class DictionaryEditorController implements IOsgiWebController {
     private Collection<DictionaryItemDTO> createItemDTOList(Map<String, ProcessDBDictionaryItem> items, I18NSource messageSource) {
         Collection<DictionaryItemDTO> dtos = new ArrayList<DictionaryItemDTO>();
         for (Map.Entry<String, ProcessDBDictionaryItem> item : items.entrySet()) {
-            DictionaryItemDTO dto = new DictionaryItemDTO();
-            dto.setId(String.valueOf(item.getValue().getId()));
-            dto.setKey(item.getValue().getKey());
-            dto.setDescription(item.getValue().getDescription(messageSource.getLocale()));
-            if (dto.getDescription() == null || "".equals(dto.getDescription()))
-                dto.setDescription(item.getValue().getDefaultDescription());
+            DictionaryItemDTO dto = DictionaryItemDTO.createFrom(item.getValue(), messageSource);
             dtos.add(dto);
         }
         return dtos;

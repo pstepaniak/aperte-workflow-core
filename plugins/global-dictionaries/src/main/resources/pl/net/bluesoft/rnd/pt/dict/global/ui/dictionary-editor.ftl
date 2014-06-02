@@ -255,7 +255,7 @@
     $(document).ready(function () {
         $('[name="tooltip"]').tooltip();
 
-        valuesTable = new AperteDataTable("valuesTable",
+        /*valuesTable = new AperteDataTable("valuesTable",
             [
                  { "sName":"value", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueColumn(nTd, sData, oData, iRow, iCol) }
                  },
@@ -271,12 +271,52 @@
             [[ 0, "asc" ]]
         );
         valuesTable.addParameter("controller", "dictionaryeditorcontroller");
-        valuesTable.addParameter("action", "getItemValues");
+        valuesTable.addParameter("action", "getItemValues");*/
+
+        valuesTable = $('#valuesTable').dataTable({
+            "bPaginate": true,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bSort": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "iDisplayLength": 10,
+            "aLengthMenu": [[10, 25, 50, 100],[10, 25, 50, 100]],
+            "oLanguage": {
+                "sEmptyTable": "<@spring.message 'datatable.empty' />",
+                "sInfoEmpty": "<@spring.message 'datatable.empty' />",
+                "sProcessing": "<@spring.message 'datatable.processing' />",
+                "sLengthMenu": "<@spring.message 'datatable.records' />",
+                "sInfoFiltered": "",
+                "oPaginate": {
+                "sFirst": "<@spring.message 'datatable.paginate.firstpage' />",
+                "sNext": "<@spring.message 'datatable.paginate.next' />",
+                "sPrevious": "<@spring.message 'datatable.paginate.previous' />"
+                }
+            },
+            "aoColumns":[
+                 { "sName":"value", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"dateFrom", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateFromColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"dateTo", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateToColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"extensions", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueActionsColumn(nTd, sData, oData, iRow, iCol) }
+                 }
+            ],
+            "fnRowCallback" : function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            }
+        });
 
         function generateValueColumn(nTd, sData, oData, iRow, iCol){
             console.log(oData);
             var valueControl = $('<input style="width:200px" type="text" class="form-control" id="value" placeholder="Wartość">');
             valueControl.val(oData.value);
+            $(valueControl).on('change',function(){
+                currentItem.values[iRow].value = $( this ).val() ;
+            });
             $(nTd).prepend(valueControl);
         }
 
@@ -285,6 +325,11 @@
             $(dataControl).datepicker({
                 "format": "yyyy-mm-dd",
                 autoclose: true
+            });
+            $(dataControl).datepicker('update', currentItem.values[iRow].dateFrom);
+            $(dataControl).on('changeDate',function(e){
+                var dateString = $.format.date(e.dates[0], "yyyy-MM-dd");
+                currentItem.values[iRow].dateFrom = dateString;
             });
             $(nTd).prepend(dataControl);
         }
@@ -295,6 +340,11 @@
                 "format": "yyyy-mm-dd",
                 autoclose: true
             });
+            $(dataControl).datepicker('update', currentItem.values[iRow].dateTo);
+            $(dataControl).on('changeDate',function(e){
+                var dateString = $.format.date(e.dates[0], "yyyy-MM-dd");
+                currentItem.values[iRow].dateTo = dateString;
+            });
             $(nTd).prepend(dataControl);
         }
 
@@ -302,7 +352,7 @@
             var removeButton = $('<button type="button" class="btn btn-danger btn-xs"><@spring.message 'dictionary.editor.itemValues.button.delete'/></button>');
             removeButton.button();
             removeButton.on('click',function(){
-                removeValue(oData);
+                removeValue(oData, iRow);
             });
             $(nTd).prepend("&nbsp;");
             $(nTd).prepend(removeButton);
@@ -488,33 +538,33 @@
 		valuesTable.fnAddData(currentItemClone[3]);
 	}
 
-	function removeValue(iRow)
-	{
-		currentItemClone[3].splice(iRow, 1);
+	function removeValue(value, iRow) {
+	    console.log('removeValue:' + value);
+	    console.log(currentItem.values);
+		currentItem.values.splice(iRow, 1);
+		console.log(currentItem.values);
 
-		valuesTable.fnClearTable();
-		valuesTable.fnAddData(currentItemClone[3]);
+		refreshValuesTable(currentItem.values);
 	}
 
 	function addNew() {
 	    if (!currentDict)
 	        return;
-		edit({"key":"", "description": ""});
+		edit({"key":"", "description": "", values:[]});
 	}
 
-	function addNewValue()
-	{
-		var values = currentItemClone[3];
-		currentItemClone[3][values.length] = ["", "", "","", []];
-
-		valuesTable.fnClearTable();
-		valuesTable.fnAddData(currentItemClone[3]);
+	function addNewValue() {
+		console.log(currentItem.values);
+		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[]};
+		currentItem.values.push( row );
+        console.log(currentItem.values);
+        valuesTable.fnAddData(row);
 	}
 
 	function edit(item) {
         $("#itemsList").hide();
         currentItem = item;
-        refreshValuesTable();
+        refreshValuesTable(item.values);
         $("#itemKey").val(item.key);
         $("#itemDesc").val(item.description);
         $("#itemsEdit").show();
@@ -551,13 +601,17 @@
 		itemsTable.reloadTable(url);
 	}
 
-	function refreshValuesTable()
+	function refreshValuesTable(values)
 	{
-		var url = dispatcherPortlet;
+		/*var url = dispatcherPortlet;
 		url += "&dictId=" + encodeURI(currentDict.replace(/#/g, '%23'));
         url += "&itemId=" + encodeURI(currentItem.id);
         console.log(url);
-		valuesTable.reloadTable(url);
+		valuesTable.reloadTable(url);*/
+		console.log('refresh values:' + values);
+		valuesTable.fnClearTable();
+		valuesTable.fnAddData(values);
+
 	}
 
 
