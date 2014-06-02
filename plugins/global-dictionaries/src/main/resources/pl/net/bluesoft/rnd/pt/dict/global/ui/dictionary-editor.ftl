@@ -244,7 +244,7 @@
 
     var itemsTable;
     var valuesTable;
-    var currentDict = "complaint_type";
+    var currentDict;
     var currentItem;
     var currentItemClone;
     var currentItemIndex;
@@ -594,7 +594,8 @@
 	}
 
 	function addNew() {
-	    console.log('addNew');
+	    if (!currentDict)
+	        return;
 		edit({"key":"", "description": ""});
 	}
 

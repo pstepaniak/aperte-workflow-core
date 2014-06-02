@@ -110,7 +110,7 @@ public class DictionaryEditorController implements IOsgiWebController {
             ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
             removeItem(dictionary, dto);
             dao.updateDictionary(dictionary);
-        } catch (Exception e ) {
+        } catch (Exception e) {
             result.addError("deleteDictionaryItem", e.getMessage());
         }
 
@@ -201,8 +201,10 @@ public class DictionaryEditorController implements IOsgiWebController {
 
     private void updateItem(ProcessDBDictionary dictionary, DictionaryItemDTO dto, I18NSource messageSource) {
         for (ProcessDBDictionaryItem item : dictionary.getItems().values()) {
-            if (item.getId().equals(Long.valueOf(dto.getId()))) {
+            if (item.getId() != null && item.getId().equals(Long.valueOf(dto.getId()))) {
+                dictionary.removeItem(item.getKey());
                 dto.updateItem(item, messageSource.getLocale().getLanguage());
+                dictionary.addItem(item);
                 break;
             }
         }

@@ -173,6 +173,16 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
         }
     }
 
+    public void removeItemById(Long itemId) {
+        for (ProcessDBDictionaryItem item : items.values()) {
+            if (item.getId() != null && item.getId().equals(itemId)) {
+                item.setDictionary(null);
+                items.remove(item.getKey());
+                break;
+            }
+        }
+    }
+
     @Override
     public Collection<ProcessDictionaryItem> items() {
         return Collections.unmodifiableCollection((Set)items.values());
