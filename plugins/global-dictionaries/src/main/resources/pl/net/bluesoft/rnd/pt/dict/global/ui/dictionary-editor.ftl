@@ -237,6 +237,63 @@
     $(document).ready(function () {
         $('[name="tooltip"]').tooltip();
 
+        valuesTable = new AperteDataTable("valuesTable",
+            [
+                 { "sName":"value", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"dateFrom", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateFromColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"dateTo", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateToColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"extensions", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueActionsColumn(nTd, sData, oData, iRow, iCol) }
+                 }
+            ],
+            [[ 0, "asc" ]]
+        );
+        valuesTable.addParameter("controller", "dictionaryeditorcontroller");
+        valuesTable.addParameter("action", "getItemValues");
+
+        function generateValueColumn(nTd, sData, oData, iRow, iCol){
+            console.log(oData);
+            var valueControl = $('<input style="width:200px" type="text" class="form-control" id="value" placeholder="Wartość">');
+            valueControl.val(oData.value);
+            $(nTd).prepend(valueControl);
+        }
+
+        function generateValueDateFromColumn(nTd, sData, oData, iRow, iCol){
+            var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="valueDateFrom" placeholder="<@spring.message 'dictionary.editor.itemValues.table.dateFrom'/>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
+            $(dataControl).datepicker({
+                "format": "yyyy-mm-dd",
+                autoclose: true
+            });
+            $(nTd).prepend(dataControl);
+        }
+
+        function generateValueDateToColumn(nTd, sData, oData, iRow, iCol){
+            var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="valueDateTo" placeholder="<@spring.message 'dictionary.editor.itemValues.table.dateTo'/>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
+            $(dataControl).datepicker({
+                "format": "yyyy-mm-dd",
+                autoclose: true
+            });
+            $(nTd).prepend(dataControl);
+        }
+
+        function generateValueActionsColumn(nTd, sData, oData, iRow, iCol) {
+            var removeButton = $('<button type="button" class="btn btn-danger btn-xs"><@spring.message 'dictionary.editor.itemValues.button.delete'/></button>');
+            removeButton.button();
+            removeButton.on('click',function(){
+                removeValue(oData);
+            });
+            $(nTd).prepend("&nbsp;");
+            $(nTd).prepend(removeButton);
+        }
+
+        function generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) {
+            // todo
+        }
+
         /*valuesTable = $('#valuesTable').dataTable({
             "bPaginate": true,
             "bLengthChange": true,
@@ -453,8 +510,7 @@
 			refreshTable();
 		});
 
-		$("#addNew").on('click',function()
-		{
+		$("#addNew").on('click',function() {
 			addNew();
 		});
 
@@ -463,22 +519,28 @@
 			addNewValue();
 		});
 
-		$("#saveButton").on('click',function()
-		{
-			currentItemClone[0] = $("#itemKey").val();
-			currentItemClone[1] = $("#itemDesc").val();
+		$("#saveButton").on('click',function() {
+		    currentItem.key = $("#itemKey").val();
+		    currentItem.description = $("#itemDesc").val();
+		    console.log('save: ' + currentItem);
+            var widgetJson = $.post(dispatcherPortlet, {
+                "controller": "dictionaryeditorcontroller",
+                "action": "saveDictionaryItem",
+                "item": JSON.stringify(currentItem, null, 2),
+                "dictId": currentDict
+            })
+            .done(function(data) {
+                <!-- Errors handling -->
+                var errors = [];
+                $.each(data.errors, function() {
+                    errors.push(this);
+                });
+                if(errors.length > 0) { return; }
 
-			$("#itemsList").show();
-			$("#itemsEdit").hide();
-
-			//currentItem = currentItemClone.slice();
-			currentItem = $.extend(true, [], currentItemClone);
-			g_dictionary_items[currentDict][currentItemIndex] = currentItem;
-			//currentItem.shift().shift();
-
-			valuesTable.fnClearTable();
-
-			refreshTable();
+			    $("#itemsEdit").hide();
+			    refreshTable();
+			    $("#itemsList").show();
+            });
 		});
 
     });
@@ -510,19 +572,9 @@
 		valuesTable.fnAddData(currentItemClone[3]);
 	}
 
-	function addNew()
-	{
-		currentItemIndex = g_dictionary_items[currentDict].length;
-		currentItemClone = ["", "", "", [["", "", "", "", []]]];
-
-		$("#itemsList").hide();
-		$("#itemsEdit").show();
-		$("#itemKey").val(currentItemClone[0]);
-		$("#itemDesc").val(currentItemClone[1]);
-
-		valuesTable.fnClearTable();
-		valuesTable.fnAddData(currentItemClone[3]);
-
+	function addNew() {
+	    console.log('addNew');
+		edit({"key":"", "description": ""});
 	}
 
 	function addNewValue()
@@ -535,55 +587,57 @@
 	}
 
 	function edit(item) {
-	    console.log(item);
-
         $("#itemsList").hide();
-        $("#itemsEdit").show();
+        currentItem = item;
+        refreshValuesTable();
         $("#itemKey").val(item.key);
         $("#itemDesc").val(item.description);
-
-        valuesTable.fnClearTable();
-        valuesTable.fnAddData(currentItemClone[3]);
+        $("#itemsEdit").show();
     }
 
 	function remove(itemId) {
-	    console.log('remove:' + itemId);
-        var widgetJson = $.post(dispatcherPortlet, {
-		    "controller": "dictionaryeditorcontroller",
-		    "action": "deleteDictionaryItem",
-		    "itemId": itemId
-		})
-		.done(function(data) {
-			<!-- Errors handling -->
-			var errors = [];
-			$.each(data.errors, function() {
-				errors.push(this);
-			});
-			if(errors.length > 0) { return; }
+	    if (confirm('<@spring.message "dictionary.editor.dictionaryItems.confirm.delete"/>')) {
+	        console.log('remove:' + itemId);
+            var widgetJson = $.post(dispatcherPortlet, {
+                "controller": "dictionaryeditorcontroller",
+                "action": "deleteDictionaryItem",
+                "itemId": itemId
+            })
+            .done(function(data) {
+                <!-- Errors handling -->
+                var errors = [];
+                $.each(data.errors, function() {
+                    errors.push(this);
+                });
+                if(errors.length > 0) { return; }
 
-			refreshTable();
-		});
+                refreshTable();
+            });
+        }
     }
 
-	function refreshTable()
-	{
-		// itemsTable.fnClearTable();
-		// itemsTable.fnAddData(g_dictionary_items[currentDict]);
+	function refreshTable() {
 		var url = dispatcherPortlet;
         url += "&dictId=" + encodeURI(currentDict.replace(/#/g, '%23'));
         // itemsTable.addParameter("dictId", currentDict);
 		itemsTable.reloadTable(url);
 	}
 
+	function refreshValuesTable()
+	{
+		var url = dispatcherPortlet;
+		url += "&dictId=" + encodeURI(currentDict.replace(/#/g, '%23'));
+        url += "&itemId=" + encodeURI(currentItem.id);
+        console.log(url);
+		valuesTable.reloadTable(url);
+	}
 
 
-    function isOdd(n)
-    {
+    function isOdd(n) {
        return isNumber(n) && (Math.abs(n) % 2 == 1);
     }
 
-    function isNumber(n)
-    {
+    function isNumber(n) {
        return n === parseFloat(n);
     }
 

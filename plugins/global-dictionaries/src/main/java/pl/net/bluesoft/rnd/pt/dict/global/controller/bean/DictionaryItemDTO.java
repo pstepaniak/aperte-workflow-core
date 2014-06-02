@@ -1,5 +1,7 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
+
 /**
  * Created by pkuciapski on 2014-05-30.
  */
@@ -30,5 +32,12 @@ public class DictionaryItemDTO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public ProcessDBDictionaryItem toProcessDBDictionaryItem(final String languageCode) {
+        ProcessDBDictionaryItem item = new ProcessDBDictionaryItem();
+        item.setKey(this.getKey());
+        item.setDescription(languageCode, this.getDescription());
+        return item;
     }
 }
