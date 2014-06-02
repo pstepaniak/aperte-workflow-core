@@ -139,10 +139,7 @@
                     <label for="dictName"><@spring.message "dictionary.editor.dictionaryName"/></label>
                 </div>
                 <div class="col-md-4">
-                    <select id="dictName" type="text" placeholder="Taryfa" style="width:250px">
-                        <option value="complaint_type">Kod sekcji</option>
-                        <option value="statuses">Statusy</option>
-                    </select>
+                    <input id="dictName" type="text" placeholder="" style="width:250px"/>
                 </div>
             </div>
         </div>
@@ -172,31 +169,31 @@
             <div id="itemsEdit" hidden>
                 <div class="row">
                     <div class="col-md-2">
-                        <button type="button" id="saveButton" class="btn btn-success btn-xs">Zapisz</button>
-                        <button type="button" id="backButton" class="btn btn-warning btn-xs">Anuluj</button>
+                        <button type="button" id="saveButton" class="btn btn-success btn-xs"><@spring.message "dictionary.editor.dictionaryItems.button.save"/></button>
+                        <button type="button" id="backButton" class="btn btn-warning btn-xs"><@spring.message "dictionary.editor.dictionaryItems.button.cancel"/></button>
                     </div>
                 </div>
                 <br>
 
                 <div class="row">
                     <div class="form-group col-md-4">
-                        <label for="description" class="col-sm-2 control-label">Klucz</label>
+                        <label for="description" class="col-sm-2 control-label"><@spring.message "dictionary.editor.dictionaryItems.table.key"/></label>
 
                         <div class="col-sm-10">
-                            <input class="form-control" id="itemKey" placeholder="Klucz"></textarea>
+                            <input class="form-control" id="itemKey" placeholder="<@spring.message 'dictionary.editor.dictionaryItems.table.key'/>"></textarea>
                         </div>
                     </div>
                     <div class="form-group col-md-4">
-                        <label for="description" class="col-sm-2 control-label">Opis</label>
+                        <label for="description" class="col-sm-2 control-label"><@spring.message "dictionary.editor.dictionaryItems.table.description"/></label>
 
                         <div class="col-sm-10">
-                            <input class="form-control" id="itemDesc" placeholder="Opis"></textarea>
+                            <input class="form-control" id="itemDesc" placeholder="<@spring.message 'dictionary.editor.dictionaryItems.table.description'/>"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-2 pull-right">
-                        <button type="button" id="addNewValue" class="btn btn-primary btn-xs">Dodaj wartość</button>
+                        <button type="button" id="addNewValue" class="btn btn-primary btn-xs"><@spring.message 'dictionary.editor.dictionaryItems.button.addValue'/></button>
                     </div>
                 </div>
                 <div class="row">
@@ -205,12 +202,11 @@
                                class="table table-hover table-bordered" style="width:100%;">
                             <thead>
                             <tr>
-                                <!-- <th class="id" style="font-size: 11px!important;"></th> -->
-                                <th class="CASE_NUMBER" style="font-size: 11px!important; width:110px">Wartość</th>
-                                <th class="TYPE" style="font-size: 11px!important;width:50px">Data od</th>
-                                <th class="NAME" style="font-size: 11px!important;width:50px">Data do</th>
-                                <th class="NAME" style="font-size: 11px!important;width:410px">Rozszerzenia</th>
-                                <th class="NAME" style="font-size: 11px!important;width:80px">Akcje</th>
+                                <th style="font-size: 11px!important; width:110px"><@spring.message 'dictionary.editor.itemValues.table.value'/></th>
+                                <th style="font-size: 11px!important;width:50px"><@spring.message 'dictionary.editor.itemValues.table.dateFrom'/></th>
+                                <th style="font-size: 11px!important;width:50px"><@spring.message 'dictionary.editor.itemValues.table.dateTo'/></th>
+                                <th style="font-size: 11px!important;width:410px"><@spring.message 'dictionary.editor.itemValues.table.extensions'/></th>
+                                <th style="font-size: 11px!important;width:80px"><@spring.message 'dictionary.editor.itemValues.table.actions'/></th>
                             </tr>
 
                             </thead>
@@ -395,7 +391,7 @@
             var editButton = $('<button type="button" class="btn btn-primary btn-xs"><@spring.message "dictionary.editor.dictionaryItems.button.edit"/></button>');
             editButton.button();
             editButton.on('click',function(){
-                edit(oData.id);
+                edit(oData);
             });
             $(nTd).empty();
             $(nTd).prepend(editButton);
@@ -413,7 +409,38 @@
         itemsTable.addParameter("action", "getDictionaryItems");
         itemsTable.reloadTable(dispatcherPortlet);
 
-        $('#dictName').select2();
+        $('#dictName').select2({
+            ajax: {
+                url: dispatcherPortlet,
+                dataType: 'json',
+                quietMillis: 0,
+                data: function (term, page) {
+                    return {
+                        q: term, // search term
+                        page_limit: 10,
+                        controller: "dictionaryeditorcontroller",
+                        page: page,
+                        action: "getAllDictionaries"
+                    };
+                },
+                results: function (data, page)
+                {
+                    var results = [];
+                    $.each(data.data, function(index, item) {
+                        results.push({
+                            id: item.id,
+                            text: item.name
+                        });
+                    });
+                    return {
+                        results: results
+                    };
+                },
+                initSelection: function(element, callback) {
+                    callback('');
+                }
+            }
+        });
 		$('#dictName').on('change', function(){
 			currentDict = $('#dictName').val();
 			refreshTable();
@@ -507,33 +534,45 @@
 		valuesTable.fnAddData(currentItemClone[3]);
 	}
 
-	function edit(iRow)
-		{
-			currentItemIndex = iRow;
-			currentItem = g_dictionary_items[currentDict][currentItemIndex];
-			//currentItemClone = currentItem.slice();
-			currentItemClone = $.extend(true, [], currentItem);
-			//currentItemClone.shift().shift();
+	function edit(item) {
+	    console.log(item);
 
-			$("#itemsList").hide();
-			$("#itemsEdit").show();
-			$("#itemKey").val(currentItemClone[0]);
-			$("#itemDesc").val(currentItemClone[1]);
+        $("#itemsList").hide();
+        $("#itemsEdit").show();
+        $("#itemKey").val(item.key);
+        $("#itemDesc").val(item.description);
 
-			valuesTable.fnClearTable();
-			valuesTable.fnAddData(currentItemClone[3]);
-		}
+        valuesTable.fnClearTable();
+        valuesTable.fnAddData(currentItemClone[3]);
+    }
 
-	function remove(iRow) {
-        // todo
-        refreshTable();
+	function remove(itemId) {
+	    console.log('remove:' + itemId);
+        var widgetJson = $.post(dispatcherPortlet, {
+		    "controller": "dictionaryeditorcontroller",
+		    "action": "deleteDictionaryItem",
+		    "itemId": itemId
+		})
+		.done(function(data) {
+			<!-- Errors handling -->
+			var errors = [];
+			$.each(data.errors, function() {
+				errors.push(this);
+			});
+			if(errors.length > 0) { return; }
+
+			refreshTable();
+		});
     }
 
 	function refreshTable()
 	{
 		// itemsTable.fnClearTable();
 		// itemsTable.fnAddData(g_dictionary_items[currentDict]);
-		itemsTable.reloadTable(dispatcherPortlet);
+		var url = dispatcherPortlet;
+        url += "&dictId=" + encodeURI(currentDict.replace(/#/g, '%23'));
+        // itemsTable.addParameter("dictId", currentDict);
+		itemsTable.reloadTable(url);
 	}
 
 
