@@ -223,6 +223,21 @@
     </div>
 </div>
 
+<div class="modal fade aperte-modal" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+
+
+        <div class="panel panel-warning">
+            <div class="panel-heading"><h4><@spring.message code="processes.alerts.modal.title" /></h4></div>
+            <ul id="alerts-list">
+
+            </ul>
+            <button type="button" class="btn btn-warning" data-dismiss="modal" style="margin: 20px;"><@spring.message code="processes.alerts.modal.close" /></button>
+        </div>
+
+    </div><!-- /.modal-dialog -->
+</div>
+
 <script type="text/javascript">
 //<![CDATA[
 
@@ -233,6 +248,9 @@
     var currentItem;
     var currentItemClone;
     var currentItemIndex;
+
+    var alertsShown = false;
+    var alertsInit = false;
 
     $(document).ready(function () {
         $('[name="tooltip"]').tooltip();
@@ -456,7 +474,7 @@
             var removeButton = $('<button type="button" class="btn btn-danger btn-xs"><@spring.message "dictionary.editor.dictionaryItems.button.delete"/></button>');
             removeButton.button();
             removeButton.on('click',function(){
-                remove(oData.id);
+                remove(oData);
             });
             $(nTd).prepend("&nbsp;");
             $(nTd).prepend(removeButton);
@@ -531,9 +549,12 @@
             })
             .done(function(data) {
                 <!-- Errors handling -->
+                clearAlerts();
                 var errors = [];
+                console.log(data.errors);
                 $.each(data.errors, function() {
                     errors.push(this);
+                    addAlert(this.message);
                 });
                 if(errors.length > 0) { return; }
 
@@ -595,19 +616,22 @@
         $("#itemsEdit").show();
     }
 
-	function remove(itemId) {
+	function remove(item) {
 	    if (confirm('<@spring.message "dictionary.editor.dictionaryItems.confirm.delete"/>')) {
-	        console.log('remove:' + itemId);
+	        console.log('remove:' + item);
             var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "dictionaryeditorcontroller",
                 "action": "deleteDictionaryItem",
-                "itemId": itemId
+                "item": JSON.stringify(item, null, 2),
+                "dictId": currentDict
             })
             .done(function(data) {
                 <!-- Errors handling -->
+                clearAlerts();
                 var errors = [];
                 $.each(data.errors, function() {
                     errors.push(this);
+                    addAlert(this.message);
                 });
                 if(errors.length > 0) { return; }
 
@@ -640,6 +664,38 @@
     function isNumber(n) {
        return n === parseFloat(n);
     }
+
+    addAlert = function(alertMessage) {
+		if(alertsShown == false) {
+			if(alertsInit == false) {
+				alertsInit = true;
+				$('#alertModal').appendTo("body").modal({
+				    keyboard: false
+				});
+				$('#alertModal').on('hidden.bs.modal', function (e) {
+					clearAlerts();
+					alertsShown = false;
+				});
+
+			} else {
+				$('#alertModal').appendTo("body").modal('show');
+			}
+			alertsShown = true;
+		}
+		$('#alerts-list').append('<li><h5>'+alertMessage+'</h5></li>');
+	}
+
+	clearAlerts = function() {
+		$('#alerts-list').empty();
+	}
+
+	addAlerts = function(alertsMessages) {
+		clearAlerts();
+		$.each(alertsMessages, function() {
+			addAlert(this.message);
+		});
+	}
+
 
 //]]>
 

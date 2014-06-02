@@ -100,13 +100,25 @@ public class DictionaryEditorController implements IOsgiWebController {
     }
 
     @ControllerMethod(action = "deleteDictionaryItem")
-    public GenericResultBean deleteDictionaryItem(final OsgiWebRequest invocation) {
+    public GenericResultBean deleteDictionaryItem(final OsgiWebRequest invocation) throws Exception {
         GenericResultBean result = new GenericResultBean();
         ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
-
-        // todo delete the item
+        String dictId = invocation.getRequest().getParameter("dictId");
+        String itemJson = invocation.getRequest().getParameter("item");
+        try {
+            DictionaryItemDTO dto = mapper.readValue(itemJson, DictionaryItemDTO.class);
+            ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
+            removeItem(dictionary, dto);
+            dao.updateDictionary(dictionary);
+        } catch (Exception e ) {
+            result.addError("deleteDictionaryItem", e.getMessage());
+        }
 
         return result;
+    }
+
+    private void removeItem(ProcessDBDictionary dictionary, DictionaryItemDTO itemDTO) {
+        dictionary.removeItem(itemDTO.getKey());
     }
 
     @ControllerMethod(action = "getItemValues")
@@ -176,11 +188,23 @@ public class DictionaryEditorController implements IOsgiWebController {
         try {
             DictionaryItemDTO dto = mapper.readValue(item, DictionaryItemDTO.class);
             ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
-            dictionary.addItem(dto.toProcessDBDictionaryItem(invocation.getProcessToolRequestContext().getMessageSource().getLocale().getLanguage()));
+            if (dto.getId() == null)
+                dictionary.addItem(dto.toProcessDBDictionaryItem(invocation.getProcessToolRequestContext().getMessageSource().getLocale().getLanguage()));
+            else
+                updateItem(dictionary, dto, invocation.getProcessToolRequestContext().getMessageSource());
             dao.updateDictionary(dictionary);
         } catch (Exception e) {
             result.addError("saveDictionaryItem", e.getMessage());
         }
         return result;
+    }
+
+    private void updateItem(ProcessDBDictionary dictionary, DictionaryItemDTO dto, I18NSource messageSource) {
+        for (ProcessDBDictionaryItem item : dictionary.getItems().values()) {
+            if (item.getId().equals(Long.valueOf(dto.getId()))) {
+                dto.updateItem(item, messageSource.getLocale().getLanguage());
+                break;
+            }
+        }
     }
 }

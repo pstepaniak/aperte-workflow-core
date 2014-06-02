@@ -36,8 +36,14 @@ public class DictionaryItemDTO {
 
     public ProcessDBDictionaryItem toProcessDBDictionaryItem(final String languageCode) {
         ProcessDBDictionaryItem item = new ProcessDBDictionaryItem();
+        if (this.getId() != null)
+            item.setId(Long.valueOf(this.getId()));
+        updateItem(item, languageCode);
+        return item;
+    }
+
+    public void updateItem(ProcessDBDictionaryItem item, String languageCode) {
         item.setKey(this.getKey());
         item.setDescription(languageCode, this.getDescription());
-        return item;
     }
 }
