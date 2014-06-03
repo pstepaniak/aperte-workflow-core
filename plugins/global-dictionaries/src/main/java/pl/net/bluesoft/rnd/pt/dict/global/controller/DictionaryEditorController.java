@@ -17,12 +17,10 @@ import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
-import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.pt.dict.global.controller.bean.DictionaryDTO;
 import pl.net.bluesoft.rnd.pt.dict.global.controller.bean.DictionaryItemDTO;
 import pl.net.bluesoft.rnd.pt.dict.global.controller.bean.DictionaryItemValueDTO;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.FormatUtil;
 
 import java.net.URLDecoder;
 import java.util.*;
@@ -74,12 +72,7 @@ public class DictionaryEditorController implements IOsgiWebController {
     private Collection<DictionaryDTO> createDTOList(List<ProcessDBDictionary> dictionaries, I18NSource messageSource) {
         Collection<DictionaryDTO> dtos = new ArrayList<DictionaryDTO>();
         for (ProcessDBDictionary dict : dictionaries) {
-            DictionaryDTO dto = new DictionaryDTO();
-            dto.setId(String.valueOf(dict.getDictionaryId()));
-            dto.setName(dict.getName(messageSource.getLocale()));
-            if (dto.getName() == null || "".equals(dto.getName())) {
-                dto.setName(dict.getDefaultName());
-            }
+            DictionaryDTO dto = DictionaryDTO.createFrom(dict, messageSource);
             dtos.add(dto);
         }
         return dtos;
@@ -118,14 +111,14 @@ public class DictionaryEditorController implements IOsgiWebController {
 
     @ControllerMethod(action = "getItemValues")
     public GenericResultBean getItemValues(final OsgiWebRequest invocation) throws Exception {
-        JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
-        JQueryDataTableColumn sortColumn = dataTable.getFirstSortingColumn();
+        // JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
+        // JQueryDataTableColumn sortColumn = dataTable.getFirstSortingColumn();
         String dictId = invocation.getRequest().getParameter("dictId");
         String itemId = invocation.getRequest().getParameter("itemId");
         Collection<DictionaryItemValueDTO> dtos = Collections.emptyList();
         if ("undefined".equals(itemId))
             itemId = null;
-
+        GenericResultBean result = new GenericResultBean();
         if (dictId != null) {
             // todo get the item from dao
             ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
@@ -136,10 +129,11 @@ public class DictionaryEditorController implements IOsgiWebController {
                 }
             }
         }
-        DataPagingBean<DictionaryItemValueDTO> dataPagingBean =
-                new DataPagingBean<DictionaryItemValueDTO>(dtos, dtos.size(), dataTable.getEcho());
+        result.setData(dtos);
+        //DataPagingBean<DictionaryItemValueDTO> dataPagingBean =
+        //        new DataPagingBean<DictionaryItemValueDTO>(dtos, dtos.size(), dataTable.getEcho());
 
-        return dataPagingBean;
+        return result;
     }
 
     private ProcessDBDictionary getDictionary(String dictId, ProcessToolContext context) throws Exception {

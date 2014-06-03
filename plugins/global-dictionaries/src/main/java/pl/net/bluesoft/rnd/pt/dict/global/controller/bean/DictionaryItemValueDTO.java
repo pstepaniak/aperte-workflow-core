@@ -19,6 +19,7 @@ public class DictionaryItemValueDTO {
     private String dateFrom;
     private String dateTo;
     private Collection<DictionaryItemExtDTO> extensions = new ArrayList<DictionaryItemExtDTO>();
+    private Boolean toDelete = Boolean.FALSE;
 
     public String getId() {
         return id;
@@ -64,8 +65,8 @@ public class DictionaryItemValueDTO {
         DictionaryItemValueDTO dto = new DictionaryItemValueDTO();
         dto.setId(String.valueOf(value.getId()));
         dto.setValue(value.getValue(messageSource.getLocale()));
-        dto.setDateFrom(FormatUtil.formatFullDate(value.getValidFrom()));
-        dto.setDateTo(FormatUtil.formatFullDate(value.getValidTo()));
+        dto.setDateFrom(FormatUtil.formatShortDate(value.getValidFrom()));
+        dto.setDateTo(FormatUtil.formatShortDate(value.getValidTo()));
         for (ProcessDBDictionaryItemExtension ext : value.getExtensions()) {
             DictionaryItemExtDTO extDTO = DictionaryItemExtDTO.createFrom(ext, messageSource);
             dto.getExtensions().add(extDTO);
@@ -87,5 +88,13 @@ public class DictionaryItemValueDTO {
             value.setValidFrom(FormatUtil.parseDate("yyyy-MM-dd", this.getDateFrom()));
         if (this.getDateTo() != null && !"".equals(this.getDateTo()))
             value.setValidTo(FormatUtil.parseDate("yyyy-MM-dd", this.getDateTo()));
+    }
+
+    public Boolean getToDelete() {
+        return toDelete;
+    }
+
+    public void setToDelete(Boolean toDelete) {
+        this.toDelete = toDelete;
     }
 }

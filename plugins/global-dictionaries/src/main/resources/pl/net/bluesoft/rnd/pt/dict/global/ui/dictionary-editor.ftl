@@ -207,6 +207,7 @@
                                 <th style="font-size: 11px!important;width:50px"><@spring.message 'dictionary.editor.itemValues.table.dateTo'/></th>
                                 <th style="font-size: 11px!important;width:410px"><@spring.message 'dictionary.editor.itemValues.table.extensions'/></th>
                                 <th style="font-size: 11px!important;width:80px"><@spring.message 'dictionary.editor.itemValues.table.actions'/></th>
+                                <th hidden />
                             </tr>
 
                             </thead>
@@ -304,11 +305,17 @@
                  { "sName":"extensions", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) }
                  },
                  { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueActionsColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"toDelete", "bSortable": false , "mData": "toDelete"
                  }
             ],
             "fnRowCallback" : function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                if (aData.toDelete == true)
+                    $(nRow).attr("hidden", true);
+                return nRow;
             }
         });
+        valuesTable.fnSetColumnVis(5, false);
 
         function generateValueColumn(nTd, sData, oData, iRow, iCol){
             console.log(oData);
@@ -473,11 +480,10 @@
 			currentDict = $('#dictName').val();
 			refreshTable();
 		});
-		$("#backButton").on('click',function()
-		{
+		$("#backButton").on('click',function() {
 			$("#itemsList").show();
 			$("#itemsEdit").hide();
-
+            valuesTable.fnClearTable();
 			refreshTable();
 		});
 
@@ -541,10 +547,14 @@
 	function removeValue(value, iRow) {
 	    console.log('removeValue:' + value);
 	    console.log(currentItem.values);
-		currentItem.values.splice(iRow, 1);
+	    if (!value.id)
+		    currentItem.values.splice(iRow, 1);
+		else
+		    currentItem.values[iRow].toDelete = true;
 		console.log(currentItem.values);
 
-		refreshValuesTable(currentItem.values);
+		valuesTable.fnClearTable();
+        valuesTable.fnAddData(currentItem.values);
 	}
 
 	function addNew() {
@@ -555,7 +565,7 @@
 
 	function addNewValue() {
 		console.log(currentItem.values);
-		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[]};
+		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[], "toDelete":false};
 		currentItem.values.push( row );
         console.log(currentItem.values);
         valuesTable.fnAddData(row);
@@ -564,7 +574,7 @@
 	function edit(item) {
         $("#itemsList").hide();
         currentItem = item;
-        refreshValuesTable(item.values);
+        refreshValuesTable();
         $("#itemKey").val(item.key);
         $("#itemDesc").val(item.description);
         $("#itemsEdit").show();
@@ -601,16 +611,39 @@
 		itemsTable.reloadTable(url);
 	}
 
-	function refreshValuesTable(values)
-	{
+	function refreshValuesTable() {
+	    // get values from server
 		/*var url = dispatcherPortlet;
 		url += "&dictId=" + encodeURI(currentDict.replace(/#/g, '%23'));
         url += "&itemId=" + encodeURI(currentItem.id);
         console.log(url);
 		valuesTable.reloadTable(url);*/
-		console.log('refresh values:' + values);
-		valuesTable.fnClearTable();
-		valuesTable.fnAddData(values);
+        console.log('refreshValuesTable');
+		var widgetJson = $.post(dispatcherPortlet, {
+                "controller": "dictionaryeditorcontroller",
+                "action": "getItemValues",
+                "itemId": currentItem.id,
+                "dictId": currentDict
+        })
+        .done(function(data) {
+            <!-- Errors handling -->
+            console.log('refresh data:' + data);
+            clearAlerts();
+            var errors = [];
+            console.log(data.errors);
+            $.each(data.errors, function() {
+                errors.push(this);
+                addAlert(this.message);
+            });
+            if(errors.length > 0) { return; }
+
+            var values = data.data;
+            console.log('refresh values:' + values);
+            currentItem.values = values;
+            valuesTable.fnClearTable();
+            valuesTable.fnAddData(values);
+        });
+
 
 	}
 

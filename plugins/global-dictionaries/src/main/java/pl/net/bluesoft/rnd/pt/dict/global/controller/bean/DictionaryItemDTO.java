@@ -6,7 +6,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by pkuciapski on 2014-05-30.
@@ -59,6 +58,8 @@ public class DictionaryItemDTO {
                 value = getValueById(item, Long.valueOf(valueDTO.getId()));
             if (value == null)
                 item.addValue(valueDTO.toProcessDBDictionaryItemValue(languageCode));
+            else if (valueDTO.getToDelete())
+                item.removeValue(value);
             else
                 valueDTO.updateValue(value, languageCode);
         }
@@ -93,4 +94,5 @@ public class DictionaryItemDTO {
         }
         return dto;
     }
+
 }
