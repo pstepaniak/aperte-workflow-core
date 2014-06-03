@@ -256,24 +256,6 @@
     $(document).ready(function () {
         $('[name="tooltip"]').tooltip();
 
-        /*valuesTable = new AperteDataTable("valuesTable",
-            [
-                 { "sName":"value", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueColumn(nTd, sData, oData, iRow, iCol) }
-                 },
-                 { "sName":"dateFrom", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateFromColumn(nTd, sData, oData, iRow, iCol) }
-                 },
-                 { "sName":"dateTo", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateToColumn(nTd, sData, oData, iRow, iCol) }
-                 },
-                 { "sName":"extensions", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) }
-                 },
-                 { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueActionsColumn(nTd, sData, oData, iRow, iCol) }
-                 }
-            ],
-            [[ 0, "asc" ]]
-        );
-        valuesTable.addParameter("controller", "dictionaryeditorcontroller");
-        valuesTable.addParameter("action", "getItemValues");*/
-
         valuesTable = $('#valuesTable').dataTable({
             "bPaginate": true,
             "bLengthChange": false,
@@ -296,11 +278,11 @@
                 }
             },
             "aoColumns":[
-                 { "sName":"value", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueColumn(nTd, sData, oData, iRow, iCol) }
+                 { "sName":"value", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueColumn(nTd, sData, oData, iRow, iCol) }
                  },
-                 { "sName":"dateFrom", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateFromColumn(nTd, sData, oData, iRow, iCol) }
+                 { "sName":"dateFrom", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateFromColumn(nTd, sData, oData, iRow, iCol) }
                  },
-                 { "sName":"dateTo", "bSortable": true ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateToColumn(nTd, sData, oData, iRow, iCol) }
+                 { "sName":"dateTo", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueDateToColumn(nTd, sData, oData, iRow, iCol) }
                  },
                  { "sName":"extensions", "bSortable": false ,"mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateValueExtensionsColumn(nTd, sData, oData, iRow, iCol) }
                  },
@@ -370,43 +352,45 @@
             var row = $('<div class="col-md-12" ></div>');
             $.each(oData.extensions, function(index) {
                 console.log(this);
-                var innerRow = $('<div class="row"></div>');
-                var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.key"/></label>' +
-                                '<div><input type="text" class="form-control" value="'+this.key+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.key"/>"></input></div></div>');
+                if (!this.toDelete) {
+                    var innerRow = $('<div class="row"></div>');
+                    var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.key"/></label>' +
+                                    '<div><input type="text" class="form-control" value="'+this.key+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.key"/>"></input></div></div>');
 
-                /*$(lineKey).find('input').on('change',function(){
-                    currentItemClone[3][iRow][4][index][0] = $( this ).val() ;
-                });*/
+                    $(lineKey).find('input').on('change',function(){
+                        currentItem.values[iRow].extensions[index].key = $( this ).val() ;
+                    });
 
-                var lineValue = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.value"/></label>' +
-                                '<div><input type="text" class="form-control" value="'+this.value+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.value"/>"></input></div></div>');
+                    var lineValue = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.value"/></label>' +
+                                    '<div><input type="text" class="form-control" value="'+this.value+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.value"/>"></input></div></div>');
 
-                /*$(lineValue).find('input').on('change',function(){
-                    currentItemClone[3][iRow][4][index][1] = $( this ).val() ;
-                });*/
+                    $(lineValue).find('input').on('change',function(){
+                        currentItem.values[iRow].extensions[index].value = $( this ).val() ;
+                    });
 
-                var lineButtonDiv = $('<div class="form-group col-md-2"></div>');
+                    var lineButtonDiv = $('<div class="form-group col-md-2"></div>');
 
-                var removeButton = $('<span name="tooltip" title="<@spring.message 'dictionary.editor.valueExtensions.button.delete'/>" class="glyphicon glyphicon-trash" style="font-size: 16px!important;cursor:pointer;margin-top:25px"></span>');
+                    var removeButton = $('<span name="tooltip" title="<@spring.message 'dictionary.editor.valueExtensions.button.delete'/>" class="glyphicon glyphicon-trash" style="font-size: 16px!important;cursor:pointer;margin-top:25px"></span>');
 
-                removeButton.on('click',function(){
-                    removeExtension(this);
-                });
+                    removeButton.on('click',function(){
+                        removeExtension(iRow, index);
+                    });
 
-                $(lineButtonDiv).append(removeButton);
+                    $(lineButtonDiv).append(removeButton);
 
-                $(innerRow).append(lineKey);
-                $(innerRow).append(lineValue);
-                $(innerRow).append(lineButtonDiv);
+                    $(innerRow).append(lineKey);
+                    $(innerRow).append(lineValue);
+                    $(innerRow).append(lineButtonDiv);
 
-                $(row).append(innerRow);
+                    $(row).append(innerRow);
+                }
             });
             $(nTd).append(row);
 
             var addExtensionButton = $('<button type="button" class="btn btn-info btn-xs" style="margin: 10px;"><@spring.message "dictionary.editor.itemValues.button.addExtension"/></button>');
                 addExtensionButton.button();
                 addExtensionButton.on('click',function(){
-                    addNewExtension(oData);
+                    addNewExtension(iRow);
                 });
             $(nTd).append("&nbsp;");
             $(nTd).append(addExtensionButton);
@@ -415,7 +399,7 @@
         itemsTable = new AperteDataTable("itemsTable",
             [
                  { "sName":"key", "bSortable": true ,"mData": "key" },
-                 { "sName":"description", "bSortable": true ,"mData": "description" },
+                 { "sName":"description", "bSortable": false ,"mData": "description" },
                  { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateActionsColumn(nTd, sData, oData, iRow, iCol) }
                  }
             ],
@@ -525,23 +509,25 @@
 
     });
 
-	function addNewExtension(iRow)
-	{
-		var newExtension = ["", "", ""];
-		var extensions = currentItemClone[3][iRow][4];
+	function addNewExtension(iRow) {
+	    console.log(iRow);
+		var newExtension = {"key":"", "value":"", "toDelete":false};
+		var extensions = currentItem.values[iRow].extensions;
 
-		currentItemClone[3][iRow][4][extensions.length] = newExtension;
+		currentItem.values[iRow].extensions[extensions.length] = newExtension;
 
 		valuesTable.fnClearTable();
-		valuesTable.fnAddData(currentItemClone[3]);
+		valuesTable.fnAddData(currentItem.values);
 	}
 
-	function removeExtension(iRow, index)
-	{
-		currentItemClone[3][iRow][4].splice(index, 1);
+	function removeExtension(iRow, index) {
+	    if (currentItem.values[iRow].extensions[index].id)
+	        currentItem.values[iRow].extensions[index].toDelete = true;
+	    else
+		    currentItem.values[iRow].extensions.splice(index, 1);
 
 		valuesTable.fnClearTable();
-		valuesTable.fnAddData(currentItemClone[3]);
+		valuesTable.fnAddData(currentItem.values);
 	}
 
 	function removeValue(value, iRow) {
@@ -564,10 +550,8 @@
 	}
 
 	function addNewValue() {
-		console.log(currentItem.values);
 		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[], "toDelete":false};
 		currentItem.values.push( row );
-        console.log(currentItem.values);
         valuesTable.fnAddData(row);
 	}
 
@@ -613,12 +597,6 @@
 
 	function refreshValuesTable() {
 	    // get values from server
-		/*var url = dispatcherPortlet;
-		url += "&dictId=" + encodeURI(currentDict.replace(/#/g, '%23'));
-        url += "&itemId=" + encodeURI(currentItem.id);
-        console.log(url);
-		valuesTable.reloadTable(url);*/
-        console.log('refreshValuesTable');
 		var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "dictionaryeditorcontroller",
                 "action": "getItemValues",
@@ -643,8 +621,6 @@
             valuesTable.fnClearTable();
             valuesTable.fnAddData(values);
         });
-
-
 	}
 
 

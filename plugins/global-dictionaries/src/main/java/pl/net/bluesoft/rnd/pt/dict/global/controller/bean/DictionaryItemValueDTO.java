@@ -88,6 +88,26 @@ public class DictionaryItemValueDTO {
             value.setValidFrom(FormatUtil.parseDate("yyyy-MM-dd", this.getDateFrom()));
         if (this.getDateTo() != null && !"".equals(this.getDateTo()))
             value.setValidTo(FormatUtil.parseDate("yyyy-MM-dd", this.getDateTo()));
+        for (DictionaryItemExtDTO extDTO : this.getExtensions()) {
+            ProcessDBDictionaryItemExtension extension = null;
+            if (extDTO.getId() != null)
+                extension = getExtensionById(value, extDTO.getId());
+            if (extension == null)
+                value.addExtension(extDTO.toProcessDBDictionaryItemExtension(languageCode));
+            else if (extDTO.getToDelete()) {
+                value.getExtensions().remove(extension);
+                extension.setItemValue(null);
+            } else
+                extDTO.updateExtension(extension, languageCode);
+        }
+    }
+
+    private ProcessDBDictionaryItemExtension getExtensionById(ProcessDBDictionaryItemValue value, Long id) {
+        for (ProcessDBDictionaryItemExtension extension : value.getExtensions()) {
+            if (extension.getId() != null && extension.getId().equals(id))
+                return extension;
+        }
+        return null;
     }
 
     public Boolean getToDelete() {

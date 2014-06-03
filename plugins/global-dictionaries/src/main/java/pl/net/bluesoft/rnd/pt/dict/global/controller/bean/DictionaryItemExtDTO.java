@@ -10,6 +10,7 @@ public class DictionaryItemExtDTO {
     private Long id;
     private String key;
     private String value;
+    private Boolean toDelete = Boolean.FALSE;
 
     public Long getId() {
         return id;
@@ -41,5 +42,26 @@ public class DictionaryItemExtDTO {
         dto.setKey(ext.getName());
         dto.setValue(ext.getValue());
         return dto;
+    }
+
+    public Boolean getToDelete() {
+        return toDelete;
+    }
+
+    public void setToDelete(Boolean toDelete) {
+        this.toDelete = toDelete;
+    }
+
+    public ProcessDBDictionaryItemExtension toProcessDBDictionaryItemExtension(String languageCode) {
+        final ProcessDBDictionaryItemExtension extension = new ProcessDBDictionaryItemExtension();
+        updateExtension(extension, languageCode);
+        return extension;
+    }
+
+    public void updateExtension(ProcessDBDictionaryItemExtension extension, String languageCode) {
+        if (this.getId() != null)
+            extension.setId(this.getId());
+        extension.setValue(this.getValue());
+        extension.setName(this.getKey());
     }
 }
