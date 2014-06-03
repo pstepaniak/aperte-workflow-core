@@ -8,98 +8,6 @@
 
 <#include "apertedatatable.ftl"/>
 
-<script>
-    var g_dictionary_items = {};
-    g_dictionary_items["complaint_type"] = [
-        ["P", "Reklamacja Pasażerska", "", [
-            ["Reklamacja Pasażerska", "", "", "", [
-                ["case_signature", "HMRP", "Sygnatura sprawy"],
-                ["sap_code", "P", "Kod dla SAP"],
-                ["box_id", "P", "Identyfikator skrzynki"],
-                ["queue_id", "new_passenger_complaints", "Identyfikator kolejki"]
-            ]]
-        ]],
-        ["B", "Reklamacja Bagażowa", "", [
-            ["Reklamacja Bagażowa", "", "", "", [
-                ["case_signature", "HMRB", "Sygnatura sprawy"],
-                ["sap_code", "B", "Kod dla SAP"],
-                ["box_id", "B", "Identyfikator skrzynki"],
-                ["queue_id", "new_luggage_complaints", "Identyfikator kolejki"]
-            ]]
-        ]]
-    ];
-    g_dictionary_items["statuses"] = [
-        ["NEW", "Status zarejestrowana", "", [
-            ["Zarejestrowana", "", "", "", [
-                ["type", "OPEN", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["OPEN", "Status otwarta", "", [
-            ["Otwarta", "", "", "", [
-                ["type", "OPEN", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["CLOSED", "Status zamknięta", "", [
-            ["Zamknięta", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["CLOSED_NUMBER", "Status zamknięta z numerem", "", [
-            ["Zamknięta z numerem", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"],
-                ["subdict", "statuses_closed", "Podsłownik dla zamkniętych z numerem"],
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]]
-
-    ];
-
-</script>
-
 <style type="text/css">
     #fixedElement.stick {
         position: fixed;
@@ -127,10 +35,14 @@
         border-bottom: none;
     }
 
+    input[type="text"] {
+        color: #000 !important;
+    }
+
 </style>
 
 
-<div class="apw main-view col-md-10 col-md-offset-1">
+<div class="apw main-view col-md-offset-1">
     <div class="panel panel-default">
         <div class="panel-heading">
             <@spring.message "dictionary.editor.heading"/>
@@ -139,7 +51,7 @@
                     <label for="dictName"><@spring.message "dictionary.editor.dictionaryName"/></label>
                 </div>
                 <div class="col-md-4">
-                    <input id="dictName" type="text" placeholder="" style="width:250px"/>
+                    <input id="dictName" type="text" placeholder="" style="width:280px"/>
                 </div>
             </div>
         </div>
@@ -216,7 +128,6 @@
                             </tbody>
                         </table>
 
-
                     </div>
                 </div>
             </div>
@@ -241,7 +152,6 @@
 
 <script type="text/javascript">
 //<![CDATA[
-
 
     var itemsTable;
     var valuesTable;
@@ -300,8 +210,7 @@
         valuesTable.fnSetColumnVis(5, false);
 
         function generateValueColumn(nTd, sData, oData, iRow, iCol){
-            console.log(oData);
-            var valueControl = $('<input style="width:200px" type="text" class="form-control" id="value" placeholder="Wartość">');
+            var valueControl = $('<input style="width:200px" type="text" class="form-control" id="value" placeholder="<@spring.message 'dictionary.editor.itemValues.table.value'/>">');
             valueControl.val(oData.value);
             $(valueControl).on('change',function(){
                 currentItem.values[iRow].value = $( this ).val() ;
@@ -351,7 +260,6 @@
             $(nTd).empty();
             var row = $('<div class="col-md-12" ></div>');
             $.each(oData.extensions, function(index) {
-                console.log(this);
                 if (!this.toDelete) {
                     var innerRow = $('<div class="row"></div>');
                     var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.key"/></label>' +
@@ -483,7 +391,6 @@
 		$("#saveButton").on('click',function() {
 		    currentItem.key = $("#itemKey").val();
 		    currentItem.description = $("#itemDesc").val();
-		    console.log('save: ' + currentItem);
             var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "dictionaryeditorcontroller",
                 "action": "saveDictionaryItem",
@@ -494,7 +401,6 @@
                 <!-- Errors handling -->
                 clearAlerts();
                 var errors = [];
-                console.log(data.errors);
                 $.each(data.errors, function() {
                     errors.push(this);
                     addAlert(this.message);
@@ -510,7 +416,6 @@
     });
 
 	function addNewExtension(iRow) {
-	    console.log(iRow);
 		var newExtension = {"key":"", "value":"", "toDelete":false};
 		var extensions = currentItem.values[iRow].extensions;
 
@@ -531,13 +436,10 @@
 	}
 
 	function removeValue(value, iRow) {
-	    console.log('removeValue:' + value);
-	    console.log(currentItem.values);
 	    if (!value.id)
 		    currentItem.values.splice(iRow, 1);
 		else
 		    currentItem.values[iRow].toDelete = true;
-		console.log(currentItem.values);
 
 		valuesTable.fnClearTable();
         valuesTable.fnAddData(currentItem.values);
@@ -566,7 +468,6 @@
 
 	function remove(item) {
 	    if (confirm('<@spring.message "dictionary.editor.dictionaryItems.confirm.delete"/>')) {
-	        console.log('remove:' + item);
             var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "dictionaryeditorcontroller",
                 "action": "deleteDictionaryItem",
@@ -605,10 +506,8 @@
         })
         .done(function(data) {
             <!-- Errors handling -->
-            console.log('refresh data:' + data);
             clearAlerts();
             var errors = [];
-            console.log(data.errors);
             $.each(data.errors, function() {
                 errors.push(this);
                 addAlert(this.message);
@@ -616,7 +515,6 @@
             if(errors.length > 0) { return; }
 
             var values = data.data;
-            console.log('refresh values:' + values);
             currentItem.values = values;
             valuesTable.fnClearTable();
             valuesTable.fnAddData(values);

@@ -42,19 +42,20 @@ public class DictionaryEditorController implements IOsgiWebController {
         JQueryDataTableColumn sortColumn = dataTable.getFirstSortingColumn();
         String dictId = invocation.getRequest().getParameter("dictId");
         Collection<DictionaryItemDTO> dtos = Collections.emptyList();
-        ;
+        Long count = Long.valueOf(0);
+
         if (dictId != null) {
             dictId = URLDecoder.decode(dictId, "UTF-8");
             ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
 
-            ProcessDBDictionary dictionary = dao.fetchDictionary(dictId);
-            if (dictionary != null)
-                dtos = createItemDTOList(dictionary.getItems(), invocation.getProcessToolRequestContext().getMessageSource());
+            Collection<ProcessDBDictionaryItem> items = dao.getDictionaryItems(dictId, sortColumn.getPropertyName(), sortColumn.getSortedAsc(), dataTable.getPageLength(), dataTable.getPageOffset());
+            dtos = createItemDTOList(items, invocation.getProcessToolRequestContext().getMessageSource());
+            count = dao.getDictionaryItemsCount(dictId);
         }
         DataPagingBean<DictionaryItemDTO> dataPagingBean =
-                new DataPagingBean<DictionaryItemDTO>(dtos, dtos.size(), dataTable.getEcho());
-
+                new DataPagingBean<DictionaryItemDTO>(dtos, count.intValue(), dataTable.getEcho());
         return dataPagingBean;
+
     }
 
     @ControllerMethod(action = "getAllDictionaries")
@@ -63,7 +64,13 @@ public class DictionaryEditorController implements IOsgiWebController {
         ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
 
         List<ProcessDBDictionary> dictionary = dao.fetchAllDictionaries();
-        Collection<DictionaryDTO> dtos = createDTOList(dictionary, invocation.getProcessToolRequestContext().getMessageSource());
+        List<DictionaryDTO> dtos = new ArrayList(createDTOList(dictionary, invocation.getProcessToolRequestContext().getMessageSource()));
+        Collections.sort(dtos, new Comparator<DictionaryDTO>() {
+            @Override
+            public int compare(DictionaryDTO d1, DictionaryDTO d2) {
+                return d1.getName().compareTo(d2.getName());
+            }
+        });
         result.setData(dtos);
 
         return result;
@@ -78,10 +85,10 @@ public class DictionaryEditorController implements IOsgiWebController {
         return dtos;
     }
 
-    private Collection<DictionaryItemDTO> createItemDTOList(Map<String, ProcessDBDictionaryItem> items, I18NSource messageSource) {
+    private Collection<DictionaryItemDTO> createItemDTOList(Collection<ProcessDBDictionaryItem> items, I18NSource messageSource) {
         Collection<DictionaryItemDTO> dtos = new ArrayList<DictionaryItemDTO>();
-        for (Map.Entry<String, ProcessDBDictionaryItem> item : items.entrySet()) {
-            DictionaryItemDTO dto = DictionaryItemDTO.createFrom(item.getValue(), messageSource);
+        for (ProcessDBDictionaryItem item : items) {
+            DictionaryItemDTO dto = DictionaryItemDTO.createFrom(item, messageSource);
             dtos.add(dto);
         }
         return dtos;
