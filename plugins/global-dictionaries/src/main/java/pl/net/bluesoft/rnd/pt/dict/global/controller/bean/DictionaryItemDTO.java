@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -16,6 +17,8 @@ public class DictionaryItemDTO {
     private String description;
 
     private Collection<DictionaryItemValueDTO> values = new ArrayList<DictionaryItemValueDTO>();
+
+    private Collection<DictionaryI18NDTO> localizedDescriptions = new ArrayList<DictionaryI18NDTO>();
 
     public String getKey() {
         return key;
@@ -39,6 +42,14 @@ public class DictionaryItemDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Collection<DictionaryI18NDTO> getLocalizedDescriptions() {
+        return localizedDescriptions;
+    }
+
+    public void setLocalizedDescriptions(Collection<DictionaryI18NDTO> localizedDescriptions) {
+        this.localizedDescriptions = localizedDescriptions;
     }
 
     public ProcessDBDictionaryItem toProcessDBDictionaryItem(final String languageCode) {
@@ -88,11 +99,16 @@ public class DictionaryItemDTO {
         dto.setDescription(item.getDescription(messageSource.getLocale()));
         if (dto.getDescription() == null || "".equals(dto.getDescription()))
             dto.setDescription(item.getDefaultDescription());
+        for (ProcessDBDictionaryI18N desc: item.getLocalizedDescriptions()) {
+            DictionaryI18NDTO i18NDTO = DictionaryI18NDTO.createFrom(desc, messageSource);
+            dto.getLocalizedDescriptions().add(i18NDTO);
+        }
         for (ProcessDBDictionaryItemValue value : item.getValues()) {
             DictionaryItemValueDTO valueDTO = DictionaryItemValueDTO.createFrom(value, messageSource);
             dto.getValues().add(valueDTO);
         }
         return dto;
     }
+
 
 }

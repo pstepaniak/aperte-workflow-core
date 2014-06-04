@@ -211,12 +211,54 @@
         valuesTable.fnSetColumnVis(5, false);
 
         function generateValueColumn(nTd, sData, oData, iRow, iCol){
-            var valueControl = $('<input style="width:200px" type="text" class="form-control" id="value" placeholder="<@spring.message 'dictionary.editor.itemValues.table.value'/>">');
-            valueControl.val(oData.value);
+            var valueControl = $(
+                '<input style="width:200px" type="text" class="form-control" id="value-' + iRow + '" placeholder="<@spring.message 'dictionary.editor.itemValues.table.value'/>">'
+            );
+            //valueControl.val(oData.value);
+            var selectedLanguage = currentItem.values[iRow].selectedLanguage;
+            var value = currentItem.values[iRow].localizedValues[selectedLanguage];
+            if (selectedLanguage && value)
+                valueControl.val(value.text);
+            else if (selectedLanguage && !value)
+                valueControl.val('');
+            else
+                valueControl.val(currentItem.values[iRow].value);
             $(valueControl).on('change',function(){
                 currentItem.values[iRow].value = $( this ).val() ;
+                var lang = $('input:radio[name=languageSelector-'+iRow+']:checked').val();
+                if (!currentItem.values[iRow].localizedValues[lang])
+                    currentItem.values[iRow].localizedValues[lang] = {"languageCode":lang, "text":""};
+                currentItem.values[iRow].localizedValues[lang].text = $(this).val();
             });
+            var selector = languageSelector(iRow);
+            $(nTd).prepend(selector);
             $(nTd).prepend(valueControl);
+        }
+
+        function languageSelector(iRow) {
+            var id = 'languageSelector-' + iRow;
+            var languages = ['default', 'pl'];
+            var html = '<div id="' + id + '">';
+            $.each(languages, function(index) {
+                html += '<input type="radio" id="' + id + '-' + index+ '" name="' + id + '" value="' + this +'" ';
+                if ((!currentItem.values[iRow].selectedLanguage && index==0) || currentItem.values[iRow].selectedLanguage == this)
+                    html += 'checked';
+                html += '>' + this + '</input>';
+            });
+            html += '</div>';
+            var selector = $(html);
+            // $(selector).buttonset();
+            $(selector).on('change',function(){
+                var lang = $('input:radio[name='+id+']:checked').val();
+                currentItem.values[iRow].selectedLanguage = lang;
+                var localizedValue = currentItem.values[iRow].localizedValues[lang];
+                if (!localizedValue) {
+                    $('#value-' + iRow).val('');
+                } else {
+                    $('#value-' + iRow).val(localizedValue.text);
+                }
+            });
+            return selector;
         }
 
         function generateValueDateFromColumn(nTd, sData, oData, iRow, iCol){
@@ -449,11 +491,11 @@
 	function addNew() {
 	    if (!currentDict)
 	        return;
-		edit({"key":"", "description": "", values:[]});
+		edit({"key":"", "description": "", "values":[], "localizedDescriptions": []});
 	}
 
 	function addNewValue() {
-		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[], "toDelete":false};
+		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[], "toDelete":false, "localizedValues":{"default":{"languageCode":"default","text":""}} };
 		currentItem.values.push( row );
         valuesTable.fnAddData(row);
 	}
