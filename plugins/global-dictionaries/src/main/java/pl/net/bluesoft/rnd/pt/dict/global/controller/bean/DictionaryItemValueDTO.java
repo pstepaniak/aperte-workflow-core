@@ -106,6 +106,8 @@ public class DictionaryItemValueDTO {
                 i18n = getI18NById(value, i18nDTO.getId());
             if (i18n == null)
                 value.getLocalizedValues().add(i18nDTO.toProcessDBDictionaryI18N(languageCode));
+            else
+                i18nDTO.update(i18n, languageCode);
         }
         for (DictionaryItemExtDTO extDTO : this.getExtensions()) {
             ProcessDBDictionaryItemExtension extension = null;

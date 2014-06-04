@@ -39,6 +39,20 @@
         color: #000 !important;
     }
 
+    .input-hidden {
+        position: absolute;
+        left: -9999px;
+    }
+
+    input[type=radio]:checked + label>img {
+        border: 1px solid #fff;
+        box-shadow: 0 0 1px 1px #090;
+    }
+
+    input[type=radio] + label>img {
+        border: 1px solid #fff;
+        transition: 300ms all;
+    }
 </style>
 
 <#if aperteUser.hasRole("DICT_EDITOR")>
@@ -237,17 +251,18 @@
 
         function languageSelector(iRow) {
             var id = 'languageSelector-' + iRow;
-            var languages = ['default', 'pl'];
+            var languages = {'default':'en_US', 'pl':'pl_PL'};
             var html = '<div id="' + id + '">';
-            $.each(languages, function(index) {
-                html += '<input type="radio" id="' + id + '-' + index+ '" name="' + id + '" value="' + this +'" ';
+            $.each(Object.keys(languages), function(index) {
+                html += '<input class="input-hidden" type="radio" id="' + id + '-' + index+ '" name="' + id + '" value="' + this +'" ';
                 if ((!currentItem.values[iRow].selectedLanguage && index==0) || currentItem.values[iRow].selectedLanguage == this)
                     html += 'checked';
-                html += '>' + this + '</input>';
+                html += '/>';
+                html += '<label for="' + id+'-'+index + '"><img src="/html/themes/control_panel/images/language/' + languages[this] + '.png"/>';
+                html += '</label>';
             });
             html += '</div>';
             var selector = $(html);
-            // $(selector).buttonset();
             $(selector).on('change',function(){
                 var lang = $('input:radio[name='+id+']:checked').val();
                 currentItem.values[iRow].selectedLanguage = lang;

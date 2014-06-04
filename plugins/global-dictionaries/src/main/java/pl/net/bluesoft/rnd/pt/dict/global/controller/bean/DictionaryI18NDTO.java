@@ -45,9 +45,16 @@ public class DictionaryI18NDTO {
 
     public ProcessDBDictionaryI18N toProcessDBDictionaryI18N(String languageCode) {
         final ProcessDBDictionaryI18N i18n = new ProcessDBDictionaryI18N();
+        update(i18n, languageCode);
+        return i18n;
+    }
+
+    public void update(ProcessDBDictionaryI18N i18n, String languageCode) {
         i18n.setId(this.getId());
         i18n.setLanguageCode(this.getLanguageCode());
-        i18n.setText(this.getText());
-        return i18n;
+        if ("".equals(this.getText()))
+            i18n.setText(null);
+        else
+            i18n.setText(this.getText());
     }
 }
