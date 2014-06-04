@@ -27,7 +27,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.activation.DataHandler;
 import javax.mail.Message;
-import javax.mail.Multipart;
+import javax.mail.MessagingException;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -555,26 +555,26 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 		message.setSubject(notification.getSubject());
         message.setSentDate(new Date());
+
         //body
-        MimeBodyPart messagePart = new MimeBodyPart();
-        messagePart.setContent(notification.getBody(), (notification.getSendAsHtml() ? "text/html" : "text/plain") + "; charset=\""+MAIL_ENCODING+"\"");
-        
-        Multipart multipart = new MimeMultipart("alternative");
-        multipart.addBodyPart(messagePart);
+
+		MimeBodyPart bodyPart = createBodyPart(notification);
+		MimeMultipart content = wrapInMimeMultipart(bodyPart, "alternative");
 
         //zalaczniki
 
         if(notification.getAttachments() != null && !notification.getAttachments().isEmpty())
         {
-			List<BpmAttachment> attachments = notification.decodeAttachments();
-	        
-	        for (BpmAttachment attachment : attachments) {
-		        MimeBodyPart attachmentPart = new MimeBodyPart();
-				ByteArrayDataSource ds = new ByteArrayDataSource(attachment.getBody(), attachment.getContentType());
+			MimeBodyPart contentPart = new MimeBodyPart();
+			contentPart.setContent(content);
+			content = wrapInMimeMultipart(contentPart, "mixed");
 
-				attachmentPart.setDataHandler(new DataHandler(ds));
-		        attachmentPart.setFileName(attachment.getName());
-		        multipart.addBodyPart(attachmentPart);
+			List<BpmAttachment> attachments = notification.decodeAttachments();
+
+	        for (BpmAttachment attachment : attachments) {
+				MimeBodyPart attachmentPart = createAttachmentPart(attachment);
+
+		        content.addBodyPart(attachmentPart);
 
 				if (logger.isLoggable(Level.INFO)) {
 					logger.info("Added attachment " + attachment.getName());
@@ -582,12 +582,34 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	        }       
         }
         
-        message.setContent(multipart);
+        message.setContent(content);
         message.setSentDate(new Date());
- 
-        
+
         return message;
     }
+
+	private static MimeBodyPart createBodyPart(BpmNotification notification) throws MessagingException {
+		MimeBodyPart bodyPart = new MimeBodyPart();
+		String type = (notification.getSendAsHtml() ? "text/html" : "text/plain") + "; charset=\"" + MAIL_ENCODING + '"';
+
+		bodyPart.setContent(notification.getBody(), type);
+		return bodyPart;
+	}
+
+	private static MimeBodyPart createAttachmentPart(BpmAttachment attachment) throws MessagingException {
+		MimeBodyPart attachmentPart = new MimeBodyPart();
+		ByteArrayDataSource ds = new ByteArrayDataSource(attachment.getBody(), attachment.getContentType());
+
+		attachmentPart.setDataHandler(new DataHandler(ds));
+		attachmentPart.setFileName(attachment.getName());
+		return attachmentPart;
+	}
+
+	private static MimeMultipart wrapInMimeMultipart(MimeBodyPart bodyPart, String type) throws MessagingException {
+		MimeMultipart bodyContent = new MimeMultipart(type);
+		bodyContent.addBodyPart(bodyPart);
+		return bodyContent;
+	}
 
 	private static String getRecipientSubstiteEmails(BpmNotification notification) {
 		if (!hasText(notification.getRecipient())) {
