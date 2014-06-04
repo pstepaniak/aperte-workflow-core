@@ -41,6 +41,7 @@
 
 </style>
 
+<#if aperteUser.hasRole("DICT_EDITOR")>
 
 <div class="apw main-view col-md-offset-1">
     <div class="panel panel-default">
@@ -566,3 +567,14 @@
 
 </script>
 
+<#else>
+
+    <div class="apw main-view col-md-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <@spring.message "dictionary.editor.access.denied"/>
+            </div>
+        </div>
+    </div>
+
+</#if>

@@ -7,6 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
@@ -25,6 +26,9 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.net.URLDecoder;
 import java.util.*;
 
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
+
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 /**
  * Created by pkuciapski on 2014-05-30.
@@ -65,13 +69,21 @@ public class DictionaryEditorController implements IOsgiWebController {
 
         List<ProcessDBDictionary> dictionary = dao.fetchAllDictionaries();
         List<DictionaryDTO> dtos = new ArrayList(createDTOList(dictionary, invocation.getProcessToolRequestContext().getMessageSource()));
-        Collections.sort(dtos, new Comparator<DictionaryDTO>() {
+
+        final UserData user = invocation.getProcessToolRequestContext().getUser();
+        List<DictionaryDTO> dictionaries = new ArrayList();
+        for (DictionaryDTO dto : dtos) {
+            if (user.hasRole("DICT_EDITOR_" + dto.getId().toUpperCase()))
+                dictionaries.add(dto);
+        }
+        Collections.sort(dictionaries, new Comparator<DictionaryDTO>() {
             @Override
             public int compare(DictionaryDTO d1, DictionaryDTO d2) {
                 return d1.getName().compareTo(d2.getName());
             }
         });
-        result.setData(dtos);
+
+        result.setData(dictionaries);
 
         return result;
     }

@@ -37,7 +37,7 @@ public class DictionaryDTO {
 
     public static DictionaryDTO createFrom(ProcessDBDictionary dict, I18NSource messageSource) {
         DictionaryDTO dto = new DictionaryDTO();
-        dto.setId(String.valueOf(dict.getDictionaryId()));
+        dto.setId(dict.getDictionaryId());
         dto.setName(dict.getName(messageSource.getLocale()));
         if (dto.getName() == null || "".equals(dto.getName())) {
             dto.setName(dict.getDefaultName());

@@ -11,7 +11,7 @@ import java.util.Collection;
  * Created by pkuciapski on 2014-05-30.
  */
 public class DictionaryItemDTO {
-    private String id;
+    private Long id;
     private String key;
     private String description;
 
@@ -33,18 +33,18 @@ public class DictionaryItemDTO {
         this.description = description;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     public ProcessDBDictionaryItem toProcessDBDictionaryItem(final String languageCode) {
         ProcessDBDictionaryItem item = new ProcessDBDictionaryItem();
         if (this.getId() != null)
-            item.setId(Long.valueOf(this.getId()));
+            item.setId(this.getId());
         updateItem(item, languageCode);
         return item;
     }
@@ -55,7 +55,7 @@ public class DictionaryItemDTO {
         for (DictionaryItemValueDTO valueDTO : this.getValues()) {
             ProcessDBDictionaryItemValue value = null;
             if (valueDTO.getId() != null)
-                value = getValueById(item, Long.valueOf(valueDTO.getId()));
+                value = getValueById(item, valueDTO.getId());
             if (value == null)
                 item.addValue(valueDTO.toProcessDBDictionaryItemValue(languageCode));
             else if (valueDTO.getToDelete())
@@ -83,7 +83,7 @@ public class DictionaryItemDTO {
 
     public static DictionaryItemDTO createFrom(ProcessDBDictionaryItem item, I18NSource messageSource) {
         DictionaryItemDTO dto = new DictionaryItemDTO();
-        dto.setId(String.valueOf(item.getId()));
+        dto.setId(item.getId());
         dto.setKey(item.getKey());
         dto.setDescription(item.getDescription(messageSource.getLocale()));
         if (dto.getDescription() == null || "".equals(dto.getDescription()))

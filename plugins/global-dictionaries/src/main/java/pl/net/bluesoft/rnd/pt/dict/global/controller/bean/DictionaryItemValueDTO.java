@@ -14,18 +14,19 @@ import java.util.Collection;
  * Created by pkuciapski on 2014-06-02.
  */
 public class DictionaryItemValueDTO {
-    private String id;
+    private Long id;
     private String value;
     private String dateFrom;
     private String dateTo;
     private Collection<DictionaryItemExtDTO> extensions = new ArrayList<DictionaryItemExtDTO>();
+    private Collection<DictionaryI18NDTO> localizedValues = new ArrayList<DictionaryI18NDTO>();
     private Boolean toDelete = Boolean.FALSE;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -63,7 +64,7 @@ public class DictionaryItemValueDTO {
 
     public static DictionaryItemValueDTO createFrom(ProcessDBDictionaryItemValue value, I18NSource messageSource) {
         DictionaryItemValueDTO dto = new DictionaryItemValueDTO();
-        dto.setId(String.valueOf(value.getId()));
+        dto.setId(value.getId());
         dto.setValue(value.getValue(messageSource.getLocale()));
         dto.setDateFrom(FormatUtil.formatShortDate(value.getValidFrom()));
         dto.setDateTo(FormatUtil.formatShortDate(value.getValidTo()));
@@ -116,5 +117,13 @@ public class DictionaryItemValueDTO {
 
     public void setToDelete(Boolean toDelete) {
         this.toDelete = toDelete;
+    }
+
+    public Collection<DictionaryI18NDTO> getLocalizedValues() {
+        return localizedValues;
+    }
+
+    public void setLocalizedValues(Collection<DictionaryI18NDTO> localizedValues) {
+        this.localizedValues = localizedValues;
     }
 }
