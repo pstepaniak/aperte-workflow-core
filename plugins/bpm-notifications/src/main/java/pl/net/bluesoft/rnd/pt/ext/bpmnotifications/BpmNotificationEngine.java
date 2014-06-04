@@ -615,7 +615,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		if (!hasText(notification.getRecipient())) {
 			 return null;
 		}
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
 		UserData recipient = getRegistry().getUserSource().getUserByEmail(notification.getRecipient());
 
@@ -623,6 +622,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 			return null;
 		}
 
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         List <String> substitutesLogins = ctx.getUserSubstitutionDAO().getCurrentSubstitutedUserLogins(recipient.getLogin());
 
 		if (substitutesLogins.isEmpty()) {
