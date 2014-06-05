@@ -12,6 +12,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
@@ -29,6 +30,9 @@ import java.util.logging.Logger;
 @RequestMapping("VIEW")
 public class DictionaryEditorPortletController {
     protected static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+    private static final String LANGUAGES_SETTING = "dictionary.editor.languages";
+    private static final String LANGUAGES_ATTRIBUTE = "languages";
+    private static final String DEFAULT_LANGUAGES = "{'default':'en_US', 'pl':'pl_PL'}";
 
     private static Logger logger = Logger.getLogger(DictionaryEditorPortletController.class.getName());
 
@@ -40,6 +44,9 @@ public class DictionaryEditorPortletController {
 
     @Autowired(required = false)
     private DispatcherController mainDispatcher;
+
+    @Autowired
+    private ISettingsProvider settingsProvider;
 
     /**
      * main view handler for Portlet.
@@ -56,7 +63,10 @@ public class DictionaryEditorPortletController {
         } else {
             modelView.setViewName("dictionary-editor");
         }
-
+        String languages = settingsProvider.getSetting(LANGUAGES_SETTING);
+        if (languages == null)
+            languages = DEFAULT_LANGUAGES;
+        modelView.addObject(LANGUAGES_ATTRIBUTE, languages);
         return modelView;
     }
 

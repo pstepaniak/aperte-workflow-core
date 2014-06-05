@@ -3,6 +3,8 @@ package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.util.Map;
+
 /**
  * Created by pkuciapski on 2014-06-04.
  */
@@ -56,5 +58,11 @@ public class DictionaryI18NDTO {
             i18n.setText(null);
         else
             i18n.setText(this.getText());
+    }
+
+    public static DictionaryI18NDTO getDefaultI18N(Map<String, DictionaryI18NDTO> i18Ns) {
+        if (i18Ns != null)
+            return i18Ns.get("default");
+        return null;
     }
 }
