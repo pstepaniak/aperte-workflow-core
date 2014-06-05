@@ -1,5 +1,8 @@
 package pl.net.bluesoft.rnd.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -36,11 +39,20 @@ public class StepUtil {
 	 */
 	public static String substituteVariables(String pattern, final IAttributesProvider pi) {
 		return PlaceholderUtil.expand(pattern, new PlaceholderUtil.ReplacementCallback() {
+			@Autowired
+			private ISettingsProvider settingsProvider;
+
 			@Override
 			public String getReplacement(String placeholderName) {
 				String largePrefix = "L:";
+				String settingPrefix = "S:";
+
 				if (placeholderName.startsWith(largePrefix)) {
 					return pi.getSimpleLargeAttributeValue(placeholderName.substring(largePrefix.length()));
+				}
+				if (placeholderName.startsWith(settingPrefix)) {
+					SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+					return settingsProvider.getSetting(placeholderName.substring(settingPrefix.length()));
 				}
 				return pi.getSimpleAttributeValue(placeholderName);
 			}
