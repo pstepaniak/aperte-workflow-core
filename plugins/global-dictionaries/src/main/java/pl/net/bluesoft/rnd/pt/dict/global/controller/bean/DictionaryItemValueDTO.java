@@ -8,10 +8,7 @@ import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValu
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by pkuciapski on 2014-06-02.
@@ -98,8 +95,9 @@ public class DictionaryItemValueDTO {
         value.setDefaultValue(this.getValue());
         if (this.getDateFrom() != null && !"".equals(this.getDateFrom()))
             value.setValidFrom(FormatUtil.parseDate("yyyy-MM-dd", this.getDateFrom()));
-        if (this.getDateTo() != null && !"".equals(this.getDateTo()))
+        if (this.getDateTo() != null && !"".equals(this.getDateTo())) {
             value.setValidTo(FormatUtil.parseDate("yyyy-MM-dd", this.getDateTo()));
+        }
         for (DictionaryI18NDTO i18nDTO: this.getLocalizedValues().values()) {
             ProcessDBDictionaryI18N i18n = null;
             if (i18nDTO.getId() != null)
