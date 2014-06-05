@@ -8,98 +8,6 @@
 
 <#include "apertedatatable.ftl"/>
 
-<script>
-    var g_dictionary_items = {};
-    g_dictionary_items["complaint_type"] = [
-        ["P", "Reklamacja Pasażerska", "", [
-            ["Reklamacja Pasażerska", "", "", "", [
-                ["case_signature", "HMRP", "Sygnatura sprawy"],
-                ["sap_code", "P", "Kod dla SAP"],
-                ["box_id", "P", "Identyfikator skrzynki"],
-                ["queue_id", "new_passenger_complaints", "Identyfikator kolejki"]
-            ]]
-        ]],
-        ["B", "Reklamacja Bagażowa", "", [
-            ["Reklamacja Bagażowa", "", "", "", [
-                ["case_signature", "HMRB", "Sygnatura sprawy"],
-                ["sap_code", "B", "Kod dla SAP"],
-                ["box_id", "B", "Identyfikator skrzynki"],
-                ["queue_id", "new_luggage_complaints", "Identyfikator kolejki"]
-            ]]
-        ]]
-    ];
-    g_dictionary_items["statuses"] = [
-        ["NEW", "Status zarejestrowana", "", [
-            ["Zarejestrowana", "", "", "", [
-                ["type", "OPEN", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["OPEN", "Status otwarta", "", [
-            ["Otwarta", "", "", "", [
-                ["type", "OPEN", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["CLOSED", "Status zamknięta", "", [
-            ["Zamknięta", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["CLOSED_NUMBER", "Status zamknięta z numerem", "", [
-            ["Zamknięta z numerem", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"],
-                ["subdict", "statuses_closed", "Podsłownik dla zamkniętych z numerem"],
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]],
-        ["REJECTED", "Status odrzucona", "", [
-            ["Odrzucona", "", "", "", [
-                ["type", "CLOSED", "Sprawa otwarta"]
-            ]]
-        ]]
-
-    ];
-
-</script>
-
 <style type="text/css">
     #fixedElement.stick {
         position: fixed;
@@ -127,10 +35,29 @@
         border-bottom: none;
     }
 
+    input[type="text"] {
+        color: #000 !important;
+    }
+
+    .input-hidden {
+        position: absolute;
+        left: -9999px;
+    }
+
+    input[type=radio]:checked + label>img {
+        border: 1px solid #fff;
+        box-shadow: 0 0 1px 1px #090;
+    }
+
+    input[type=radio] + label>img {
+        border: 1px solid #fff;
+        transition: 300ms all;
+    }
 </style>
 
+<#if aperteUser.hasRole("DICT_EDITOR")>
 
-<div class="apw main-view col-md-10 col-md-offset-1">
+<div class="apw main-view col-md-offset-1">
     <div class="panel panel-default">
         <div class="panel-heading">
             <@spring.message "dictionary.editor.heading"/>
@@ -139,7 +66,7 @@
                     <label for="dictName"><@spring.message "dictionary.editor.dictionaryName"/></label>
                 </div>
                 <div class="col-md-4">
-                    <input id="dictName" type="text" placeholder="" style="width:250px"/>
+                    <input id="dictName" type="text" placeholder="" style="width:280px"/>
                 </div>
             </div>
         </div>
@@ -186,7 +113,7 @@
                     <div class="form-group col-md-4">
                         <label for="description" class="col-sm-2 control-label"><@spring.message "dictionary.editor.dictionaryItems.table.description"/></label>
 
-                        <div class="col-sm-10">
+                        <div class="col-sm-10" id="itemDescDiv">
                             <input class="form-control" id="itemDesc" placeholder="<@spring.message 'dictionary.editor.dictionaryItems.table.description'/>"></textarea>
                         </div>
                     </div>
@@ -216,7 +143,6 @@
                             </tbody>
                         </table>
 
-
                     </div>
                 </div>
             </div>
@@ -242,13 +168,10 @@
 <script type="text/javascript">
 //<![CDATA[
 
-
     var itemsTable;
     var valuesTable;
     var currentDict;
-    var currentItem;
-    var currentItemClone;
-    var currentItemIndex;
+    var currentItem = {"key":"", "description":"", "selectedLanguage":"default", "localizedDescriptions": {"default": {"languageCode":"default", "text":""}}};
 
     var alertsShown = false;
     var alertsInit = false;
@@ -300,14 +223,79 @@
         valuesTable.fnSetColumnVis(5, false);
 
         function generateValueColumn(nTd, sData, oData, iRow, iCol){
-            console.log(oData);
-            var valueControl = $('<input style="width:200px" type="text" class="form-control" id="value" placeholder="Wartość">');
-            valueControl.val(oData.value);
+            var valueControl = $(
+                '<input style="width:200px" type="text" class="form-control" id="value-' + iRow + '" placeholder="<@spring.message 'dictionary.editor.itemValues.table.value'/>">'
+            );
+            //valueControl.val(oData.value);
+            var selectedLanguage = currentItem.values[iRow].selectedLanguage;
+            var value = currentItem.values[iRow].localizedValues[selectedLanguage];
+            if (selectedLanguage && value)
+                valueControl.val(value.text);
+            else if (selectedLanguage && !value)
+                valueControl.val('');
+            else
+                valueControl.val(currentItem.values[iRow].value);
             $(valueControl).on('change',function(){
                 currentItem.values[iRow].value = $( this ).val() ;
+                var lang = $('input:radio[name=languageSelector-'+iRow+']:checked').val();
+                if (!currentItem.values[iRow].localizedValues[lang])
+                    currentItem.values[iRow].localizedValues[lang] = {"languageCode":lang, "text":""};
+                currentItem.values[iRow].localizedValues[lang].text = $(this).val();
             });
+            var selector = languageSelector(iRow, currentItem.values[iRow]);
+            $(selector).on('change',function(){
+                var iId = 'languageSelector-' + iRow;
+                var lang = $('input:radio[name='+iId+']:checked').val();
+                currentItem.values[iRow].selectedLanguage = lang;
+                var localizedValue = currentItem.values[iRow].localizedValues[lang];
+                if (!localizedValue) {
+                    $('#value-' + iRow).val('');
+                } else {
+                    $('#value-' + iRow).val(localizedValue.text);
+                }
+            });
+            $(nTd).prepend(selector);
             $(nTd).prepend(valueControl);
         }
+
+        function languageSelector(iRow, oValue) {
+            var iId = 'languageSelector-' + iRow;
+            var languages = ${languages};
+            var html = '<div id="' + iId + '">';
+            $.each(Object.keys(languages), function(index) {
+                html += '<input class="input-hidden" type="radio" id="' + iId + '-' + index+ '" name="' + iId + '" value="' + this +'" ';
+                if ((!oValue.selectedLanguage && index==0) || oValue.selectedLanguage == this)
+                    html += 'checked';
+                html += '/>';
+                html += '<label for="' + iId+'-'+index + '"><img src="/html/themes/control_panel/images/language/' + languages[this] + '.png"/>';
+                html += '</label>';
+            });
+            html += '</div>';
+            var selector = $(html);
+            return selector;
+        }
+
+        // add language selector to the item description input
+        var itemDescLangSelector = languageSelector('itemDesc', currentItem);
+        $('#itemDescDiv').append(itemDescLangSelector);
+        $(itemDescLangSelector).on('change',function(){
+            var sId = 'languageSelector-itemDesc';
+            var lang = $('input:radio[name='+sId+']:checked').val();
+            currentItem.selectedLanguage = lang;
+            var localizedDesc = currentItem.localizedDescriptions[lang];
+            if (!localizedDesc) {
+                $('#itemDesc').val('');
+            } else {
+                $('#itemDesc').val(localizedDesc.text);
+            }
+        });
+        $('#itemDesc').on('change',function(){
+            currentItem.description = $(this).val();
+            var lang = $('input:radio[name=languageSelector-itemDesc]:checked').val();
+            if (!currentItem.localizedDescriptions[lang])
+                currentItem.localizedDescriptions[lang] = {"languageCode":lang, "text":""};
+            currentItem.localizedDescriptions[lang].text = $(this).val();
+        });
 
         function generateValueDateFromColumn(nTd, sData, oData, iRow, iCol){
             var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="valueDateFrom" placeholder="<@spring.message 'dictionary.editor.itemValues.table.dateFrom'/>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
@@ -351,7 +339,6 @@
             $(nTd).empty();
             var row = $('<div class="col-md-12" ></div>');
             $.each(oData.extensions, function(index) {
-                console.log(this);
                 if (!this.toDelete) {
                     var innerRow = $('<div class="row"></div>');
                     var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.key"/></label>' +
@@ -465,7 +452,7 @@
 			refreshTable();
 		});
 		$("#backButton").on('click',function() {
-			$("#itemsList").show();
+			$("#itemsList").fadeIn(300);
 			$("#itemsEdit").hide();
             valuesTable.fnClearTable();
 			refreshTable();
@@ -483,7 +470,6 @@
 		$("#saveButton").on('click',function() {
 		    currentItem.key = $("#itemKey").val();
 		    currentItem.description = $("#itemDesc").val();
-		    console.log('save: ' + currentItem);
             var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "dictionaryeditorcontroller",
                 "action": "saveDictionaryItem",
@@ -494,7 +480,6 @@
                 <!-- Errors handling -->
                 clearAlerts();
                 var errors = [];
-                console.log(data.errors);
                 $.each(data.errors, function() {
                     errors.push(this);
                     addAlert(this.message);
@@ -503,14 +488,13 @@
 
 			    $("#itemsEdit").hide();
 			    refreshTable();
-			    $("#itemsList").show();
+			    $("#itemsList").fadeIn(300);
             });
 		});
 
     });
 
 	function addNewExtension(iRow) {
-	    console.log(iRow);
 		var newExtension = {"key":"", "value":"", "toDelete":false};
 		var extensions = currentItem.values[iRow].extensions;
 
@@ -531,13 +515,10 @@
 	}
 
 	function removeValue(value, iRow) {
-	    console.log('removeValue:' + value);
-	    console.log(currentItem.values);
 	    if (!value.id)
 		    currentItem.values.splice(iRow, 1);
 		else
 		    currentItem.values[iRow].toDelete = true;
-		console.log(currentItem.values);
 
 		valuesTable.fnClearTable();
         valuesTable.fnAddData(currentItem.values);
@@ -546,11 +527,11 @@
 	function addNew() {
 	    if (!currentDict)
 	        return;
-		edit({"key":"", "description": "", values:[]});
+		edit({"key":"", "description": "", "values":[], "localizedDescriptions": []});
 	}
 
 	function addNewValue() {
-		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[], "toDelete":false};
+		var row = {"value": "", "dateFrom": "", "dateTo":"", "extensions":[], "toDelete":false, "localizedValues":{"default":{"languageCode":"default","text":""}} };
 		currentItem.values.push( row );
         valuesTable.fnAddData(row);
 	}
@@ -558,15 +539,16 @@
 	function edit(item) {
         $("#itemsList").hide();
         currentItem = item;
+        currentItem.selectedLanguage = "default";
+        $('input:radio[name=languageSelector-itemDesc][value=default]').prop('checked', true);
         refreshValuesTable();
         $("#itemKey").val(item.key);
         $("#itemDesc").val(item.description);
-        $("#itemsEdit").show();
+        $("#itemsEdit").fadeIn(300);
     }
 
 	function remove(item) {
 	    if (confirm('<@spring.message "dictionary.editor.dictionaryItems.confirm.delete"/>')) {
-	        console.log('remove:' + item);
             var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "dictionaryeditorcontroller",
                 "action": "deleteDictionaryItem",
@@ -605,10 +587,8 @@
         })
         .done(function(data) {
             <!-- Errors handling -->
-            console.log('refresh data:' + data);
             clearAlerts();
             var errors = [];
-            console.log(data.errors);
             $.each(data.errors, function() {
                 errors.push(this);
                 addAlert(this.message);
@@ -616,7 +596,6 @@
             if(errors.length > 0) { return; }
 
             var values = data.data;
-            console.log('refresh values:' + values);
             currentItem.values = values;
             valuesTable.fnClearTable();
             valuesTable.fnAddData(values);
@@ -668,3 +647,14 @@
 
 </script>
 
+<#else>
+
+    <div class="apw main-view col-md-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <@spring.message "dictionary.editor.access.denied"/>
+            </div>
+        </div>
+    </div>
+
+</#if>

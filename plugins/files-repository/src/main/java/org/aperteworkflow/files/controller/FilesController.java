@@ -8,21 +8,23 @@ import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+
 @OsgiController(name = "filescontroller")
 public class FilesController extends AbstractFilesController implements IOsgiWebController {
 
     @Override
     protected IAttributesConsumer getAttributesConsumer(Long id) {
-        return ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(id);
+        return getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(id);
     }
 
     @Override
     protected IAttributesProvider getAttributesProvider(Long id) {
-        return ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(id);
+        return getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(id);
     }
 
     @Override
     protected FilesRepositoryAttributeFactory getAttributesFactory() {
-        return new FilesRepositoryProcessAttributeFactoryImpl();
+        return FilesRepositoryProcessAttributeFactoryImpl.INSTANCE;
     }
 }
