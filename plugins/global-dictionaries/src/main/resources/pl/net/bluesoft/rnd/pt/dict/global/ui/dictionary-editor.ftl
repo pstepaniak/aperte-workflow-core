@@ -113,7 +113,7 @@
                     <div class="form-group col-md-4">
                         <label for="description" class="col-sm-2 control-label"><@spring.message "dictionary.editor.dictionaryItems.table.description"/></label>
 
-                        <div class="col-sm-10">
+                        <div class="col-sm-10" id="itemDescDiv">
                             <input class="form-control" id="itemDesc" placeholder="<@spring.message 'dictionary.editor.dictionaryItems.table.description'/>"></textarea>
                         </div>
                     </div>
@@ -171,9 +171,7 @@
     var itemsTable;
     var valuesTable;
     var currentDict;
-    var currentItem;
-    var currentItemClone;
-    var currentItemIndex;
+    var currentItem = {"key":"", "description":"", "selectedLanguage":"default", "localizedDescriptions": {"default": {"languageCode":"default", "text":""}}};
 
     var alertsShown = false;
     var alertsInit = false;
@@ -244,27 +242,10 @@
                     currentItem.values[iRow].localizedValues[lang] = {"languageCode":lang, "text":""};
                 currentItem.values[iRow].localizedValues[lang].text = $(this).val();
             });
-            var selector = languageSelector(iRow);
-            $(nTd).prepend(selector);
-            $(nTd).prepend(valueControl);
-        }
-
-        function languageSelector(iRow) {
-            var id = 'languageSelector-' + iRow;
-            var languages = {'default':'en_US', 'pl':'pl_PL'};
-            var html = '<div id="' + id + '">';
-            $.each(Object.keys(languages), function(index) {
-                html += '<input class="input-hidden" type="radio" id="' + id + '-' + index+ '" name="' + id + '" value="' + this +'" ';
-                if ((!currentItem.values[iRow].selectedLanguage && index==0) || currentItem.values[iRow].selectedLanguage == this)
-                    html += 'checked';
-                html += '/>';
-                html += '<label for="' + id+'-'+index + '"><img src="/html/themes/control_panel/images/language/' + languages[this] + '.png"/>';
-                html += '</label>';
-            });
-            html += '</div>';
-            var selector = $(html);
+            var selector = languageSelector(iRow, currentItem.values[iRow]);
             $(selector).on('change',function(){
-                var lang = $('input:radio[name='+id+']:checked').val();
+                var iId = 'languageSelector-' + iRow;
+                var lang = $('input:radio[name='+iId+']:checked').val();
                 currentItem.values[iRow].selectedLanguage = lang;
                 var localizedValue = currentItem.values[iRow].localizedValues[lang];
                 if (!localizedValue) {
@@ -273,8 +254,48 @@
                     $('#value-' + iRow).val(localizedValue.text);
                 }
             });
+            $(nTd).prepend(selector);
+            $(nTd).prepend(valueControl);
+        }
+
+        function languageSelector(iRow, oValue) {
+            var iId = 'languageSelector-' + iRow;
+            var languages = ${languages};
+            var html = '<div id="' + iId + '">';
+            $.each(Object.keys(languages), function(index) {
+                html += '<input class="input-hidden" type="radio" id="' + iId + '-' + index+ '" name="' + iId + '" value="' + this +'" ';
+                if ((!oValue.selectedLanguage && index==0) || oValue.selectedLanguage == this)
+                    html += 'checked';
+                html += '/>';
+                html += '<label for="' + iId+'-'+index + '"><img src="/html/themes/control_panel/images/language/' + languages[this] + '.png"/>';
+                html += '</label>';
+            });
+            html += '</div>';
+            var selector = $(html);
             return selector;
         }
+
+        // add language selector to the item description input
+        var itemDescLangSelector = languageSelector('itemDesc', currentItem);
+        $('#itemDescDiv').append(itemDescLangSelector);
+        $(itemDescLangSelector).on('change',function(){
+            var sId = 'languageSelector-itemDesc';
+            var lang = $('input:radio[name='+sId+']:checked').val();
+            currentItem.selectedLanguage = lang;
+            var localizedDesc = currentItem.localizedDescriptions[lang];
+            if (!localizedDesc) {
+                $('#itemDesc').val('');
+            } else {
+                $('#itemDesc').val(localizedDesc.text);
+            }
+        });
+        $('#itemDesc').on('change',function(){
+            currentItem.description = $(this).val();
+            var lang = $('input:radio[name=languageSelector-itemDesc]:checked').val();
+            if (!currentItem.localizedDescriptions[lang])
+                currentItem.localizedDescriptions[lang] = {"languageCode":lang, "text":""};
+            currentItem.localizedDescriptions[lang].text = $(this).val();
+        });
 
         function generateValueDateFromColumn(nTd, sData, oData, iRow, iCol){
             var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="valueDateFrom" placeholder="<@spring.message 'dictionary.editor.itemValues.table.dateFrom'/>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
@@ -431,7 +452,7 @@
 			refreshTable();
 		});
 		$("#backButton").on('click',function() {
-			$("#itemsList").show();
+			$("#itemsList").fadeIn(300);
 			$("#itemsEdit").hide();
             valuesTable.fnClearTable();
 			refreshTable();
@@ -467,7 +488,7 @@
 
 			    $("#itemsEdit").hide();
 			    refreshTable();
-			    $("#itemsList").show();
+			    $("#itemsList").fadeIn(300);
             });
 		});
 
@@ -518,10 +539,12 @@
 	function edit(item) {
         $("#itemsList").hide();
         currentItem = item;
+        currentItem.selectedLanguage = "default";
+        $('input:radio[name=languageSelector-itemDesc][value=default]').prop('checked', true);
         refreshValuesTable();
         $("#itemKey").val(item.key);
         $("#itemDesc").val(item.description);
-        $("#itemsEdit").show();
+        $("#itemsEdit").fadeIn(300);
     }
 
 	function remove(item) {
