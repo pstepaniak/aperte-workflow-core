@@ -50,7 +50,7 @@ public class FilesRepositoryItemDAOTest {
         processInstanceDAO = new ProcessInstanceDAOImpl(session);
         exProcessInstance = processInstanceDAO.findAll().get(3);
         dao = new FilesRepositoryItemDAOImpl(session);
-        factory = new FilesRepositoryProcessAttributeFactoryImpl();
+        factory = FilesRepositoryProcessAttributeFactoryImpl.INSTANCE;
     }
 
     @After
