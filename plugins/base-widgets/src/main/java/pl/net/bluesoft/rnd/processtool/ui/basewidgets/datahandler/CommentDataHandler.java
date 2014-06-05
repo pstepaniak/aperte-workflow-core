@@ -46,7 +46,7 @@ public class CommentDataHandler implements IWidgetDataHandler {
 
     private List<ProcessComment> convert(List<ProcessCommentBean> list, IAttributesProvider provider) {
         List<ProcessComment> result = new ArrayList<ProcessComment>();
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         for (ProcessCommentBean bean : list) {
             result.add(convert(bean, (BpmTask) provider, format));
