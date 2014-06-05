@@ -5,6 +5,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * User: POlszewski
@@ -48,4 +49,8 @@ public class LocalizedFormats {
 	public static SimpleDateFormat getDayMonthFormat(I18NSource i18NSource) {
 		return new SimpleDateFormat(getDayMonthFormatStr(i18NSource));
 	}
+
+    public static String formatShortDate(Date date, I18NSource i18NSource) {
+        return date != null ? getShortDateFormat(i18NSource).format(date) : "";
+    }
 }
