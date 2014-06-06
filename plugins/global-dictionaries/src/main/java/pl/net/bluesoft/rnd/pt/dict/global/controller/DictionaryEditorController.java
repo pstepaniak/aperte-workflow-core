@@ -142,8 +142,11 @@ public class DictionaryEditorController implements IOsgiWebController {
             // todo get the item from dao
             ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
             if (dictionary != null) {
+                ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
+                dictionary = dao.refresh(dictionary);
                 ProcessDBDictionaryItem item = getItemById(dictionary.getItems(), itemId);
                 if (item != null) {
+                    item = dao.refresh(item);
                     dtos = createItemValueDTOList(item.getValues(), invocation.getProcessToolRequestContext().getMessageSource());
                 }
             }
@@ -158,7 +161,6 @@ public class DictionaryEditorController implements IOsgiWebController {
     private ProcessDBDictionary getDictionary(String dictId, ProcessToolContext context) throws Exception {
         dictId = URLDecoder.decode(dictId, "UTF-8");
         ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(context.getHibernateSession());
-        // todo get the item from dao
         return dao.fetchDictionary(dictId);
     }
 
@@ -188,29 +190,38 @@ public class DictionaryEditorController implements IOsgiWebController {
         String dictId = invocation.getRequest().getParameter("dictId");
         String item = invocation.getRequest().getParameter("item");
         ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
-        // todo save the item
+        I18NSource messageSource = invocation.getProcessToolRequestContext().getMessageSource();
+        ProcessDBDictionaryItem itemToValidate = null;
         try {
             DictionaryItemDTO dto = mapper.readValue(item, DictionaryItemDTO.class);
             ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
-            if (dto.getId() == null)
-                dictionary.addItem(dto.toProcessDBDictionaryItem(invocation.getProcessToolRequestContext().getMessageSource().getLocale().getLanguage()));
-            else
-                updateItem(dictionary, dto, invocation.getProcessToolRequestContext().getMessageSource());
+            dictionary = dao.refresh(dictionary);
+            if (dto.getId() == null) {
+                itemToValidate = dto.toProcessDBDictionaryItem(messageSource.getLocale().getLanguage());
+                dictionary.addItem(itemToValidate);
+            } else {
+                ProcessDBDictionaryItem dbItem = getItemById(dictionary.getItems(), String.valueOf(dto.getId()));
+                dbItem = dao.refresh(dbItem);
+                itemToValidate = updateItem(dictionary, dbItem, dto, messageSource);
+            }
+            if (itemToValidate != null)
+                new DictionaryValidator(messageSource).validate(itemToValidate);
             dao.updateDictionary(dictionary);
         } catch (Exception e) {
             result.addError("saveDictionaryItem", e.getMessage());
+            if (dao.getSession().isDirty())
+                dao.getSession().clear();
         }
         return result;
     }
 
-    private void updateItem(ProcessDBDictionary dictionary, DictionaryItemDTO dto, I18NSource messageSource) {
-        for (ProcessDBDictionaryItem item : dictionary.getItems().values()) {
-            if (item.getId() != null && item.getId().equals(Long.valueOf(dto.getId()))) {
-                dictionary.removeItem(item.getKey());
-                dto.updateItem(item, messageSource.getLocale().getLanguage());
-                dictionary.addItem(item);
-                break;
-            }
+    private ProcessDBDictionaryItem updateItem(ProcessDBDictionary dictionary, ProcessDBDictionaryItem item, DictionaryItemDTO dto, I18NSource messageSource) {
+        if (item.getId() != null && item.getId().equals(dto.getId())) {
+            dictionary.removeItem(item.getKey());
+            dto.updateItem(item, messageSource.getLocale().getLanguage());
+            dictionary.addItem(item);
+            return item;
         }
+        return null;
     }
 }

@@ -135,7 +135,6 @@
 		}
 
 		this.addRow = function(data) {
-		    console.log('addRow');
 		    this.dataTable.row.add(data);
 		}
 	}

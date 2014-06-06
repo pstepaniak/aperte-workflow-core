@@ -47,11 +47,13 @@
     input[type=radio]:checked + label>img {
         border: 1px solid #fff;
         box-shadow: 0 0 1px 1px #090;
+        margin-right: 1px;
     }
 
     input[type=radio] + label>img {
         border: 1px solid #fff;
         transition: 300ms all;
+        margin-right: 1px;
     }
 </style>
 
@@ -342,14 +344,14 @@
                 if (!this.toDelete) {
                     var innerRow = $('<div class="row"></div>');
                     var lineKey = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.key"/></label>' +
-                                    '<div><input type="text" class="form-control" value="'+this.key+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.key"/>"></input></div></div>');
+                                    '<div><input type="text" maxlength="255" class="form-control" value="'+this.key+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.key"/>"></input></div></div>');
 
                     $(lineKey).find('input').on('change',function(){
                         currentItem.values[iRow].extensions[index].key = $( this ).val() ;
                     });
 
                     var lineValue = $('<div class="form-group col-md-5"><label for="description" class="control-label"><@spring.message "dictionary.editor.valueExtensions.table.value"/></label>' +
-                                    '<div><input type="text" class="form-control" value="'+this.value+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.value"/>"></input></div></div>');
+                                    '<div><input type="text" maxlength="255" class="form-control" value="'+this.value+'" placeholder="<@spring.message "dictionary.editor.valueExtensions.table.value"/>"></input></div></div>');
 
                     $(lineValue).find('input').on('change',function(){
                         currentItem.values[iRow].extensions[index].value = $( this ).val() ;
@@ -527,7 +529,7 @@
 	function addNew() {
 	    if (!currentDict)
 	        return;
-		edit({"key":"", "description": "", "values":[], "localizedDescriptions": []});
+		edit({"key":"", "description": "", "values":[], "localizedDescriptions": {"default":{"languageCode":"default","text":""}} });
 	}
 
 	function addNewValue() {
