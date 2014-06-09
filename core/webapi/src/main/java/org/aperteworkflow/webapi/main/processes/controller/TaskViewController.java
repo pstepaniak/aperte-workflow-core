@@ -18,6 +18,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -149,7 +150,6 @@ public class TaskViewController extends AbstractProcessToolServletController
 
             long t1 = System.currentTimeMillis();
 
-
             if(!context.isUserAuthorized())
             {
                 response.getWriter().print(context.getMessageSource().getMessage("request.handle.error.nouser"));
@@ -158,39 +158,56 @@ public class TaskViewController extends AbstractProcessToolServletController
 
             long t2 = System.currentTimeMillis();
 
-           final StringBuilder builder = new StringBuilder();
+            final String output = buildTaskView(getProcessToolRegistry(), context, taskId);
 
-            getProcessToolRegistry().withProcessToolContext(new ProcessToolContextCallback() {
-                @Override
-                public void withContext(ProcessToolContext ctx) {
-                    long t0 = System.currentTimeMillis();
+            /* Write to output writer here, so there will be no invalid output
+            for error in previous code with session
+             */
+            response.getWriter().print(output);
 
-                    /* reset string buffer */
-                    builder.setLength(0);
+            long t3 = System.currentTimeMillis();
 
-					BpmTask task = getBpmTask(context, taskId);
+            logger.log(Level.INFO, "loadTask total: " + (t3-t0) + "ms, " +
+                    "[1]: " + (t1-t0) + "ms, " +
+                    "[2]: " + (t2-t1) + "ms, " +
+                    "[3]: " + (t3-t2) + "ms, "
+                    );
+	}
 
-                    long t1 = System.currentTimeMillis();
+    public static String buildTaskView(final ProcessToolRegistry processToolRegistry, final IProcessToolRequestContext context, final String taskId) {
+        final StringBuilder builder = new StringBuilder();
 
-                    ProcessStateConfiguration config = task.getCurrentProcessStateConfiguration();
-                    String processDescription = context.getMessageSource().getMessage(config.getDefinition().getDescription());
-                    String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
+        processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                long t0 = System.currentTimeMillis();
 
-                    long t2 = System.currentTimeMillis();
+                // reset string buffer
+                builder.setLength(0);
 
-                    /* Load view widgets */
-                    List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
-                    Collections.sort(widgets, BY_WIDGET_PRIORITY);
+                BpmTask task = getBpmTask(context, taskId);
 
-                    long t3 = System.currentTimeMillis();
+                long t1 = System.currentTimeMillis();
 
-                    /* Load view actions */
-                    List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(config.getActions());
-                    Collections.sort(actions, BY_ACTION_PRIORITY);
+                ProcessStateConfiguration config = task.getCurrentProcessStateConfiguration();
+                String processDescription = context.getMessageSource().getMessage(config.getDefinition().getDescription());
+                String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
 
-                    long t4 = System.currentTimeMillis();
+                long t2 = System.currentTimeMillis();
 
-                    TaskViewBuilder taskViewBuilder = new TaskViewBuilder()
+                // Load view widgets
+                List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
+                Collections.sort(widgets, BY_WIDGET_PRIORITY);
+
+                long t3 = System.currentTimeMillis();
+
+                // Load view actions
+                List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(config.getActions());
+                Collections.sort(actions, BY_ACTION_PRIORITY);
+
+                long t4 = System.currentTimeMillis();
+
+                TaskViewBuilder taskViewBuilder = new TaskViewBuilder()
                         .setWidgets(widgets)
                         .setActions(actions)
                         .setDescription(processDescription)
@@ -202,44 +219,30 @@ public class TaskViewController extends AbstractProcessToolServletController
                         .setTask(task)
                         .setBpmSession(context.getBpmSession());
 
-                    long t5 = System.currentTimeMillis();
+                long t5 = System.currentTimeMillis();
 
-                    try {
-                        builder.append(taskViewBuilder.build());
-                    } catch(Exception ex) {
-                        logger.log(Level.SEVERE, "Problem during task view generation. TaskId="+taskId, ex);
-                    }
+                try {
+                    builder.append(taskViewBuilder.build());
 
-                    long t6 = System.currentTimeMillis();
-
-                    logger.log(Level.INFO, "loadTask.withContext total: " + (t6-t0) + "ms, " +
-                            "[1]: " + (t1-t0) + "ms, " +
-                            "[2]: " + (t2-t1) + "ms, " +
-                            "[3]: " + (t3-t2) + "ms, " +
-                            "[4]: " + (t4-t3) + "ms, " +
-                            "[5]: " + (t5-t4) + "ms, " +
-                            "[6]: " + (t6-t5) + "ms, "
-                            );
-
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE, "Problem during task view generation. TaskId=" + taskId, ex);
                 }
-            }, ExecutionType.TRANSACTION_SYNCH);
+                long t6 = System.currentTimeMillis();
 
-            /* Write to outpit writer here, so there will be no invalid output
-            for error in previous code with seession
-             */
-            response.getWriter().print(builder.toString());
+                logger.log(Level.INFO, "loadTask.withContext total: " + (t6-t0) + "ms, " +
+                                "[1]: " + (t1-t0) + "ms, " +
+                                "[2]: " + (t2-t1) + "ms, " +
+                                "[3]: " + (t3-t2) + "ms, " +
+                                "[4]: " + (t4-t3) + "ms, " +
+                                "[5]: " + (t5-t4) + "ms, " +
+                                "[6]: " + (t6-t5) + "ms, "
+                );
+            }
+        }, ExecutionType.TRANSACTION_SYNCH);
+        return builder.toString();
+    }
 
-
-            long t3 = System.currentTimeMillis();
-
-            logger.log(Level.INFO, "loadTask total: " + (t3-t0) + "ms, " +
-                    "[1]: " + (t1-t0) + "ms, " +
-                    "[2]: " + (t2-t1) + "ms, " +
-                    "[3]: " + (t3-t2) + "ms, "
-                    );
-	}
-
-	private BpmTask getBpmTask(IProcessToolRequestContext context, String taskId) {
+	private static BpmTask getBpmTask(IProcessToolRequestContext context, String taskId) {
 		String jbpmTaskId = taskId;
 		boolean pseudoTask = false;
 
@@ -268,7 +271,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		}
 	};
 
-	private Comparator<ProcessStateAction> BY_ACTION_PRIORITY = new Comparator<ProcessStateAction>() {
+	private static Comparator<ProcessStateAction> BY_ACTION_PRIORITY = new Comparator<ProcessStateAction>() {
 		@Override
 		public int compare(ProcessStateAction action1, ProcessStateAction action2) {
 			if(action1.getPriority() == null)

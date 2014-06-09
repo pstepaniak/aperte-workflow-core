@@ -184,6 +184,7 @@
 		if(errors.length > 0)
 		{
 			enableButtons();
+			windowManager.hideSavingScreen();
 			return;
 		}
 		
@@ -208,6 +209,13 @@
 			if(data.errors != null)
 			{
 				addAlerts(data.errors);
+			}
+			if (data.data) {
+			    clearAlerts();
+                windowManager.showProcessDataImmediate();
+                $('#process-data-view').empty();
+                $("#process-data-view").append(data.data);
+                checkIfViewIsLoaded();
 			}
 			windowManager.hideSavingScreen();
 		})
