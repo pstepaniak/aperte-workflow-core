@@ -60,6 +60,14 @@
 		{
 			this.showView(this.allViews['loading-screen'], true);
 		}
+
+		this.showSavingScreen = function() {
+            $('#saving-screen').show();
+        }
+
+        this.hideSavingScreen = function() {
+            $('#saving-screen').hide();
+        }
 		
 		this.showQueueList = function()
 		{

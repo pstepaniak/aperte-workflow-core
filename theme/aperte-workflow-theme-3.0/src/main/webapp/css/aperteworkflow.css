@@ -782,6 +782,15 @@
 	z-index:10;
 }
 
+.saver {
+    top: 0% !important;
+    left: 0% !important;
+    z-index:1000 !important;
+    background-color: #eee !important;
+    opacity:0.5 !important;
+    position: fixed !important;
+}
+
 .icon-white
 {
 	margin-right: 4px;

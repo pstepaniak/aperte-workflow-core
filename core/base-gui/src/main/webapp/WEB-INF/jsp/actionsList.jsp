@@ -160,6 +160,7 @@
 	function saveAction(taskId)
 	{
 		clearAlerts();
+		windowManager.showSavingScreen();
 		
 		var errors = [];
 		<!-- Validate html widgets -->
@@ -208,13 +209,16 @@
 			{
 				addAlerts(data.errors);
 			}
+			windowManager.hideSavingScreen();
 		})
 		.always(function() 
 		{ 
 			enableButtons();
+			windowManager.hideSavingScreen();
 		})
 		.fail(function(data) 
-		{ 
+		{
+		    windowManager.hideSavingScreen();
 			addAlerts(data.errors);
 		});
 		
