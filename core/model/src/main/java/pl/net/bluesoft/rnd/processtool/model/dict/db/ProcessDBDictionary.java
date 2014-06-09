@@ -122,7 +122,10 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
 		return (List)CQuery.from(items.values()).orderBy(new F<ProcessDBDictionaryItem, String>() {
 			@Override
 			public String invoke(ProcessDBDictionaryItem item) {
-				return item.getValueForCurrentDate().getValue(languageCode);
+                ProcessDBDictionaryItemValue value = item.getValueForCurrentDate();
+                if (value != null)
+				    return value.getValue(languageCode);
+                return null;
 			}
 		}).toList();
 	}

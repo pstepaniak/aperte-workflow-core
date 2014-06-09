@@ -8,6 +8,8 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryItemExt;
+import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 
 import java.util.*;
 
@@ -48,17 +50,22 @@ public class GlobalDictionaryFacade implements IDictionaryFacade
             String desc = pdi.getDescription(locale);
             DictionaryItem dictionaryItem = new DictionaryItem();
             dictionaryItem.setKey(pdi.getKey());
-            dictionaryItem.setValue(pdi.getValueForDate(new Date()).getValue(locale));
+            ProcessDictionaryItemValue value = pdi.getValueForDate(new Date());
+            if (value != null)
+                dictionaryItem.setValue(value.getValue(locale));
+            else
+                dictionaryItem.setValue("No value defined for key=" + pdi.getKey() + " and language=" + locale);
             dictionaryItem.setDescription(desc);
 
-            for(ProcessDictionaryItemExtension extension: pdi.getValueForCurrentDate().getItemExtensions())
-            {
-                DictionaryItemExt dictionaryItemExt = new DictionaryItemExt();
-                dictionaryItemExt.setKey(extension.getName());
-                dictionaryItemExt.setValue(extension.getValue());
+            if (pdi.getValueForCurrentDate() != null)
+                for(ProcessDictionaryItemExtension extension: pdi.getValueForCurrentDate().getItemExtensions())
+                {
+                    DictionaryItemExt dictionaryItemExt = new DictionaryItemExt();
+                    dictionaryItemExt.setKey(extension.getName());
+                    dictionaryItemExt.setValue(extension.getValue());
 
-                dictionaryItem.getExtensions().add(dictionaryItemExt);
-            }
+                    dictionaryItem.getExtensions().add(dictionaryItemExt);
+                }
 
             if(checkForFilters(dictionaryItem, filters))
                 dictionaryItems.add(dictionaryItem);
