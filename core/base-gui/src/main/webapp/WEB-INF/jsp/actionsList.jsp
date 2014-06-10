@@ -530,6 +530,12 @@
 		windowManager.showProcessList();
 	}
 
-
+    function removeAllButOne(selector)
+    {
+    	while ($(selector).size() > 1)
+    	{
+    		$(selector).first().remove();
+    	}
+    }
 //]]>
 </script>
