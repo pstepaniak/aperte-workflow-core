@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
@@ -67,8 +68,7 @@ public class DictionaryItemValueDTO {
     public static DictionaryItemValueDTO createFrom(ProcessDBDictionaryItemValue value, I18NSource messageSource) {
         DictionaryItemValueDTO dto = new DictionaryItemValueDTO();
         dto.setId(value.getId());
-        //dto.setValue(value.getValue(messageSource.getLocale()));
-        dto.setValue(value.getDefaultValue());
+        dto.setValue(StringEscapeUtils.escapeHtml4(value.getDefaultValue()));
         dto.setDateFrom(FormatUtil.formatShortDate(value.getValidFrom()));
         dto.setDateTo(FormatUtil.formatShortDate(value.getValidTo()));
         for (ProcessDBDictionaryI18N i18n: value.getLocalizedValues()) {
@@ -91,8 +91,7 @@ public class DictionaryItemValueDTO {
     }
 
     public void updateValue(ProcessDBDictionaryItemValue value, String languageCode) {
-        //value.setValue(languageCode, this.getValue());
-        value.setDefaultValue(this.getValue());
+        value.setDefaultValue(StringEscapeUtils.unescapeHtml4(this.getValue()));
         if (this.getDateFrom() != null && !"".equals(this.getDateFrom()))
             value.setValidFrom(FormatUtil.parseDate("yyyy-MM-dd", this.getDateFrom()));
         if (this.getDateTo() != null && !"".equals(this.getDateTo())) {

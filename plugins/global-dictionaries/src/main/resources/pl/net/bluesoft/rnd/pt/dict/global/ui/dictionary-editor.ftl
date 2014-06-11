@@ -388,12 +388,21 @@
         itemsTable = new AperteDataTable("itemsTable",
             [
                  { "sName":"key", "bSortable": true ,"mData": "key" },
-                 { "sName":"description", "bSortable": false ,"mData": "description" },
+                 { "sName":"description", "bSortable": false ,"mData": function(o) { return generateDescriptionColumn(o); }
+                 },
                  { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateActionsColumn(nTd, sData, oData, iRow, iCol) }
                  }
             ],
             [[ 0, "asc" ]]
         );
+
+        function generateDescriptionColumn(o) {
+            if (o.description) {
+                var string = o.description.replace(/([^\s-]{100})(?=[^\s-])/g, "$1&#8203;");
+                return string;
+            }
+            return '';
+        }
 
         function generateActionsColumn(nTd, sData, oData, iRow, iCol) {
             var editButton = $('<button type="button" class="btn btn-primary btn-xs"><@spring.message "dictionary.editor.dictionaryItems.button.edit"/></button>');
@@ -527,8 +536,10 @@
 	}
 
 	function addNew() {
-	    if (!currentDict)
+	    if (!currentDict) {
+	        window.alert("<@spring.message 'dictionary.editor.selectDictionary'/>");
 	        return;
+	    }
 		edit({"key":"", "description": "", "values":[], "localizedDescriptions": {"default":{"languageCode":"default","text":""}} });
 	}
 
