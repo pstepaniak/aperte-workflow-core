@@ -30,7 +30,7 @@ public abstract class AbstractSaveProcessor {
 
     protected abstract IAttributesConsumer getConsumer();
 
-    public AbstractSaveProcessor(I18NSource messageSource, Collection<HtmlWidget> widgets) {
+    protected AbstractSaveProcessor(I18NSource messageSource, Collection<HtmlWidget> widgets) {
         this.widgets = widgets;
         this.messageSource = messageSource;
     }
@@ -94,6 +94,4 @@ public abstract class AbstractSaveProcessor {
     }
 
 	protected abstract void auditLog(Collection<HandlingResult> results);
-
-
 }
