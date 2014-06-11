@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -41,7 +42,7 @@ public class DictionaryI18NDTO {
         final DictionaryI18NDTO dto = new DictionaryI18NDTO();
         dto.setId(i18n.getId());
         dto.setLanguageCode(i18n.getLanguageCode());
-        dto.setText(i18n.getText());
+        dto.setText(StringEscapeUtils.escapeHtml4(i18n.getText()));
         return dto;
     }
 
@@ -57,7 +58,7 @@ public class DictionaryI18NDTO {
         if ("".equals(this.getText()))
             i18n.setText(null);
         else
-            i18n.setText(this.getText());
+            i18n.setText(StringEscapeUtils.unescapeHtml4(this.getText()));
     }
 
     public static DictionaryI18NDTO getDefaultI18N(Map<String, DictionaryI18NDTO> i18Ns) {

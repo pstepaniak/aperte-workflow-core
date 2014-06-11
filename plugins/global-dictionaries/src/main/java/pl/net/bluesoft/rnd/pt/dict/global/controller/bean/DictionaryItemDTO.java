@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
@@ -74,12 +75,11 @@ public class DictionaryItemDTO {
 
     public void updateItem(ProcessDBDictionaryItem item, String languageCode) {
         item.setKey(this.getKey());
-        //item.setDescription(languageCode, this.getDescription());
         final DictionaryI18NDTO defaultI18N = DictionaryI18NDTO.getDefaultI18N(this.getLocalizedDescriptions());
         if (defaultI18N != null && defaultI18N.getText() != null)
-            item.setDefaultDescription(defaultI18N.getText());
+            item.setDefaultDescription(StringEscapeUtils.unescapeHtml4(defaultI18N.getText()));
         else
-            item.setDefaultDescription(this.getDescription());
+            item.setDefaultDescription(StringEscapeUtils.unescapeHtml4(this.getDescription()));
         for (DictionaryI18NDTO i18NDTO : this.getLocalizedDescriptions().values()) {
             ProcessDBDictionaryI18N i18n = null;
             if (i18NDTO.getId() != null)
@@ -130,9 +130,7 @@ public class DictionaryItemDTO {
         DictionaryItemDTO dto = new DictionaryItemDTO();
         dto.setId(item.getId());
         dto.setKey(item.getKey());
-        //dto.setDescription(item.getDescription(messageSource.getLocale()));
-        //if (dto.getDescription() == null || "".equals(dto.getDescription()))
-        dto.setDescription(item.getDefaultDescription());
+        dto.setDescription(StringEscapeUtils.escapeHtml4(item.getDefaultDescription()));
         for (ProcessDBDictionaryI18N desc : item.getLocalizedDescriptions()) {
             DictionaryI18NDTO i18NDTO = DictionaryI18NDTO.createFrom(desc, messageSource);
             dto.getLocalizedDescriptions().put(i18NDTO.getLanguageCode(), i18NDTO);
@@ -143,6 +141,4 @@ public class DictionaryItemDTO {
         }
         return dto;
     }
-
-
 }
