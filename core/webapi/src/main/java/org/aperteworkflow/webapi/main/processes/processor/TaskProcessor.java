@@ -30,6 +30,7 @@ public class TaskProcessor extends AbstractSaveProcessor {
         return task.getProcessInstance();
     }
 
+	@Override
 	protected void auditLog(Collection<HandlingResult> results) {
 		ProcessInstance process = getProvider().getProcessInstance();
 

@@ -55,7 +55,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
                 }
 
                 String newValue = widgetData.getValue();
-	            logChanges(results, key, oldValue, newValue);
+	            logChanges(results, key, oldValue, newValue, consumerToSave);
             }
 
             setNewValue(consumerToSave, widgetData);
@@ -63,7 +63,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
         return results;
     }
 
-	protected void logChanges(Collection<HandlingResult> results, String key, String oldValue, String newValue) {
+	protected void logChanges(Collection<HandlingResult> results, String key, String oldValue, String newValue, IAttributesConsumer consumer) {
 		//for audit logging
 	}
 

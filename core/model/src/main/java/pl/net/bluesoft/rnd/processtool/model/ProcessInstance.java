@@ -613,6 +613,7 @@ public class ProcessInstance extends AbstractPersistentEntity implements IAttrib
 	public Collection<AbstractProcessInstanceAttribute> getAllProcessAttributes() {
 		List<AbstractProcessInstanceAttribute> result = new ArrayList<AbstractProcessInstanceAttribute>();
 		result.addAll(getProcessSimpleAttributes());
+		result.addAll(getProcessSimpleLargeAttributes());
 		result.addAll(getProcessAttributes());
 		return result;
 	}
