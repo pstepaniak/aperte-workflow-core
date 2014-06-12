@@ -64,7 +64,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
     protected abstract T getThis();
 
     public StringBuilder build() throws Exception {
-        final StringBuilder stringBuilder = new StringBuilder();
+        final StringBuilder stringBuilder = new StringBuilder(8 * 1024);
         scriptBuilder.append("<script type=\"text/javascript\">");
         final Document document = Jsoup.parse("");
 
