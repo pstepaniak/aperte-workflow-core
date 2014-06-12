@@ -534,7 +534,7 @@
     {
     	while ($(selector).size() > 1)
     	{
-    		$(selector).first().remove();
+    		$(selector).last().remove();
     	}
     }
 //]]>
