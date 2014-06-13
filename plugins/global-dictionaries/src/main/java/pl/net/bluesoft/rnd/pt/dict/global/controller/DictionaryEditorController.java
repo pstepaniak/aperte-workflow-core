@@ -196,13 +196,17 @@ public class DictionaryEditorController implements IOsgiWebController {
             DictionaryItemDTO dto = mapper.readValue(item, DictionaryItemDTO.class);
             ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
             dictionary = dao.refresh(dictionary);
-            if (dto.getId() == null) {
-                itemToValidate = dto.toProcessDBDictionaryItem(messageSource.getLocale().getLanguage());
-                dictionary.addItem(itemToValidate);
-            } else {
-                ProcessDBDictionaryItem dbItem = getItemById(dictionary.getItems(), String.valueOf(dto.getId()));
-                dbItem = dao.refresh(dbItem);
-                itemToValidate = updateItem(dictionary, dbItem, dto, messageSource);
+            try {
+                if (dto.getId() == null) {
+                    itemToValidate = dto.toProcessDBDictionaryItem(messageSource.getLocale().getLanguage());
+                    dictionary.addItem(itemToValidate);
+                } else {
+                    ProcessDBDictionaryItem dbItem = getItemById(dictionary.getItems(), String.valueOf(dto.getId()));
+                    dbItem = dao.refresh(dbItem);
+                    itemToValidate = updateItem(dictionary, dbItem, dto, messageSource);
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(messageSource.getMessage("dictionary.editor.validator.itemValues.already.exists", (Object)itemToValidate.getKey()));
             }
             if (itemToValidate != null)
                 new DictionaryValidator(messageSource).validate(itemToValidate);
