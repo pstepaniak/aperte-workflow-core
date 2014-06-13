@@ -17,33 +17,33 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 @Entity
 @Table(name = "pt_dictionary_item")
 public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements ProcessDictionaryItem {
-	public static final String _DICTIONARY = "dictionary";
-	public static final String _KEY = "key";
-	public static final String _VALUE_TYPE = "valueType";
-	public static final String _DESCRIPTION = "description";
-	public static final String _VALUES = "values";
+    public static final String _DICTIONARY = "dictionary";
+    public static final String _KEY = "key";
+    public static final String _VALUE_TYPE = "valueType";
+    public static final String _DESCRIPTION = "description";
+    public static final String _VALUES = "values";
 
-	@Id
-	@GeneratedValue(generator = "idGenerator")
-	@GenericGenerator(
-			name = "idGenerator",
-			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-			parameters = {
-					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
-					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
-					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM")
-			}
-	)
-    @Index(name="idx_p_dict_item_id")
-	@Column(name = "id")
-	protected Long id;
+    @Id
+    @GeneratedValue(generator = "idGenerator")
+    @GenericGenerator(
+            name = "idGenerator",
+            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+            parameters = {
+                    @org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+                    @org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+                    @org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM")
+            }
+    )
+    @Index(name = "idx_p_dict_item_id")
+    @Column(name = "id")
+    protected Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Cascade(value = {CascadeType.REFRESH})
     private ProcessDBDictionary dictionary;
 
-    @Column(name="key_", nullable=false)
-    @Index(name="idx_p_dict_item_key")
+    @Column(name = "key_", nullable = false)
+    @Index(name = "idx_p_dict_item_key")
     private String key;
     private String valueType;
 
@@ -61,17 +61,17 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     @Cascade(value = CascadeType.ALL)
     private Set<ProcessDBDictionaryItemValue> values = new HashSet<ProcessDBDictionaryItemValue>();
 
-	@Override
-	public Long getId() {
-		return id;
-	}
+    @Override
+    public Long getId() {
+        return id;
+    }
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setDictionary(ProcessDBDictionary dictionary) {
+    public void setDictionary(ProcessDBDictionary dictionary) {
         this.dictionary = dictionary;
     }
 
@@ -90,7 +90,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     }
 
     @Override
-	public String getValueType() {
+    public String getValueType() {
         return valueType;
     }
 
@@ -106,19 +106,19 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         this.values = values;
     }
 
-	public void addValue(ProcessDBDictionaryItemValue value) {
-		value.setItem(this);
-		values.add(value);
-	}
+    public void addValue(ProcessDBDictionaryItemValue value) {
+        value.setItem(this);
+        values.add(value);
+    }
 
-	public void removeValue(ProcessDBDictionaryItemValue value) {
-		value.setItem(null);
-		values.remove(value);
-	}
+    public void removeValue(ProcessDBDictionaryItemValue value) {
+        value.setItem(null);
+        values.remove(value);
+    }
 
     @Override
     public Collection<ProcessDictionaryItemValue> values() {
-        return Collections.unmodifiableCollection((Set)values);
+        return Collections.unmodifiableCollection((Set) values);
     }
 
     @Override
@@ -127,13 +127,13 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     }
 
     @Override
-	public ProcessDBDictionaryItemValue getValueForDate(Date date) {
+    public ProcessDBDictionaryItemValue getValueForDate(Date date) {
         for (ProcessDBDictionaryItemValue value : values) {
             if (value.isValidForDate(date)) {
                 return value;
             }
         }
-        return null;
+        return new EMPTY_VALUE(getDictionary(), this, date);
     }
 
     public String getDefaultDescription() {
@@ -153,7 +153,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     }
 
     public String getDescription() {
-        return getDescription((String)null);
+        return getDescription((String) null);
     }
 
     @Override
@@ -173,5 +173,31 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
             return;
         }
         ProcessDBDictionaryI18N.setLocalizedText(localizedDescriptions, languageCode, name);
+    }
+
+    private final class EMPTY_VALUE extends ProcessDBDictionaryItemValue {
+        private final String NO_VALUE = "No value defined for dictionary=%s, item=%s, languageCode=%s and date=%s";
+        private Date date;
+
+        private EMPTY_VALUE(ProcessDBDictionary dictionary, ProcessDBDictionaryItem item, Date date) {
+            setDictionary(dictionary);
+            setItem(item);
+            this.date = date;
+        }
+
+        @Override
+        public String getValue(String languageCode) {
+            return String.format(NO_VALUE, getDictionary().getDefaultName(), getItem().getKey(), languageCode, date.toString());
+        }
+
+        @Override
+        public String getValue(Locale locale) {
+            return getValue(locale.getLanguage());
+        }
+
+        @Override
+        public String getDefaultValue() {
+            return getValue("default");
+        }
     }
 }
