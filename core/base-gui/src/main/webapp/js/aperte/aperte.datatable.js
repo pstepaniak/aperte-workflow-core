@@ -23,7 +23,7 @@
 		{
 			$.each(this.requestParameters, function (index, parameter)
 			{
-				requestUrl += "&<portlet:namespace/>" + parameter["name"] + "=" + parameter["value"];
+				requestUrl += portletNamespace + parameter["name"] + "=" + parameter["value"];
 			});
 
 			this.requestUrl = requestUrl;
@@ -54,49 +54,37 @@
 		{
 		}
 
-		this.createDataTable = function()
+		this.createDataTable = function(tableElementsPlacement)
 		{
-			this.dataTable = $('#'+this.tableId).dataTable({
-				"bLengthChange": true,
-				"bFilter": true,
-				"bProcessing": true,
-				"bServerSide": true,
-				"bInfo": true,
-				"aaSorting": sortingOrder,
-				"bSort": true,
-				"iDisplayLength": 10,
-				"sDom": 'R<"top"t><"bottom"plr>',
-				"sAjaxSource": this.requestUrl,
-				"fnServerData": function ( sSource, aoData, fnCallback ) {
+		    var sDom = (tableElementsPlacement !== undefined) ? tableElementsPlacement : 'R<"top"t><"bottom"plr>';
 
-					$.ajax( {
-						"dataType": 'json',
-						"type": "POST",
-						"url": sSource,
-						"data": aoData,
-						"success": fnCallback
-					} );
-				},
-				"fnServerParams": function ( aoData ) {
+			this.dataTable = $('#'+this.tableId).dataTable({
+                "bLengthChange": true,
+                "bFilter": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "bInfo": true,
+                "aaSorting": sortingOrder,
+                "bSort": true,
+                "iDisplayLength": 10,
+                "sDom": sDom,
+                "sAjaxSource": this.requestUrl,
+                "fnServerData": function ( sSource, aoData, fnCallback ) {
+
+                    $.ajax( {
+                        "dataType": 'json',
+                        "type": "POST",
+                        "url": sSource,
+                        "data": aoData,
+                        "success": fnCallback
+                    } );
+                },
+                "fnServerParams": function ( aoData ) {
                       aoData.push( this.requestParameters );
                 },
-				"aoColumns": this.columnDefs,
-				"oLanguage": {
-					  //todo: uzeleznic tresci od tlumaczen w messages
-					  "sInfo": "Wyniki od _START_ do _END_ z _TOTAL_",
-					  "sEmptyTable": "<spring:message code='datatable.empty' />",
-					  "sInfoEmpty": "<spring:message code='datatable.empty' />",
-					  "sProcessing": "<spring:message code='datatable.processing' />",
-					  "sLengthMenu": "<spring:message code='datatable.records' />",
-					  "sInfoFiltered": "",
-					  "oPaginate": {
-						"sFirst": "<spring:message code='datatable.paginate.firstpage' />",
-						"sNext": "<spring:message code='datatable.paginate.next' />",
-						"sPrevious": "<spring:message code='datatable.paginate.previous' />"
-					  }
-
-					}
-			});
+                "aoColumns": this.columnDefs,
+                "oLanguage": dataTableLanguage
+            });
 			if(typeof windowManager != 'undefined')
 			{
 				if(windowManager.mobileMode == true)
