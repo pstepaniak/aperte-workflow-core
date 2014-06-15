@@ -1,8 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.auditlog.definition;
 
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * User: POlszewski
@@ -60,7 +61,7 @@ public class AuditLogGroup {
 		return getAuditConfig(key) != null;
 	}
 
-	public boolean supports(Class<? extends PersistentEntity> entityClass) {
+	public boolean supports(Class<? extends AbstractPersistentEntity> entityClass) {
 		return getAuditedEntityHandler(entityClass) != null;
 	}
 
@@ -68,7 +69,7 @@ public class AuditLogGroup {
 		return simpleAttrConfigs.get(key);
 	}
 
-	public <T extends PersistentEntity> AuditedEntityHandler getAuditedEntityHandler(Class<T> entityClass) {
+	public <T extends AbstractPersistentEntity> AuditedEntityHandler getAuditedEntityHandler(Class<T> entityClass) {
 		for (Map.Entry<Class, AuditedEntityHandler> entry : entityConfigs.entrySet()) {
 			if (entry.getKey().isAssignableFrom(entityClass)) {
 				return entry.getValue();
