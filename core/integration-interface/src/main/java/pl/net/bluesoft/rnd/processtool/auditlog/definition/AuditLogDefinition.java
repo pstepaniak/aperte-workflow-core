@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.auditlog.definition;
 
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class AuditLogDefinition {
 		return null;
 	}
 
-	public AuditLogGroup findGroup(Class<? extends PersistentEntity> entityClass) {
+	public AuditLogGroup findGroup(Class<? extends AbstractPersistentEntity> entityClass) {
 		for (AuditLogGroup group : groups) {
 			if (group.supports(entityClass)) {
 				return group;

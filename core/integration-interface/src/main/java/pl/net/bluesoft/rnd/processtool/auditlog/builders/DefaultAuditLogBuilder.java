@@ -4,7 +4,6 @@ import pl.net.bluesoft.rnd.processtool.auditlog.definition.*;
 import pl.net.bluesoft.rnd.processtool.auditlog.model.AuditLog;
 import pl.net.bluesoft.rnd.processtool.auditlog.model.AuditedProperty;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.util.lang.Pair;
 
 import java.util.*;
@@ -39,12 +38,12 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 	}
 
 	@Override
-	public <T extends PersistentEntity> void addPre(Collection<T> entities) {
+	public <T extends AbstractPersistentEntity> void addPre(Collection<T> entities) {
 		add(LogTarget.PRE, entities);
 	}
 
 	@Override
-	public <T extends PersistentEntity> void addPost(Collection<T> entries) {
+	public <T extends AbstractPersistentEntity> void addPost(Collection<T> entries) {
 		add(LogTarget.POST, entries);
 	}
 
@@ -52,7 +51,7 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 		PRE, POST
 	}
 
-	private <T extends PersistentEntity> void add(final LogTarget logTarget, Collection<T> entities) {
+	private <T extends AbstractPersistentEntity> void add(final LogTarget logTarget, Collection<T> entities) {
 		if (entities == null || entities.isEmpty()) {
 			return;
 		}
@@ -92,7 +91,7 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 	}
 
 	private AuditLog getAuditLog(String groupKey, Object object) {
-		Object objectId = object instanceof PersistentEntity ? ((AbstractPersistentEntity)object).getId() : object;
+		Object objectId = getObjectId(object);
 		Pair<String, Object> key = new Pair<String, Object>(groupKey, objectId);
 
 		AuditLog enityLog = map.get(key);
@@ -103,6 +102,19 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 			list.add(enityLog);
 		}
 		return enityLog;
+	}
+
+	private static Object getObjectId(Object object) {
+		Object objectId = null;
+
+		if (object instanceof AbstractPersistentEntity) {
+			objectId = ((AbstractPersistentEntity)object).getId();
+		}
+
+		if (objectId == null) {
+			objectId = object;
+		}
+		return objectId;
 	}
 
 	@Override
