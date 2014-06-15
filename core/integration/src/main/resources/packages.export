@@ -575,4 +575,8 @@ sun.security.util,
 sun.tools.javac,
 pl.net.bluesoft.rnd.processtool.event.beans,
 freemarker.template,
-freemarker.cache
+freemarker.cache,
+pl.net.bluesoft.rnd.processtool.auditlog,
+pl.net.bluesoft.rnd.processtool.auditlog.builders,
+pl.net.bluesoft.rnd.processtool.auditlog.definition,
+pl.net.bluesoft.rnd.processtool.auditlog.model

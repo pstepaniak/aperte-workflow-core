@@ -148,22 +148,12 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
     @Override
     public String getMessage(String key) {
-        return i18NSource.getMessage(key, key);
-    }
-
-    @Override
-    public String getMessage(String key, String defaultValue) {
-        return i18NSource.getMessage(key, defaultValue);
+        return i18NSource.getMessage(key);
     }
 
     @Override
     public String getMessage(String key, Object... params) {
         return i18NSource.getMessage(key, params);
-    }
-
-    @Override
-    public String getMessage(String key, String defaultValue, Object... params) {
-        return i18NSource.getMessage(key, defaultValue, params);
     }
 
 	@Override

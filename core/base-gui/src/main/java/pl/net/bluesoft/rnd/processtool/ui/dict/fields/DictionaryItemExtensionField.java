@@ -98,10 +98,6 @@ public class DictionaryItemExtensionField extends CustomField  {
         return source.getMessage(key);
     }
 
-    public String getMessage(String key, String defaultValue) {
-        return source.getMessage(key, defaultValue);
-    }
-
     private void loadData() 
     {
         itemsLayout.removeAllComponents();

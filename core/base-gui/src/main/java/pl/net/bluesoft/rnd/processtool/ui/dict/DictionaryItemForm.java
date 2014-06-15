@@ -121,10 +121,6 @@ public class DictionaryItemForm extends Form {
         return source.getMessage(key);
     }
 
-    public String getMessage(String key, String defaultValue) {
-        return source.getMessage(key, defaultValue);
-    }
-
     @Override
     public void setReadOnly(boolean readOnly) {
         addButton.setReadOnly(readOnly);

@@ -8,9 +8,9 @@ import org.hibernate.engine.SessionFactoryImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogHandler;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
@@ -43,6 +43,8 @@ public class DataRegistryImpl implements DataRegistry {
     private final Map<String, Class<? extends IAttributesMapper>> attributesMappersClasses = new HashMap<String, Class<? extends IAttributesMapper>>();
     private final Map<String, Class<? extends IMapper>> mappersClasses = new HashMap<String, Class<? extends IMapper>>();
 
+	private final List<AuditLogHandler> auditLogHandlers = new ArrayList<AuditLogHandler>();
+
     private SessionFactory sessionFactory;
 
     @Autowired
@@ -50,7 +52,8 @@ public class DataRegistryImpl implements DataRegistry {
 
     private boolean jta;
 
-    public Dialect getHibernateDialect() {
+    @Override
+	public Dialect getHibernateDialect() {
         Dialect dialect = ((SessionFactoryImplementor) sessionFactory).getDialect();
 
         return dialect;
@@ -418,4 +421,19 @@ public class DataRegistryImpl implements DataRegistry {
         }
         return mappers;
     }
+
+	@Override
+	public void addAuditLogHandler(AuditLogHandler handler) {
+		auditLogHandlers.add(handler);
+	}
+
+	@Override
+	public void removeAuditLogHandler(AuditLogHandler handler) {
+		auditLogHandlers.remove(handler);
+	}
+
+	@Override
+	public List<AuditLogHandler> getAuditLogHandlers() {
+		return Collections.unmodifiableList(auditLogHandlers);
+	}
 }

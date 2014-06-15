@@ -133,13 +133,11 @@ public abstract class GenericTable<ENTRY> extends Table implements ColumnGenerat
 	}
 	
     protected String getMessage(String key, Object ... params) {
-        return i18NSource.getMessage(key, key, params);
+        return i18NSource.getMessage(key, params);
     }
 
 	@SuppressWarnings("unchecked")
 	protected BeanItemContainer<ENTRY> getContainer() {
 		return (BeanItemContainer<ENTRY>)getContainerDataSource();
 	}
-
-
 }

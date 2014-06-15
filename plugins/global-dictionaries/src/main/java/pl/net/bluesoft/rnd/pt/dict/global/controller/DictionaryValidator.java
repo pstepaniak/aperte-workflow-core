@@ -76,7 +76,7 @@ public class DictionaryValidator {
 
         ProcessDBDictionaryItem lookUpItem = (ProcessDBDictionaryItem) dictionary.lookup(key);
         if (lookUpItem != null && !lookUpItem.equals(itemToValidate))
-            throw new InvalidValueException(messageSource.getMessage("dictionary.editor.validator.itemValues.duplicated.key", key, key));
+            throw new InvalidValueException(messageSource.getMessage("dictionary.editor.validator.itemValues.duplicated.key", key));
     }
 
     /**
@@ -112,10 +112,9 @@ public class DictionaryValidator {
                         DateUtil.afterInclusive(itemToValidateEndDate, currentValueStartDate);
 
                 if (areDatesOverlapping) {
-                    throw new InvalidValueException(messageSource.getMessage("dictionary.editor.validator.itemValues.overlapping.dates", "", val.getDefaultValue(), otherVal.getDefaultValue()));
+                    throw new InvalidValueException(messageSource.getMessage("dictionary.editor.validator.itemValues.overlapping.dates", val.getDefaultValue(), otherVal.getDefaultValue()));
                 }
             }
-
         }
     }
 
@@ -156,7 +155,7 @@ public class DictionaryValidator {
         for (ProcessDBDictionaryItemExtension ext : itemVaueToValidate.getExtensions()) {
             for (ProcessDBDictionaryItemExtension otherExt : itemVaueToValidate.getExtensions()) {
                 if (ext != otherExt && ext.getName().equals(otherExt.getName())) {
-                    throw new InvalidValueException(messageSource.getMessage("dictionary.editor.validator.valueExtensions.duplicate.key", "", ext.getName()));
+                    throw new InvalidValueException(messageSource.getMessage("dictionary.editor.validator.valueExtensions.duplicate.key", ext.getName()));
                 }
             }
         }
