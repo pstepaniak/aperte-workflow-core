@@ -1,21 +1,16 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.TextModes;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.plugins.util.IWriterTextDecorator;
-import pl.net.bluesoft.rnd.processtool.plugins.util.PlainTextDecorator;
 import pl.net.bluesoft.rnd.processtool.plugins.util.ProcessActionManager;
 import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -43,7 +38,7 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 		/* Invalid process state */
 		if(currentState == null)
 		{
-			String exceptionMessage = i18NSource.getMessage("token.servlet.notoken.assositedwithtask","",
+			String exceptionMessage = i18NSource.getMessage("token.servlet.notoken.assositedwithtask",
 					tokenWrapper.getTask().getInternalTaskId(), tokenWrapper.getUser().getLogin());
 			
 			textDecorator.addText(exceptionMessage);
@@ -60,7 +55,7 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 		/* There is no action correlated to this token, abort */
 		if(tokenAction == null)
 		{
-			String exceptionMessage = i18NSource.getMessage("token.servlet.notoken.associatedwithaction","",
+			String exceptionMessage = i18NSource.getMessage("token.servlet.notoken.associatedwithaction",
 					tokenWrapper.getTask().getInternalTaskId(), tokenWrapper.getUser().getLogin(), tokenWrapper.getTokenAction());
 			
 			textDecorator.addText(exceptionMessage);
@@ -84,7 +79,7 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 		
 		String processName = tokenWrapper.getTask().getExternalProcessId() != null ? tokenWrapper.getTask().getExternalProcessId() : "";
 		
-		textDecorator.addText(i18NSource.getMessage("token.servlet.action.performed", "", 
+		textDecorator.addText(i18NSource.getMessage("token.servlet.action.performed",
 				localizedTaskName, processName, tokenWrapper.getTask().getInternalProcessId()));
 		
 		ctx.getProcessInstanceDAO().refresh(process);
@@ -94,7 +89,7 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 			ProcessStateConfiguration newState = newTasks.get(0).getCurrentProcessStateConfiguration();
 			
 			String localizedNewTaskName = i18NSource.getMessage(newState.getDescription());
-			textDecorator.addText(i18NSource.getMessage("token.servlet.action.newaction", "", localizedNewTaskName));
+			textDecorator.addText(i18NSource.getMessage("token.servlet.action.newaction", localizedNewTaskName));
 		}
 		
 		/* Write to user output page */

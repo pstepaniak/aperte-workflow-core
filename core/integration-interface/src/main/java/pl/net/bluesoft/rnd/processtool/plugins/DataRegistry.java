@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogHandler;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
@@ -52,4 +53,8 @@ public interface DataRegistry {
     void registerMapper(Class<? extends IMapper> mapperClass);
     void unregisterMapper(Class<? extends IMapper> mapperClass);
     List<IMapper> getMappersFor(Class<? extends IAttributesProvider> clazz, String definitionName);
+
+	void addAuditLogHandler(AuditLogHandler handler);
+	void removeAuditLogHandler(AuditLogHandler handler);
+	List<AuditLogHandler> getAuditLogHandlers();
 }

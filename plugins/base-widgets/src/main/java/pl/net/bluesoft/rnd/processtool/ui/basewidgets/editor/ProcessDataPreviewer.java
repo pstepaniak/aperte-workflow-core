@@ -53,27 +53,12 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
             }
 
             @Override
-            public String getMessage(String key, String defaultValue) {
-                return key;
-            }
-
-            @Override
             public Locale getLocale() {
                 return Locale.getDefault();
             }
 
             @Override
-            public void setLocale(Locale locale) {
-                //nothing
-            }
-
-            @Override
             public String getMessage(String key, Object... params) {
-                return key;
-            }
-
-            @Override
-            public String getMessage(String key, String defaultValue, Object... params) {
                 return key;
             }
         };

@@ -359,9 +359,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         {
             logger.log(Level.SEVERE, "Problem during data saving", e);
             resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage(
-                    "request.handle.error.saveerror",
-                    "Problem during data saving: {0}",
-                    e.getLocalizedMessage()));
+					"request.handle.error.saveerror",
+					e.getLocalizedMessage()));
         }
 		
 		long t2 = System.currentTimeMillis();

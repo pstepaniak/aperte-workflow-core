@@ -6,7 +6,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetData;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetDataEntry;
@@ -15,8 +14,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,7 +22,8 @@ import java.util.List;
 public class CommentDataHandler implements IWidgetDataHandler {
     private static final String TYPE_COMMENT = "comment";
 
-    public Collection<HandlingResult> handleWidgetData(IAttributesConsumer consumer, WidgetData data) {
+    @Override
+	public void handleWidgetData(IAttributesConsumer consumer, WidgetData data) {
         ObjectMapper mapper = new ObjectMapper();
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, ProcessCommentBean.class);
 
@@ -41,7 +39,6 @@ public class CommentDataHandler implements IWidgetDataHandler {
                 throw new RuntimeException(e);
             }
         }
-        return new LinkedList<HandlingResult>();
     }
 
     private List<ProcessComment> convert(List<ProcessCommentBean> list, IAttributesProvider provider) {
