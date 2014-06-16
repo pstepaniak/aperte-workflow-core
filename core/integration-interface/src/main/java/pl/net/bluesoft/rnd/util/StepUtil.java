@@ -67,13 +67,16 @@ public class StepUtil {
      */
     public static Map<String, String> evaluateQuery(String query)
     {
-        if(query == null)
-            return null;
+        if(query == null) {
+			return Collections.emptyMap();
+		}
 
         Map<String, String> attributes = new HashMap<String, String>();
         String[] parts = query.split("[,;]");
+
         for (String part : parts) {
             String[] assignment = part.split("[:=]");
+
             if (assignment.length != 2)
                 continue;
 

@@ -42,7 +42,7 @@ public class DictionaryI18NDTO {
         final DictionaryI18NDTO dto = new DictionaryI18NDTO();
         dto.setId(i18n.getId());
         dto.setLanguageCode(i18n.getLanguageCode());
-        dto.setText(StringEscapeUtils.escapeHtml4(i18n.getText()));
+        dto.setText(i18n.getText());
         return dto;
     }
 
@@ -58,7 +58,7 @@ public class DictionaryI18NDTO {
         if ("".equals(this.getText()))
             i18n.setText(null);
         else
-            i18n.setText(StringEscapeUtils.unescapeHtml4(this.getText()));
+            i18n.setText(this.getText());
     }
 
     public static DictionaryI18NDTO getDefaultI18N(Map<String, DictionaryI18NDTO> i18Ns) {

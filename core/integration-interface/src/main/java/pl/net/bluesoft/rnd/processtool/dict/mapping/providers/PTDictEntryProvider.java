@@ -145,8 +145,9 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		Object entry = entries.get(key);
 		
 		/* There is no entry value for dictionry item, throw exception */
-		if(entry == null)
+		if(entry == null) {
 			throw new DictItemHasNoValueException(i18NSource.getMessage("dictionary.novaluefor", "item", key, entriesDate));
+		}
 
 		if(entryInfo.getDescriptionProperty() != null)
 			return getProperty(entry, entryInfo.getDescriptionProperty());

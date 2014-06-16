@@ -106,7 +106,7 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 				AccessToken accessToken = accessTokenFacade.getTokenByTokenId(tokenId);
 
 				if (accessToken == null) {
-					textDecorator.addText(i18NSource.getMessage("token.servlet.notokenfound", "", tokenId));
+					textDecorator.addText(i18NSource.getMessage("token.servlet.notokenfound", tokenId));
 					
 					/* Write to user output page */
 					out.write(textDecorator.getOutput());

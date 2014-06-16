@@ -89,8 +89,8 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
         return i18NSource.getMessage(key);
     }
 
-    public String getMessage(String key, Object ... parameters) {
-        return i18NSource.getMessage(key, key, parameters);
+    public String getMessage(String key, Object... parameters) {
+        return i18NSource.getMessage(key, parameters);
     }
 
     private void saveDictionaryItem(final ProcessDBDictionaryItem item) {

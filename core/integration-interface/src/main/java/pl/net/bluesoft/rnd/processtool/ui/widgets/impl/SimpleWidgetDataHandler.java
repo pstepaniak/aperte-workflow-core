@@ -1,13 +1,14 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 
+import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogContext;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
+
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * Simple data handler mapping given data to simple attributes
@@ -21,59 +22,44 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
     private IKeysToIgnoreProvider keysToIgnoreProvider = null;
 
     @Override
-    public Collection<HandlingResult> handleWidgetData(IAttributesConsumer consumer, WidgetData data) {
-        ProcessInstance process = consumer.getProcessInstance();
+    public void handleWidgetData(IAttributesConsumer consumer, WidgetData data) {
+		ProcessInstance process = consumer.getProcessInstance();
 
-        ProcessInstance rootProcess = null;
-        if (process != null) {
-            rootProcess = process.getRootProcessInstance();
-            if (rootProcess == null)
-                rootProcess = process;
-        }
+		Collection<WidgetDataEntry> dataEntries = data.getEntriesByType(TYPE_SIMPLE);
+		dataEntries.addAll(data.getEntriesByType(TYPE_SIMPLE_LARGE));
 
-        Collection<HandlingResult> results = new LinkedList<HandlingResult>();
+		for (WidgetDataEntry widgetData : dataEntries) {
+			String key = widgetData.getKey();
 
-        Collection<WidgetDataEntry> dataEntries = data.getEntriesByType(TYPE_SIMPLE);
-        dataEntries.addAll(data.getEntriesByType(TYPE_SIMPLE_LARGE));
+			ProcessInstance processToSave = widgetData.getSaveToRoot() ? getRootProcess(process) : process;
+			IAttributesConsumer consumerToSave = nvl(processToSave, consumer);
 
-        for (WidgetDataEntry widgetData : dataEntries) {
-            String key = widgetData.getKey();
-            String type = widgetData.getType();
+			if (!isIgnored(key)) {
+				String oldValue = nvl(getOldValue(consumerToSave, widgetData)); // TODO nvl?
+				String newValue = widgetData.getValue();
 
-            boolean saveToRoot = widgetData.getSaveToRoot();
-            IAttributesConsumer consumerToSave = null;
-            ProcessInstance processToSave = saveToRoot ? rootProcess : process;
-            if (processToSave == null)
-                consumerToSave = consumer;
-            else
-                consumerToSave = processToSave;
+				AuditLogContext.get().addSimple(key, oldValue, newValue);
+			}
 
-            if (keysToIgnoreProvider == null || !keysToIgnoreProvider.getKeysToIgnore().contains(key)) {
-                String oldValue = getOldValue(consumerToSave, widgetData);
-                if (oldValue == null) {
-                    oldValue = "";
-                }
-
-                String newValue = widgetData.getValue();
-	            logChanges(results, key, oldValue, newValue, consumerToSave);
-            }
-
-            setNewValue(consumerToSave, widgetData);
-        }
-        return results;
-    }
-
-	protected void logChanges(Collection<HandlingResult> results, String key, String oldValue, String newValue, IAttributesConsumer consumer) {
-		//for audit logging
+			setNewValue(consumerToSave, widgetData);
+		}
 	}
 
+	private boolean isIgnored(String key) {
+		return keysToIgnoreProvider != null && keysToIgnoreProvider.getKeysToIgnore().contains(key);
+	}
+
+	private static ProcessInstance getRootProcess(ProcessInstance process) {
+		return process != null ? nvl(process.getRootProcessInstance(), process) : null;
+	}
 
 	private String getOldValue(IAttributesProvider process, WidgetDataEntry data) {
-        if (TYPE_SIMPLE.equals(data.getType()))
-            return process.getSimpleAttributeValue(data.getKey());
-        else if (TYPE_SIMPLE_LARGE.equals(data.getType()))
-            return process.getSimpleLargeAttributeValue(data.getKey());
-
+        if (TYPE_SIMPLE.equals(data.getType())) {
+			return process.getSimpleAttributeValue(data.getKey());
+		}
+        else if (TYPE_SIMPLE_LARGE.equals(data.getType())) {
+			return process.getSimpleLargeAttributeValue(data.getKey());
+		}
         return null;
     }
 
@@ -86,9 +72,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
             process.setSimpleLargeAttribute(data.getKey(), escapedData);
     }
 
-
     public void setKeysToIgnore(IKeysToIgnoreProvider provider) {
         this.keysToIgnoreProvider = provider;
     }
-
 }

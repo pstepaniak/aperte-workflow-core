@@ -4,12 +4,12 @@ import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean;
 import org.aperteworkflow.webapi.main.processes.domain.HtmlWidget;
 import org.codehaus.jackson.map.ObjectMapper;
+import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogContext;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -51,8 +51,8 @@ public abstract class AbstractSaveProcessor {
      */
     public SaveResultBean saveWidgets() {
         SaveResultBean saveResult = new SaveResultBean();
-        saveHtmlWidgets(saveResult);
 
+		saveHtmlWidgets();
         return saveResult;
     }
 
@@ -60,8 +60,10 @@ public abstract class AbstractSaveProcessor {
         for (HtmlWidget widgetToValidate : widgets) {
             /** Get widget definition to retrive validator class */
             ProcessHtmlWidget processWidget = getRegistry().getGuiRegistry().getHtmlWidget(widgetToValidate.getWidgetName());
-            if (processWidget == null)
-                throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToValidate.getWidgetName()));
+
+			if (processWidget == null) {
+				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToValidate.getWidgetName()));
+			}
 
             IWidgetValidator widgetValidator = processWidget.getValidator();
 
@@ -69,28 +71,36 @@ public abstract class AbstractSaveProcessor {
             widgetData.addWidgetData(widgetToValidate.getData());
 
             Collection<String> errors = widgetValidator.validate(getProvider(), widgetData);
-            for (String error : errors)
-                validateResult.addError(widgetToValidate.getWidgetId().toString(), error);
+
+            for (String error : errors) {
+				validateResult.addError(widgetToValidate.getWidgetId().toString(), error);
+			}
         }
     }
 
-    private void saveHtmlWidgets(SaveResultBean saveResult) {
-        Collection<HandlingResult> results = new LinkedList<HandlingResult>();
-        for (HtmlWidget widgetToSave : widgets) {
-            /** Get widget definition to retrive data handler class */
-            ProcessHtmlWidget processWidget = getRegistry().getGuiRegistry().getHtmlWidget(widgetToSave.getWidgetName());
-            if (processWidget == null)
-                throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToSave.getWidgetName()));
+    private void saveHtmlWidgets() {
+		List<HandlingResult> auditResult = AuditLogContext.withContext(getConsumer(), new AuditLogContext.Callback() {
+			@Override
+			public void invoke() throws Exception {
+				for (HtmlWidget widgetToSave : widgets) {
+					/** Get widget definition to retrive data handler class */
+					ProcessHtmlWidget processWidget = getRegistry().getGuiRegistry().getHtmlWidget(widgetToSave.getWidgetName());
 
-            for (IWidgetDataHandler widgetDataHandler : processWidget.getDataHandlers()) {
-                WidgetData widgetData = new WidgetData();
-                widgetData.addWidgetData(widgetToSave.getData());
+					if (processWidget == null) {
+						throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToSave.getWidgetName()));
+					}
 
-                results.addAll(widgetDataHandler.handleWidgetData(getConsumer(), widgetData));
-            }
+					for (IWidgetDataHandler widgetDataHandler : processWidget.getDataHandlers()) {
+						WidgetData widgetData = new WidgetData();
 
-        }
-	    auditLog(results);
+						widgetData.addWidgetData(widgetToSave.getData());
+						widgetDataHandler.handleWidgetData(getConsumer(), widgetData);
+					}
+				}
+			}
+		});
+
+		auditLog(auditResult);
     }
 
 	protected abstract void auditLog(Collection<HandlingResult> results);
