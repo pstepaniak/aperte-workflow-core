@@ -1,40 +1,21 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict.fields;
 
-import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.deleteIcon;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.vaadin.addon.customfield.CustomField;
-
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import org.vaadin.addon.customfield.CustomField;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.util.*;
+
+import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.deleteIcon;
 
 public class DictionaryItemExtensionField extends CustomField  {
     private I18NSource source;

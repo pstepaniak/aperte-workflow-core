@@ -11,9 +11,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.smallButton;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 
 public class DictionaryItemForm extends Form {
     private BeanItem<ProcessDBDictionaryItem> item;

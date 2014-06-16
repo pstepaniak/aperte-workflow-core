@@ -1,19 +1,17 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict.validator;
 
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.util.Date;
-
+import com.vaadin.data.Validator;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.util.lang.DateUtil;
 
-import com.vaadin.data.Validator;
+import java.util.Date;
+
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * {@link ProcessDBDictionaryItem} item validator

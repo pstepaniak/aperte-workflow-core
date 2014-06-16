@@ -1,12 +1,15 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 
-import java.util.*;
-
 import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogContext;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IKeysToIgnoreProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetData;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetDataEntry;
+
+import java.util.Collection;
 
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 

@@ -26,10 +26,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.net.URLDecoder;
 import java.util.*;
 
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-
-import pl.net.bluesoft.util.lang.cquery.func.F;
-
 /**
  * Created by pkuciapski on 2014-05-30.
  */
