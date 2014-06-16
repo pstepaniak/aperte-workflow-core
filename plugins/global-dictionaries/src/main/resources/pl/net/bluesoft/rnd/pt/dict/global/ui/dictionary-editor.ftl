@@ -59,7 +59,13 @@
 
 <#if aperteUser.hasRole("DICT_EDITOR")>
 
+
 <div class="apw main-view col-md-offset-1">
+
+    <div class="page-header">
+        <h3><@spring.message "dictionary.editor.section.title"/></h3>
+    </div>
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <@spring.message "dictionary.editor.heading"/>
