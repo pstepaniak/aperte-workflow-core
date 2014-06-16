@@ -1,18 +1,15 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-import java.util.*;
-
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.*;
-
 import org.hibernate.annotations.CascadeType;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
+
+import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.util.*;
 
 @Entity
 @Table(name = "pt_dictionary_item")

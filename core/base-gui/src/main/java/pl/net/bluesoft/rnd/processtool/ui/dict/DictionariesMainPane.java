@@ -1,40 +1,31 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict;
 
-import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
-import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
-
-import java.util.HashSet;
-
-import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
-
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
-import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.GlobalDictionaryModelView;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.AddNewDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.CancelEditionOfDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.CopyDictionaryItemValueActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemValueActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveNewDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.EditDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.validator.DictionaryItemValidator;
-import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
-import pl.net.bluesoft.rnd.processtool.ui.request.exception.UnknownActionRequestException;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
+import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.GlobalDictionaryModelView;
+import pl.net.bluesoft.rnd.processtool.ui.dict.request.*;
+import pl.net.bluesoft.rnd.processtool.ui.dict.validator.DictionaryItemValidator;
+import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
+import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
+import pl.net.bluesoft.rnd.processtool.ui.request.exception.UnknownActionRequestException;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.util.HashSet;
+
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 
 public class DictionariesMainPane extends VerticalLayout implements Refreshable, IActionRequestListener, IEntryValidator<ProcessDBDictionaryItem>
 {

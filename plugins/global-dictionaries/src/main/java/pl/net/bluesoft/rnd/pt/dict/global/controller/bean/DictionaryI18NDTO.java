@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 

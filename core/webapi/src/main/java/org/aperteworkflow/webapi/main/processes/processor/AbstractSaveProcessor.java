@@ -5,11 +5,13 @@ import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean
 import org.aperteworkflow.webapi.main.processes.domain.HtmlWidget;
 import org.codehaus.jackson.map.ObjectMapper;
 import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogContext;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;

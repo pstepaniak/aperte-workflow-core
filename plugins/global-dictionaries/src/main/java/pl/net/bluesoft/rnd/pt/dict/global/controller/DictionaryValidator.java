@@ -1,11 +1,5 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller;
 
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.util.Date;
-
-
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
@@ -13,6 +7,11 @@ import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValu
 import pl.net.bluesoft.rnd.pt.dict.global.exception.InvalidValueException;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.DateUtil;
+
+import java.util.Date;
+
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 
 /**

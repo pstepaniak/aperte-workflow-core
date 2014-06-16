@@ -9,11 +9,11 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 import org.vaadin.addon.customfield.CustomField;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.DictionaryItemForm;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 
 import java.util.*;
 

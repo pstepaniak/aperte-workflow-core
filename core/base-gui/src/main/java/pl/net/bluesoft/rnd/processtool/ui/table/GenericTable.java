@@ -1,22 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.ui.table;
 
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-
-import pl.net.bluesoft.rnd.processtool.ui.dict.IEntryValidator;
-import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.TableFieldFactory;
 import com.vaadin.ui.Table.ColumnGenerator;
+import com.vaadin.ui.TableFieldFactory;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import pl.net.bluesoft.rnd.processtool.ui.dict.IEntryValidator;
+import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
+import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Fast, generic table. 
