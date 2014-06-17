@@ -815,6 +815,10 @@ div.apw .panel-heading.panel-heading-aperte-queues,
 	color: #ffffff;
 }
 
+div.apw .panel-nomargin {
+    margin-bottom: 0px;
+}
+
 .vaadin-widget-view
 {
 	background-repeat: no-repeat;
