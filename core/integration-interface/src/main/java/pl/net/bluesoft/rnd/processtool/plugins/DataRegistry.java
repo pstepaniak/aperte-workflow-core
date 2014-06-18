@@ -6,6 +6,7 @@ import org.hibernate.dialect.Dialect;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogHandler;
 import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.expressions.ExpressionEvaluators;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
@@ -57,4 +58,6 @@ public interface DataRegistry {
 	void addAuditLogHandler(AuditLogHandler handler);
 	void removeAuditLogHandler(AuditLogHandler handler);
 	List<AuditLogHandler> getAuditLogHandlers();
+
+	ExpressionEvaluators getExpressionEvaluators();
 }

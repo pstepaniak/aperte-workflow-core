@@ -13,6 +13,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.auditlog.AuditLogHandler;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
+import pl.net.bluesoft.rnd.processtool.expressions.ExpressionEvaluators;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.util.lang.FormatUtil;
@@ -44,6 +45,7 @@ public class DataRegistryImpl implements DataRegistry {
     private final Map<String, Class<? extends IMapper>> mappersClasses = new HashMap<String, Class<? extends IMapper>>();
 
 	private final List<AuditLogHandler> auditLogHandlers = new ArrayList<AuditLogHandler>();
+	private final ExpressionEvaluators expressionEvaluators = new ExpressionEvaluators();
 
     private SessionFactory sessionFactory;
 
@@ -52,7 +54,7 @@ public class DataRegistryImpl implements DataRegistry {
 
     private boolean jta;
 
-    @Override
+	@Override
 	public Dialect getHibernateDialect() {
         Dialect dialect = ((SessionFactoryImplementor) sessionFactory).getDialect();
 
@@ -435,5 +437,10 @@ public class DataRegistryImpl implements DataRegistry {
 	@Override
 	public List<AuditLogHandler> getAuditLogHandlers() {
 		return Collections.unmodifiableList(auditLogHandlers);
+	}
+
+	@Override
+	public ExpressionEvaluators getExpressionEvaluators() {
+		return expressionEvaluators;
 	}
 }

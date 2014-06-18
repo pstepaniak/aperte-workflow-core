@@ -579,4 +579,5 @@ freemarker.cache,
 pl.net.bluesoft.rnd.processtool.auditlog,
 pl.net.bluesoft.rnd.processtool.auditlog.builders,
 pl.net.bluesoft.rnd.processtool.auditlog.definition,
-pl.net.bluesoft.rnd.processtool.auditlog.model
+pl.net.bluesoft.rnd.processtool.auditlog.model,
+pl.net.bluesoft.rnd.processtool.expressions

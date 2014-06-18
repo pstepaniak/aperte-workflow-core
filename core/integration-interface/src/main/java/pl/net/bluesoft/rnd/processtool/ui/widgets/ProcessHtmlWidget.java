@@ -150,7 +150,6 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
         return contentProvider != null;
     }
 
-	public Map<String, Object> getViewData() {
-		return null;
+	public void getViewData(Map<String, Object> viewData) {
 	}
 }
