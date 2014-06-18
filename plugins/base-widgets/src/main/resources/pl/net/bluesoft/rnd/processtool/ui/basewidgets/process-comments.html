@@ -36,7 +36,7 @@
                     <#assign substituteUser = processComment.substituteLogin!""/>
                     <li class="list-group-item">
                         <h4 class="list-group-item-heading">
-                            ${processComment.authorFullName} (${processComment.authorLogin}) [${processComment.createTime?string("dd-MM-yyyy HH:mm")}]
+                            ${processComment.authorFullName} (${processComment.authorLogin}) [${processComment.createTime?string("dd-MM-yy HH:mm")}]
                             <#if substituteUser != "">
                                 ${messageSource.getMessage("process.history.subsituted.by")}
                                 ${processComment.substituteFullName} (${processComment.substituteLogin})
@@ -102,14 +102,24 @@
         $('#process_comments_body').val("");
     }
 
+
+    function format_2_digit(value) {
+        return ("0" + value).slice(-2);
+    }
+
     function process_comments_button_add_click() {
+
         var date = new Date();
-        var dateStr = date.getDate() + "-" +
-                    (date.getMonth() + 1) + "-" +
-                    date.getFullYear() + " " +
-                    date.getHours() + ":" +
-                    date.getMinutes();
-        var dateFull = dateStr + ":" + date.getSeconds();
+
+        var day = date.getDate();
+        var twoDigitMonth = format_2_digit(date.getMonth() + 1);
+        var year = date.getFullYear();
+        var twoDigitYear = date.getFullYear().toString().substr(2,2);
+
+        var time = format_2_digit(date.getHours()) + ":" + format_2_digit(date.getMinutes());
+        var fullDate = day + "-" + twoDigitMonth + "-" + year + " " +  time + ":" + date.getSeconds();
+        var dateToDisplay = day + "-" + twoDigitMonth + "-" + twoDigitYear + " " +  time;
+
         var body = $('#process_comments_body').val();
         body = $("<div/>").text(body).html();
         var author = '${user.login}';
@@ -120,7 +130,7 @@
         }
 
         processCommentsAddedComments.push({
-            createDate: dateFull,
+            createDate: fullDate,
             body: body,
             authorLogin: author,
             authorFullName: authorFullName
@@ -129,7 +139,7 @@
         var text = '<li class="list-group-item">' +
                 '<h4 class="list-group-item-heading">'+
                 authorFullName + ' (' + author + ')' +
-                " [" + dateStr + "] " +
+                " [" + dateToDisplay + "] " +
                 '</h4><p class="list-group-item-text">'+
                             body+
                         '</p></li>';
