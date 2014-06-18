@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import java.util.*;
 
@@ -41,11 +42,14 @@ public class StepUtil {
 		return PlaceholderUtil.expand(pattern, new PlaceholderUtil.ReplacementCallback() {
 			@Autowired
 			private ISettingsProvider settingsProvider;
+			@Autowired
+			private ProcessToolRegistry registry;
 
 			@Override
 			public String getReplacement(String placeholderName) {
 				String largePrefix = "L:";
 				String settingPrefix = "S:";
+				String evaluatedExpressionPrefix = "E:";
 
 				if (placeholderName.startsWith(largePrefix)) {
 					return pi.getSimpleLargeAttributeValue(placeholderName.substring(largePrefix.length()));
@@ -53,6 +57,10 @@ public class StepUtil {
 				if (placeholderName.startsWith(settingPrefix)) {
 					SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 					return settingsProvider.getSetting(placeholderName.substring(settingPrefix.length()));
+				}
+				if (placeholderName.startsWith(evaluatedExpressionPrefix)) {
+					String expression = placeholderName.substring(evaluatedExpressionPrefix.length());
+					return registry.getDataRegistry().getExpressionEvaluators().evaluate(expression, pi);
 				}
 				return pi.getSimpleAttributeValue(placeholderName);
 			}

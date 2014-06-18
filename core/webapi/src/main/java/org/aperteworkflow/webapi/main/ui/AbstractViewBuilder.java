@@ -282,11 +282,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             for (IStateWidgetAttribute attribute : widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
-			Map<String, Object> widgetViewData = processHtmlWidget.getViewData();
-
-			if (widgetViewData != null) {
-				viewData.putAll(widgetViewData);
-			}
+			processHtmlWidget.getViewData(viewData);
 
             /* Add custom attributes from widget data providers */
             for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders()) {
