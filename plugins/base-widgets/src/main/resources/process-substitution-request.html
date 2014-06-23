@@ -117,7 +117,7 @@
         <#if canEdit != "no">
             $("#substituting-date-from-${widgetId}").datepicker({
                 format: "dd-mm-yy",
-                language: "pl",
+                language: "${messageSource.getLocale().getLanguage()}",
                 minDate: 0
             });
         </#if>
@@ -126,7 +126,7 @@
         <#if canEdit != "no">
             $("#substituting-date-to-${widgetId}").datepicker({
                 format: "dd-mm-yy",
-                language: "pl",
+                language: "${messageSource.getLocale().getLanguage()}",
                 minDate: 0
             });
         </#if>

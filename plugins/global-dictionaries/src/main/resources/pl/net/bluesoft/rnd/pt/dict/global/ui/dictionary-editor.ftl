@@ -309,6 +309,7 @@
             var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="valueDateFrom" placeholder="<@spring.message 'dictionary.editor.itemValues.table.dateFrom'/>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
             $(dataControl).datepicker({
                 "format": "yyyy-mm-dd",
+                language: "${.lang}",
                 autoclose: true
             });
             $(dataControl).datepicker('update', currentItem.values[iRow].dateFrom);
@@ -323,6 +324,7 @@
             var dataControl = $('<div class="input-group date" style="width:150px"><input type="text" class="form-control datepicker" id="valueDateTo" placeholder="<@spring.message 'dictionary.editor.itemValues.table.dateTo'/>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span></div>');
             $(dataControl).datepicker({
                 "format": "yyyy-mm-dd",
+                language: "${.lang}",
                 autoclose: true
             });
             $(dataControl).datepicker('update', currentItem.values[iRow].dateTo);
