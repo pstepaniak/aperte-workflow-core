@@ -84,7 +84,13 @@ public class OSGiBundleHelper implements IBundleResourceProvider
         return getBundleResourceStream(bundle, resourcePath);
     }
 
-    public static InputStream getBundleResourceStream(Bundle bundle, String resourcePath) throws IOException {
+	@Override
+	public String getBundleResourceString(String resourcePath) throws IOException {
+		InputStream inputStream = getBundleResourceStream(resourcePath);
+		return IOUtils.toString(inputStream, "UTF-8");
+	}
+
+	public static InputStream getBundleResourceStream(Bundle bundle, String resourcePath) throws IOException {
         URL resource = bundle.getResource(resourcePath);
         return resource != null ? resource.openStream() : null;
     }

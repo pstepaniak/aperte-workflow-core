@@ -11,10 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.plugins.IAttributesMapper;
-import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
-import pl.net.bluesoft.rnd.processtool.plugins.IMapper;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.*;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
@@ -40,6 +37,7 @@ import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * User: POlszewski
@@ -131,7 +129,70 @@ public class BundleInstallationHandler {
         if (bundleHelper.hasHeaderValues(RESOURCES)) {
             handleBundleResources(eventType, bundleHelper);
         }
-    }
+
+		BundleExtensionHandlerParams params = new BundleExtensionHandlerParamsImpl(bundle, bundleHelper, eventType);
+
+		for (BundleExtensionHandler handler : processToolRegistry.getBundleRegistry().getBundleExtensionHandlers()) {
+			handler.handleBundleExtensions(params);
+		}
+	}
+
+	private static class BundleExtensionHandlerParamsImpl implements BundleExtensionHandlerParams {
+		private final Bundle bundle;
+		private final OSGiBundleHelper bundleHelper;
+		private final int eventType;
+
+		private BundleExtensionHandlerParamsImpl(Bundle bundle, OSGiBundleHelper bundleHelper, int eventType) {
+			this.bundle = bundle;
+			this.bundleHelper = bundleHelper;
+			this.eventType = eventType;
+		}
+
+		@Override
+		public int getEventType() {
+			return eventType;
+		}
+
+		@Override
+		public boolean hasBundleHeader(String headerName) {
+			return hasText(getHeaderText(headerName));
+		}
+
+		@Override
+		public String getBundleHeaderValue(String headerName) {
+			String headerText = getHeaderText(headerName);
+			return hasText(headerText) ? headerText.trim() : null;
+		}
+
+		@Override
+		public String[] getBundleHeaderValues(String headerName) {
+			String headerText = getHeaderText(headerName);
+
+			if (hasText(headerText)) {
+				return headerText.replaceAll("\\s", "").split(",");
+			}
+			return new String[0];
+		}
+
+		private String getHeaderText(String headerName) {
+			return bundle.getHeaders().get(headerName);
+		}
+
+		@Override
+		public IBundleResourceProvider getBundleResourceProvider() {
+			return bundleHelper;
+		}
+
+		@Override
+		public Class loadClass(String className) {
+			try {
+				return bundle.loadClass(className);
+			}
+			catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 
     private void handleMappers(int eventType, OSGiBundleHelper bundleHelper) {
         Bundle bundle = bundleHelper.getBundle();

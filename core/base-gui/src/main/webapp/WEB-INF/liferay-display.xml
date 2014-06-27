@@ -8,6 +8,7 @@
         <portlet id="Aperte Workflow User Portlet"/>
         <portlet id="AperteWorkflow Case Management Portlet"/>
         <portlet id="AperteWorkflow Complaint Registry Portlet"/>
+		<portlet id="AperteWorkflow Interactive Reports"/>
         <portlet id="AperteWorkflow Dictionary Editor Portlet"/>
 	</category>
     <category name="category.hidden">
