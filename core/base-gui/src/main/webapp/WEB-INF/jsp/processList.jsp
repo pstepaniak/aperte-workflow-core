@@ -11,12 +11,10 @@
 				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
-				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.stepinfo" /></th>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -36,12 +34,10 @@
 				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
 				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){return generateStatusColumn(object);}},
-				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
 				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": function(object){return generateAssigneColumn(object);} },
 				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yy, HH:mm:ss');}},
 				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yy, HH:mm');}},
-				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedProcess.stepInfo, "mData":"stepInfo" }
 			 ],
 			 [[ 6, "desc" ]]
 			);
@@ -56,7 +52,6 @@
 		dataTable.enableTabletMode = function()
 		{
 			this.toggleColumnButton("creator", false);
-			this.toggleColumnButton("code", false);
 		}
 		
 		dataTable.disableMobileMode = function()
@@ -69,7 +64,6 @@
 		dataTable.disableTabletMode = function()
 		{
 			this.toggleColumnButton("creator", true);
-			this.toggleColumnButton("code", true);
 		}
 		
 		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
