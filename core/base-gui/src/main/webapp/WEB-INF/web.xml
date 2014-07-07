@@ -41,6 +41,16 @@
 		<realm-name>default</realm-name>
 	</login-config>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>AuthServer</web-resource-name>
+            <url-pattern>/osgi_services/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
 	<filter>
 		<filter-name>Cache Filter - Resource</filter-name>
 		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
@@ -537,10 +547,10 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
     <servlet>
-        <servlet-name>OsgiDispachServlet</servlet-name>
+        <servlet-name>CXFOsgiWrapperServler</servlet-name>
         <display-name>CXF OsgiDispachServlet</display-name>
         <servlet-class>
-            org.aperteworkflow.service.OsgiDispachServlet <!-- no spring, please! -->
+            org.aperteworkflow.service.CXFOsgiWrapperServler <!-- no spring, please! -->
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -556,7 +566,7 @@
 	</servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>OsgiDispachServlet</servlet-name>
+        <servlet-name>CXFOsgiWrapperServler</servlet-name>
         <url-pattern>/osgi_services/*</url-pattern>
     </servlet-mapping>
 

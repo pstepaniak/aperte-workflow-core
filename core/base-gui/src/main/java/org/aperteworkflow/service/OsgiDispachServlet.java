@@ -17,6 +17,7 @@ import java.io.PrintWriter;
  * Date: 15.05.14
  * Time: 12:59
  */
+@Deprecated
 public class OsgiDispachServlet extends HttpServlet {
 
 
