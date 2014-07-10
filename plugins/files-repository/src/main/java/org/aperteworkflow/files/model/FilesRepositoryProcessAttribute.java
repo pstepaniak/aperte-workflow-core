@@ -1,5 +1,6 @@
 package org.aperteworkflow.files.model;
 
+import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import java.util.Set;
 public class FilesRepositoryProcessAttribute extends ProcessInstanceAttribute implements IFilesRepositoryAttribute {
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "file_id")
+    @Index(name = "idx_pt_files_prc_file_id")
     private Set<FilesRepositoryItem> filesRepositoryItems = new HashSet<FilesRepositoryItem>();
 
     @Override
