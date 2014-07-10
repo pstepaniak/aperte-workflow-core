@@ -98,6 +98,31 @@ public class StepUtil {
         return attributes;
     }
 
+	public static Map<String, String> evaluateQuery(String query, IAttributesProvider pi)
+	{
+		if(query == null) {
+			return Collections.emptyMap();
+		}
+
+		Map<String, String> attributes = new HashMap<String, String>();
+		String[] parts = query.split("[,;]");
+
+		for (String part : parts) {
+			String[] assignment = part.split("[:=]");
+
+			if (assignment.length != 2)
+				continue;
+
+			if (assignment[1].startsWith("\"") && assignment[1].endsWith("\""))
+				assignment[1] = assignment[1].substring(1, assignment[1].length() - 1);
+
+			String key = assignment[0];
+			String value = substituteVariables(assignment[1], pi);
+			attributes.put(key, value);
+		}
+		return attributes;
+	}
+
     public static List<String> evaluateList(String query)
     {
         if(query == null) {
