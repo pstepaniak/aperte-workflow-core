@@ -279,15 +279,19 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
             viewData.put(IHtmlTemplateProvider.SETTINGS_PROVIDER, settingsProvider);
 
+
+
             for (IStateWidgetAttribute attribute : widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
 			processHtmlWidget.getViewData(viewData);
+	        Map<String, Object> baseViewData = new HashMap<String, Object>(viewData);
 
             /* Add custom attributes from widget data providers */
+
             for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders()) {
                 SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(dataProvider);
-                viewData.putAll(dataProvider.getData(getViewedObject()));
+                viewData.putAll(dataProvider.getData(getViewedObject(), baseViewData));
             }
 
             String processedView = templateProvider.processTemplate(aliasName, viewData);
