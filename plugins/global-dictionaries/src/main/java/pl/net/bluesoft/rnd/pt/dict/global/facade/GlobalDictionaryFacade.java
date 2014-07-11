@@ -9,8 +9,12 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryItemExt;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -24,9 +28,15 @@ public class GlobalDictionaryFacade implements IDictionaryFacade
     }
 
     @Override
-    public Collection<DictionaryItem> getAllDictionaryItems(String dictionaryName, Locale locale,String filter)
+    public Collection<DictionaryItem> getAllDictionaryItems(String dictionaryName, Locale locale, String filter){
+        return getAllDictionaryItems(dictionaryName, locale, filter, null);
+    }
+
+
+    public Collection<DictionaryItem> getAllDictionaryItems(String dictionaryName, Locale locale,String filter, Date date)
     {
         Collection<DictionaryItem> dictionaryItems = new LinkedList<DictionaryItem>();
+        Date result = null;
 
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         if(ctx==null)
@@ -45,6 +55,16 @@ public class GlobalDictionaryFacade implements IDictionaryFacade
 
         Collection<DictFilter> filters = parseFilters(filter);
 
+       /* if(date != null){
+            DateFormat df = new SimpleDateFormat("YYYY-MM-DD");
+            try {
+                result = df.parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }*/
+
         for(ProcessDictionaryItem pdi : list)
         {
             String desc = pdi.getDescription(locale);
@@ -57,6 +77,16 @@ public class GlobalDictionaryFacade implements IDictionaryFacade
                 dictionaryItem.setValue("No value defined for key=" + pdi.getKey() + " and language=" + locale);
             dictionaryItem.setDescription(desc);
 
+
+         ProcessDictionaryItemValue valueForDate = pdi.getValueForDate(date);
+            if(valueForDate == null || valueForDate instanceof ProcessDBDictionaryItem.EMPTY_VALUE)
+            {
+                dictionaryItem.setValid(false);
+            }
+                else dictionaryItem.setValid(true);
+
+
+
             if (pdi.getValueForCurrentDate() != null)
                 for(ProcessDictionaryItemExtension extension: pdi.getValueForCurrentDate().getItemExtensions())
                 {
@@ -67,7 +97,7 @@ public class GlobalDictionaryFacade implements IDictionaryFacade
                     dictionaryItem.getExtensions().add(dictionaryItemExt);
                 }
 
-            if(checkForFilters(dictionaryItem, filters))
+            if(checkForFilters(dictionaryItem, filters) && dictionaryItem.getisValid())
                 dictionaryItems.add(dictionaryItem);
         }
 
