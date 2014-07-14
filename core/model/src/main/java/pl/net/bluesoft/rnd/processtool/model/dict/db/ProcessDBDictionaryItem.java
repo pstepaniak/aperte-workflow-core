@@ -172,7 +172,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         ProcessDBDictionaryI18N.setLocalizedText(localizedDescriptions, languageCode, name);
     }
 
-    private final class EMPTY_VALUE extends ProcessDBDictionaryItemValue {
+    public final class EMPTY_VALUE extends ProcessDBDictionaryItemValue {
         private final String NO_VALUE = "No value defined for dictionary=%s, item=%s, languageCode=%s and date=%s";
         private Date date;
 

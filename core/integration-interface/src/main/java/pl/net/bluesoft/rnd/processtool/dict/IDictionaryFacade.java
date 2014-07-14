@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.dict;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Date;
 
 /**
  * @author: mpawlak@bluesoft.net.pl
@@ -15,4 +16,6 @@ public interface IDictionaryFacade
      * Only items with extenstion meeting filter conditions will be returned
      */
     Collection<DictionaryItem> getAllDictionaryItems(String dictionaryName, Locale locale, String filter);
+
+    Collection<DictionaryItem> getAllDictionaryItems(String dictionaryName, Locale locale, String filter, Date date);
 }
