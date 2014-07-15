@@ -151,47 +151,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                              task.getProcessInstance().setSimpleAttribute(changeOwnerAttributeKey, changeOwnerAttributeValue);
                         }
 
+	                    saveComment(task);
+
                         List<BpmTask> newTasks = getBpmSession(context, task.getAssignee()).performAction(actionName, task, false);
 
                         long t3 = System.currentTimeMillis();
 
-                        if(comment != null && !comment.isEmpty())
-                        {
-                            UserData actionPerformer = context.getUser();
-                            String taskOwner = task.getAssignee();
 
-                            String authorLogin = actionPerformer.getLogin();
-                            String authorFullName = actionPerformer.getRealName();
-
-                            ProcessComment processComment = new ProcessComment();
-                            processComment.setCreateTime(new Date());
-                            processComment.setProcessState(task.getTaskName());
-                            processComment.setBody(comment);
-                            processComment.setAuthorLogin(authorLogin);
-                            processComment.setAuthorFullName(authorFullName);
-
-                            /* Action performed by task owner*/
-                            if(taskOwner.equals(authorLogin))
-                            {
-                                processComment.setAuthorLogin(authorLogin);
-                                processComment.setAuthorFullName(authorFullName);
-                            }
-                            /* Action performed by substituting user */
-                            else
-                            {
-                                UserData owner = getUserSource().getUserByLogin(taskOwner);
-                                processComment.setAuthorLogin(owner.getLogin());
-                                processComment.setAuthorFullName(owner.getRealName());
-                                processComment.setSubstituteLogin(authorLogin);
-                                processComment.setSubstituteFullName(authorFullName);
-
-                            }
-
-                            ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
-
-                            pi.addComment(processComment);
-                            pi.setSimpleAttribute("commentAdded", "true");
-                        }
                         
                         /* Task finished or no tasks created (ie waiting for timer) */
                         if (newTasks == null || newTasks.isEmpty()) {
@@ -225,6 +191,46 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         return null;
                     }
                 }
+
+	            private void saveComment(BpmTask task) {
+		            if(comment != null && !comment.isEmpty())
+		            {
+		                UserData actionPerformer = context.getUser();
+		                String taskOwner = task.getAssignee();
+
+		                String authorLogin = actionPerformer.getLogin();
+		                String authorFullName = actionPerformer.getRealName();
+
+		                ProcessComment processComment = new ProcessComment();
+		                processComment.setCreateTime(new Date());
+		                processComment.setProcessState(task.getTaskName());
+		                processComment.setBody(comment);
+		                processComment.setAuthorLogin(authorLogin);
+		                processComment.setAuthorFullName(authorFullName);
+
+		                /* Action performed by task owner*/
+		                if(taskOwner.equals(authorLogin))
+		                {
+		                    processComment.setAuthorLogin(authorLogin);
+		                    processComment.setAuthorFullName(authorFullName);
+		                }
+		                /* Action performed by substituting user */
+		                else
+		                {
+		                    UserData owner = getUserSource().getUserByLogin(taskOwner);
+		                    processComment.setAuthorLogin(owner.getLogin());
+		                    processComment.setAuthorFullName(owner.getRealName());
+		                    processComment.setSubstituteLogin(authorLogin);
+		                    processComment.setSubstituteFullName(authorFullName);
+
+		                }
+
+		                ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
+
+		                pi.addComment(processComment);
+		                pi.setSimpleAttribute("commentAdded", "true");
+		            }
+	            }
             }, ExecutionType.TRANSACTION_SYNCH);
 		
 		    resultBean.setNextTask(bpmTaskBean);
