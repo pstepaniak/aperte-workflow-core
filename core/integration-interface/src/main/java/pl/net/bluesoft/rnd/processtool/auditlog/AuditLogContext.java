@@ -58,7 +58,7 @@ public class AuditLogContext {
 		AuditLogDefinition definition = getDefinition(provider);
 
 		if (definition != null) {
-			auditLogBuilder.set(new DefaultAuditLogBuilder(definition));
+			auditLogBuilder.set(new DefaultAuditLogBuilder(definition, provider));
 		}
 	}
 

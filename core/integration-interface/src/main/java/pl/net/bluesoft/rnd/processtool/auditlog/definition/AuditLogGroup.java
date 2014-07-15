@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.auditlog.definition;
 
+import org.apache.commons.lang3.StringUtils;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 
 import java.util.LinkedHashMap;
@@ -38,7 +39,11 @@ public class AuditLogGroup {
 	}
 
 	public AuditLogGroup add(String attributeName, String dictKey) {
-		return add(new SimpleAuditConfig(attributeName, dictKey));
+		return add(attributeName, StringUtils.isNotEmpty(dictKey) ? new DirectDictResolver(dictKey) : null);
+	}
+
+	public AuditLogGroup add(String attributeName, DictResolver dictResolver) {
+		return add(new SimpleAuditConfig(attributeName, dictResolver));
 	}
 
 	private AuditLogGroup add(SimpleAuditConfig config) {

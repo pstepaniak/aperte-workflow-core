@@ -1,23 +1,21 @@
 package pl.net.bluesoft.rnd.processtool.auditlog.definition;
 
-import org.apache.commons.lang3.StringUtils;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
 public class SimpleAuditConfig {
 	public final String attributeName;
-	public final String dictKey;
-	public final boolean useDict;
+	public final DictResolver dictResolver;
 
 	public SimpleAuditConfig(String attributeName) {
 		this(attributeName, null);
 	}
 
-	public SimpleAuditConfig(String attributeName, String dictKey) {
-		this(attributeName, dictKey, StringUtils.isNotEmpty(dictKey));
+	public SimpleAuditConfig(String attributeName, DictResolver dictResolver) {
+		this.attributeName = attributeName;
+		this.dictResolver = dictResolver;
 	}
 
-	private SimpleAuditConfig(String attributeName, String dictKey, boolean useDict) {
-		this.attributeName = attributeName;
-		this.dictKey = dictKey;
-		this.useDict = useDict;
+	public String getDictKey(IAttributesProvider attributesProvider) {
+		return dictResolver != null ? dictResolver.getDictKey(attributesProvider) : null;
 	}
 }

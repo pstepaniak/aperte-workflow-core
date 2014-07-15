@@ -4,6 +4,7 @@ import pl.net.bluesoft.rnd.processtool.auditlog.definition.*;
 import pl.net.bluesoft.rnd.processtool.auditlog.model.AuditLog;
 import pl.net.bluesoft.rnd.processtool.auditlog.model.AuditedProperty;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.util.lang.Pair;
 
 import java.util.*;
@@ -14,13 +15,15 @@ import java.util.*;
  */
 public class DefaultAuditLogBuilder implements AuditLogBuilder {
 	private final AuditLogDefinition definition;
+	private final IAttributesProvider provider;
 
 	private final Map<Pair<String, Object>, AuditLog> map = new HashMap<Pair<String, Object>, AuditLog>();
 	private final List<AuditLog> list = new ArrayList<AuditLog>();
 
 
-	public DefaultAuditLogBuilder(AuditLogDefinition definition) {
+	public DefaultAuditLogBuilder(AuditLogDefinition definition, IAttributesProvider provider) {
 		this.definition = definition;
+		this.provider = provider;
 	}
 
 	@Override
@@ -32,8 +35,8 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 			AuditLog auditLog = getAuditLog(group.getGroupKey(), null);
 			String messageKey = getMessageKey(group, key);
 
-			auditLog.addPre(messageKey, key, oldValue, auditConfig.dictKey);
-			auditLog.addPost(messageKey, key, newValue, auditConfig.dictKey);
+			auditLog.addPre(messageKey, key, oldValue, auditConfig.getDictKey(provider));
+			auditLog.addPost(messageKey, key, newValue, auditConfig.getDictKey(provider));
 		}
 	}
 
