@@ -38,7 +38,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler {
 			IAttributesConsumer consumerToSave = nvl(processToSave, consumer);
 
 			if (!isIgnored(key)) {
-				String oldValue = nvl(getOldValue(consumerToSave, widgetData)); // TODO nvl?
+				String oldValue = getOldValue(consumerToSave, widgetData);
 				String newValue = widgetData.getValue();
 
 				AuditLogContext.get().addSimple(key, oldValue, newValue);

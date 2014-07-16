@@ -9,6 +9,8 @@ import pl.net.bluesoft.util.lang.Pair;
 
 import java.util.*;
 
+import static pl.net.bluesoft.util.lang.Strings.hasText;
+
 /**
  * User: POlszewski
  * Date: 2014-06-13
@@ -35,9 +37,13 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 			AuditLog auditLog = getAuditLog(group.getGroupKey(), null);
 			String messageKey = getMessageKey(group, key);
 
-			auditLog.addPre(messageKey, key, oldValue, auditConfig.getDictKey(provider));
-			auditLog.addPost(messageKey, key, newValue, auditConfig.getDictKey(provider));
+			auditLog.addPre(messageKey, key, blankToNull(oldValue), auditConfig.getDictKey(provider));
+			auditLog.addPost(messageKey, key, blankToNull(newValue), auditConfig.getDictKey(provider));
 		}
+	}
+
+	private static String blankToNull(String value) {
+		return hasText(value) ? value : null;
 	}
 
 	@Override
