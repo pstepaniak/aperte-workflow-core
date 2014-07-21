@@ -3,6 +3,7 @@ package org.aperteworkflow.webapi.main.processes;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskDerivedBean;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**
@@ -43,13 +44,13 @@ public class ActionPseudoTaskBean {
 		return result;
 	}
 
-	public static BpmTaskBean createTask(BpmTask task, ProcessStateConfiguration actionPseudoState, String actionName, I18NSource messageSource) {
-		BpmTaskBean result = BpmTaskBean.createFrom(task, messageSource);
+	public static TasksListViewBean createTask(BpmTask task, ProcessStateConfiguration actionPseudoState, String actionName, String viewName, I18NSource messageSource) {
+        TasksListViewBean processBean= new TasksListViewBeanFactoryWrapper().createFrom(task, messageSource, viewName);
+
 //		result.setName(actionPseudoState.getName());
-		result.setTaskId(getActionPseudotaskId(task.getInternalTaskId(), actionName));
-		result.setProcessStateConfigurationId(actionPseudoState.getName());
-		result.setUserCanClaim(false);
+        processBean.setTaskId(getActionPseudotaskId(task.getInternalTaskId(), actionName));
+        processBean.setUserCanClaim(false);
 //		result.set
-		return result;
+		return processBean;
 	}
 }

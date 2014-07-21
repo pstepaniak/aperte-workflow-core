@@ -10,11 +10,10 @@
 		<thead>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.clientType" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -33,15 +32,16 @@
 			[
 				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
-				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){return generateStatusColumn(object);}},
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
 				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": function(object){return generateAssigneColumn(object);} },
-				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yy, HH:mm:ss');}},
-				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yy, HH:mm');}},
+				 { "sName":"clientType","bVisible":true ,"bVisible":parsedProcess.clientType, "bSortable": true,"mData": function(object){ if(object.highlight) return '<font color="red">'+object.clientType+'<span class="glyphicon glyphicon-exclamation-sign" style="margin-left: 5px" /></font>'; else return object.clientType;}},
+				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yy, HH:mm:ss');}}
 			 ],
-			 [[ 6, "desc" ]]
+			 [[ 5, "desc" ],[ 6, "desc" ]]
 			);
-		
+
+		dataTable.addParameter('taskListViewName','LOTComplaintView');
+
 		dataTable.enableMobileMode = function()
 		{
 			this.toggleColumnButton("deadline", false);

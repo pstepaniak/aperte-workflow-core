@@ -11,10 +11,9 @@
 			<tr>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creationdate" /></th>
-				<th style="width:9%;"><spring:message code="processes.list.table.process.deadline" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.clientType" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.actions" /></th>
 			</tr>
 		</thead>
@@ -34,20 +33,21 @@
 			[
 				 { "sName":"name", "bSortable": true,"bVisible":parsedCustom.name,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true,"bVisible":parsedCustom.step, "mData": "step" },
-				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedCustom.step, "mData": "businessStatus" },
 				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
 				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yy, HH:mm:ss');}},
-				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"clientType","bVisible":true ,"bVisible":parsedCustom.clientType, "bSortable": true,"mData": function(object){ if(object.highlight) return '<font color="red">'+object.clientType+'<span class="glyphicon glyphicon-exclamation-sign" style="margin-left: 5px" /></font>'; else return object.clientType;}},
 				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}}
 			 ],
-			 [[ 6, "desc" ]]
+			 [[ 4, "desc" ]]
 			);
-			
+
+        dataTable.addParameter('taskListViewName','LOTComplaintView');
+
 		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');
 			
 		dataTable.enableMobileMode = function()
 		{
-			this.toggleColumnButton("deadline", false);
+			//this.toggleColumnButton("deadline", false);
 			this.toggleColumnButton("creationDate", false);
 		}
 		
@@ -58,7 +58,7 @@
 		
 		dataTable.disableMobileMode = function()
 		{
-			this.toggleColumnButton("deadline", true);
+			//this.toggleColumnButton("deadline", true);
 			this.toggleColumnButton("creationDate", true);
 		}
 		

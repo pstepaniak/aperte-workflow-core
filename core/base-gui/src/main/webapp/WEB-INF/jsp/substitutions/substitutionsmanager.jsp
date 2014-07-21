@@ -7,11 +7,16 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<%@include file="../../utils/globals.jsp"%>
-<%@include file="../../actionsList.jsp"%>
+<%@include file="../utils/globals.jsp"%>
+<%@include file="../utils/apertedatatable.jsp"%>
+<%@include file="../actionsList.jsp"%>
 
-<c:set var="isPermitted" scope="session"
-	value="${aperteUser.hasRole('Administrator')}" />
+<c:set var="isPermitted" value="false" />
+<c:forEach var="item" items="${aperteUser.roles}">
+  <c:if test="${item eq 'Administrator'}">
+    <c:set var="isPermitted" value="true" />
+  </c:if>
+</c:forEach>
 
 <!-- Modal -->
 <div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
@@ -22,7 +27,7 @@
 				<button type="button" class="close" data-dismiss="modal"
 					aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="categoryModalLabel">
-					<spring:message code="admin.substitution.modal.add.title" />
+					<spring:message code="substitution.modal.title" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -40,6 +45,7 @@
 								data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 						</div>
 					</div>
+					<br />
 					<div class="control-group">
 						<label name="tooltip"
 							title="<spring:message code='substitute.user.label.tooltip' />"
@@ -52,6 +58,7 @@
 								data-placeholder="<spring:message code='substituting.user.input.placeholder' />" />
 						</div>
 					</div>
+					<br />
 					<div class="control-group">
 						<label name="tooltip"
 							title="<spring:message code='substituting.date.from.tooltip' />"
@@ -65,6 +72,7 @@
 								class="icon-th"></i></span>
 						</div>
 					</div>
+					<br />
 					<div class="control-group">
 						<label name="tooltip"
 							title="<spring:message code='substituting.date.to.tooltip' />"
@@ -87,7 +95,7 @@
 				</button>
 				<button id="SubmitNewSubstitution" type="submit"
 					class="btn btn-primary">
-					<spring:message code="admin.substitution.modal.action.submit" />
+					<spring:message code="substitution.modal.action.submit" />
 				</button>
 			</div>
 		</div>
@@ -100,11 +108,13 @@
 <div class="process-queue-name apw_highlight">
 	Aperte Workflow Substitution Manager
 	<div class="btn-group  pull-right">
+        <c:if test="${isPermitted}">
 		<button class="btn btn-info" id="substitution-add-button"
 			data-toggle="modal" data-target="#NewSubstitutionModal"
 			data-original-title="" title="">
 			<span class="glyphicon glyphicon-plus"></span>
-			<spring:message code="admin.substitution.action.add" />
+			<spring:message code="substitution.action.add" />
+			</c:if>
 		</button>
 	</div>
 </div>
@@ -114,17 +124,15 @@
 		border="1">
 		<thead>
 			<th style="width: 20%;"><spring:message
-					code="admin.substitution.table.substituted" /></th>
+					code="substitution.table.substituted" /></th>
 			<th style="width: 20%;"><spring:message
-					code="admin.substitution.table.substituting" /></th>
+					code="substitution.table.substituting" /></th>
 			<th style="width: 20%;"><spring:message
-					code="admin.substitution.table.dateFrom" /></th>
+					code="substitution.table.dateFrom" /></th>
 			<th style="width: 20%;"><spring:message
-					code="admin.substitution.table.dateTo" /></th>
-			<c:if test="${isPermitted}">
-				<th style="width: 20%;"><spring:message
-						code="admin.substitution.table.action" /></th>
-			</c:if>
+					code="substitution.table.dateTo" /></th>
+            <th style="width: 20%;"><spring:message
+                    code="substitution.table.action" /></th>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -152,7 +160,7 @@
 			url : dispatcherPortlet,
 			type : "POST",
 			data : {
-				controller : 'substitutionController',
+				controller : 'substitutionsController',
 				action : 'deleteSubstitution',
 				substitutionId : id
 			}
@@ -167,28 +175,28 @@
 		isValid=true;
 
 		if ($("#SubstitutingDateFrom").val() == "") {
-			addAlert('<spring:message code="admin.substitution.alert.required.dateFrom" />');
+			addAlert('<spring:message code="substitution.alert.required.dateFrom" />');
 			isValid=false;
 		}
 		
 		if ($("#SubstitutingDateTo").val() == "") {
-			addAlert('<spring:message code="admin.substitution.alert.required.dateTo" />');
+			addAlert('<spring:message code="substitution.alert.required.dateTo" />');
 			isValid=false;
 		}
 		
 		if ($("#UserLogin").val() == "") {
-			addAlert('<spring:message code="admin.substitution.alert.required.UserLogin" />');
+			addAlert('<spring:message code="substitution.alert.required.UserLogin" />');
 			isValid=false;
 		}
 		
 		if ($("#UserSubstituteLogin").val() == "") {
-			addAlert('<spring:message code="admin.substitution.alert.required.UserSubstituteLogin" />');
+			addAlert('<spring:message code="substitution.alert.required.UserSubstituteLogin" />');
 			isValid=false;
 		}
 
 		if (new Date($("#SubstitutingDateFrom").val()) > new Date($(
 				"#SubstitutingDateTo").val())) {
-			addAlert('<spring:message code="admin.substitution.alert.invalid.date" />');
+			addAlert('<spring:message code="substitution.alert.invalid.date" />');
 			isValid=false;
 		}
 
@@ -216,7 +224,7 @@
 			return;
 
 		var postData = $(this).serializeObject();
-		postData.controller = 'substitutionController'
+		postData.controller = 'substitutionsController'
 		postData.action = 'addOrEditSubstitution'
 		var formUrl = dispatcherPortlet
 		$.ajax({
@@ -252,13 +260,10 @@
                  var results = [];
                    $.each(data.data, function(index, item)
                    {
-                     if('${user.getLogin()}' != item.login)
-                     {
-                         results.push({
-                           id: item.login,
-                           text: item.realName + ' ['+item.login+']'
-                         });
-                     }
+                     results.push({
+                       id: item.login,
+                       text: item.realName + ' ['+item.login+']'
+                     });
                    });
                    return {
                        results: results
@@ -334,21 +339,25 @@
 														'yyyy-MM-dd');
 											}
 										},
-										<c:if test="${isPermitted}">
 										{
 											"sName" : "action",
 											"bSortable" : true,
 											"mData" : function(o) {
-												out = '<button class="btn btn-mini" onclick="editSubstitution('+o.id+','+o.dateFrom+','+o.dateTo+',\''+o.userLogin+'\',\''+o.userSubstituteLogin+'\')" data-toggle="modal" data-target="#NewSubstitutionModal">';
-												out += '<i class="icon-edit"></i></button>';
-												out += '<button class="btn btn-danger btn-mini" onclick="removeSubstitution('+o.id+')">';
-												out += '<i class="icon-trash"></i></button>';
+											    out='';
+                                                <c:if test="${isPermitted}">
+												out += '<button class="btn btn-mini" onclick="editSubstitution('+o.id+','+o.dateFrom+','+o.dateTo+',\''+o.userLogin+'\',\''+o.userSubstituteLogin+'\')" data-toggle="modal" data-target="#NewSubstitutionModal">';
+												out += '<i class="glyphicon glyphicon-edit"></i></button>';
+                                                </c:if>
+                                                if('${aperteUser.login}'==o.userLogin || '${aperteUser.login}'==o.userSubstituteLogin){
+                                                    out += '<button class="btn btn-danger btn-mini" onclick="removeSubstitution('+o.id+')">';
+                                                    out += '<i class="glyphicon glyphicon-trash"></i></button>';
+												}
 												return out;
 											}
-										}</c:if> ], [ [ 3, "desc" ] ]);
+										} ], [ [ 3, "desc" ] ]);
 
 						dataTable.addParameter("controller",
-								"substitutionController");
+								"substitutionsController");
 						dataTable.addParameter("action", "loadSubstitutions");
 						dataTable.reloadTable(dispatcherPortlet);
 
