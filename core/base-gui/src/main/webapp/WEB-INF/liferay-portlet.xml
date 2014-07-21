@@ -46,7 +46,7 @@
     <portlet id="aperte-substitution-admin">
         <!-- Matches definition in portlet.xml. -->
         <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>AperteWorkflow User Substitutions HTML</portlet-name>
+        <portlet-name>AperteWorkflow User Substitutions</portlet-name>
         <instanceable>false</instanceable>
         <remoteable>true</remoteable>
         <ajaxable>true</ajaxable>
@@ -258,35 +258,7 @@
         <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
         <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
-	<portlet>
-		<!-- Matches definition in portlet.xml. -->
-		<!-- Note: Must not be the same as servlet name. -->
-		<portlet-name>ProcessTool Queues</portlet-name>
-		<instanceable>false</instanceable>
-		<ajaxable>false</ajaxable>
-		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
-	</portlet>
-	<portlet>
-		<!-- Matches definition in portlet.xml. -->
-		<!-- Note: Must not be the same as servlet name. -->
-		<portlet-name>ProcessTool Dictionaries</portlet-name>
-		<instanceable>false</instanceable>
-		<ajaxable>false</ajaxable>
-		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
-	</portlet>
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow Plugin Manager</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <control-panel-entry-category>configuration</control-panel-entry-category>
-        <control-panel-entry-weight>0.5</control-panel-entry-weight>
-        <header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
-    </portlet>
+
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->
 		<!-- Note: Must not be the same as servlet name. -->
@@ -323,15 +295,14 @@
         <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
         <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
-	<portlet>
-		<!-- Matches definition in portlet.xml. -->
-		<!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow Process Definition Manager</portlet-name>
+
+    <portlet>
+        <!-- Matches definition in portlet.xml. -->
+        <!-- Note: Must not be the same as servlet name. -->
+        <portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
         <instanceable>false</instanceable>
-        <remoteable>true</remoteable>
-        <ajaxable>true</ajaxable>
-        <private-session-attributes>false</private-session-attributes>
-        <control-panel-entry-category>configuration</control-panel-entry-category>
+        <ajaxable>false</ajaxable>
+        <control-panel-entry-category>portal</control-panel-entry-category>
         <control-panel-entry-weight>0.7</control-panel-entry-weight>
         <header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jqModal.js</header-portlet-javascript>
@@ -349,6 +320,7 @@
         <header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/aperte/aperte.datatable.js</header-portlet-javascript>
         <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
@@ -358,30 +330,8 @@
         <header-portlet-css>/sa/css/select2.css</header-portlet-css>
         <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
         <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
-        <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
-	</portlet>
-	<portlet>
-		<!-- Matches definition in portlet.xml. -->
-		<!-- Note: Must not be the same as servlet name. -->
-		<portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
-		<instanceable>false</instanceable>
-		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>configuration</control-panel-entry-category>
-		<control-panel-entry-weight>0.7</control-panel-entry-weight>
-		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
-	</portlet>
-	<portlet>
-		<!-- Matches definition in portlet.xml. -->
-		<!-- Note: Must not be the same as servlet name. -->
-		<portlet-name>AperteWorkflow User Substitutions</portlet-name>
-		<instanceable>false</instanceable>
-		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>configuration</control-panel-entry-category>
-		<control-panel-entry-weight>0.8</control-panel-entry-weight>
-		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
-	</portlet>
+    </portlet>
+
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->
 		<!-- Note: Must not be the same as servlet name. -->
@@ -419,13 +369,5 @@
 		<header-portlet-css>/sa/css/liferay.css</header-portlet-css>
 		<header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
-	<portlet>
-		<!-- Matches definition in portlet.xml. -->
-		<!-- Note: Must not be the same as servlet name. -->
-		<portlet-name>Aperte Workflow User Portlet</portlet-name>
-		<instanceable>true</instanceable>
-		<ajaxable>false</ajaxable>
-		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
-	</portlet>
+
 </liferay-portlet-app>

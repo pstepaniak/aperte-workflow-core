@@ -8,7 +8,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <%@include file="../../utils/globals.jsp"%>
-<%@include file="../../utils/apertedatatable.jsp"%>
 <%@include file="../../actionsList.jsp"%>
 
 <c:set var="isPermitted" scope="session"

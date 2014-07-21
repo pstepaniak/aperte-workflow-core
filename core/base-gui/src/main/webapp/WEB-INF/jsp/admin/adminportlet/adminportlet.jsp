@@ -7,7 +7,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <%@include file="../../utils/globals.jsp" %>
-<%@include file="../../utils/apertedatatable.jsp" %>
 
 <%@ page import="java.util.*" %>
 <%@ page import="pl.net.bluesoft.rnd.processtool.plugins.*" %>
