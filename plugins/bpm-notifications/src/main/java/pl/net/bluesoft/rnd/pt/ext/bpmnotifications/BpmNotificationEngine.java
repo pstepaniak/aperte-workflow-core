@@ -4,6 +4,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -57,10 +59,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
     private static final String SENDER_TEMPLATE_SUFFIX = "_sender";
     private static final String DEFAULT_PROFILE_NAME = "Default";
     private static final String REFRESH_INTERVAL = "mail.settings.refresh.interval";
-    
+    private static final String NOTIFICATION_LOCK_NAME = "notificationLock";
     /** Mail body encoding */
     private static final String MAIL_ENCODING = "UTF-8";
-    
+
+    private static final String GROUP_MAIL_ROLE = "GROUP_MAIL";
+
     private static final Logger logger = Logger.getLogger(BpmNotificationEngine.class.getName());
 
     private Collection<BpmNotificationConfig> configCache = new HashSet<BpmNotificationConfig>();
@@ -75,6 +79,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     @AutoInject
     private ITemplateDataProvider templateDataProvider;
 
+    @Autowired
     private ProcessToolRegistry registry;
     
 
@@ -92,9 +97,9 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 	private final Set<NotificationSentListener> notificationSentListeners = new LinkedHashSet<NotificationSentListener>();
     
-    public BpmNotificationEngine(ProcessToolRegistry registry)
+    public BpmNotificationEngine()
     {
-    	this.registry = registry;
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     	
     	
     	try {init();}catch (Exception e){}
@@ -153,81 +158,73 @@ public class BpmNotificationEngine implements IBpmNotificationService
     {
     	logger.info("[NOTIFICATIONS JOB] Checking awaiting notifications... ");
 
-		try
-		{
-	    	/* Get all notifications waiting to be sent */
-	    	Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend();
+        /* Get all notifications waiting to be sent */
+        Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend(30000);
+
+        logger.info("[NOTIFICATIONS JOB] "+notificationsToSend.size()+" notifications waiting to be sent...");
+
+        Map<String,BpmNotification> notificationsToSendMap = new HashMap<String, BpmNotification>();
+
+        for(BpmNotification notification: notificationsToSend)
+        {
+            if(notification.isGroupNotifications())
+            {
+                BpmNotification groupedNotif = notificationsToSendMap.get(notification.getRecipient());
+
+                if (groupedNotif != null ){
+
+                    notificationsToSendMap.remove(groupedNotif.getRecipient());
+                    String body = groupedNotif.getBody();
+                    groupedNotif.setSubject(messageSource.getMessage("bpmnot.notify.subject.for.grouped.email"));
+
+                    body += "</br></br>" + notification.getSubject();
+                    groupedNotif.setBody(body);
+
+                    notificationsToSendMap.put(groupedNotif.getRecipient(), groupedNotif);
+                }
+                else{
+                    notification.setBody(notification.getSubject());
+                    notificationsToSendMap.put(notification.getRecipient(), notification);
+                }
+            }
+            else {
+                notificationsToSendMap.put(Long.toString(notification.getNotificationCreated().getTime()), notification);
+            }
+        }
 	    	
-	    	/* Get all notifications waiting to be sent */
-	    	Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping();
-	    	notificationsToSend.addAll(notificationsToSendForGrouping);
-	    	
-	    	logger.info("[NOTIFICATIONS JOB] "+notificationsToSend.size()+" notifications waiting to be sent...");
-	    	
-	    	Map<String,BpmNotification> notificationsToSendMap = new HashMap<String, BpmNotification>();
-	    	
-	    	for(BpmNotification notification: notificationsToSend)
-	    	{
-	    		if (notification.isGroupNotifications()){
-	    			BpmNotification groupedNotif = notificationsToSendMap.get(notification.getRecipient());
-	    			
-	    			if (groupedNotif != null ){
-	    			
-	    				notificationsToSendMap.remove(groupedNotif.getRecipient());
-	    				String body = groupedNotif.getBody();
-	    				groupedNotif.setSubject(messageSource.getMessage("bpmnot.notify.subject.for.grouped.email"));
-		    			
-		    			body += "</br></br>" + notification.getSubject();
-		    			groupedNotif.setBody(body);
-		    			
-		    			notificationsToSendMap.put(groupedNotif.getRecipient(), groupedNotif);
-		    			NotificationsFacade.removeNotification(notification);
-	    			}
-	    			else{
-	    				notification.setBody(notification.getSubject());
-	    				notificationsToSendMap.put(notification.getRecipient(), notification);
-	    				NotificationsFacade.removeNotification(notification);
-	    			}
-	    		}
-	    		else{
-	    			notificationsToSendMap.put(Long.toString(notification.getNotificationCreated().getTime()), notification);
-	    			NotificationsFacade.removeNotification(notification);
-	    		}
-	    	}
-	    	
-	    	for(BpmNotification notification: notificationsToSendMap.values())
-	    	{	
-	    		try
-	    		{
-	    			sendNotification(notification);
-	    			
-	    			/* Notification was sent, so remove it from te queue */
-	    			//NotificationsFacade.removeNotification(notification);
-	    		}
-	    		catch(ConnectException ex)
-	    		{
-	    			logger.log(Level.SEVERE, "[NOTIFICATIONS JOB] Could not connect to server", ex);
-	    			
-	    			history.errorWhileSendingNotification(notification, ex);
-	    			
-	    			/* End loop, host is invalid or down */
-	    			break;
-	    		}
-	    		catch(Exception ex)
-	    		{
-	    			logger.log(Level.SEVERE, "[NOTIFICATIONS JOB] Problem during notification sending", ex);
-	    			
-	    			history.errorWhileSendingNotification(notification, ex);
-	    		}
-	    	}
-		}
-		/* Table is locked, end transation */
-		catch(LockAcquisitionException ex)
-		{
-		}
+        handleNotificationsToSend(notificationsToSendMap);
     }
-    
-    
+
+    public void handleNotificationsToSend(Map<String,BpmNotification> notificationsToSendMap)
+    {
+        for(BpmNotification notification: notificationsToSendMap.values())
+        {
+            try
+            {
+                sendNotification(notification);
+
+                /* Notification was sent, so remove it from te queue */
+                NotificationsFacade.removeNotification(notification);
+            }
+            catch(ConnectException ex)
+            {
+                logger.log(Level.SEVERE, "[NOTIFICATIONS JOB] Could not connect to server", ex);
+
+                history.errorWhileSendingNotification(notification, ex);
+
+                /* End loop, host is invalid or down */
+                break;
+            }
+            catch(Exception ex)
+            {
+                logger.log(Level.SEVERE, "[NOTIFICATIONS JOB] Problem during notification sending", ex);
+
+                history.errorWhileSendingNotification(notification, ex);
+            }
+        }
+    }
+
+
     public void onProcessStateChange(BpmTask task, ProcessInstance pi, String userLogin, boolean processStarted,
 									 boolean processEnded, boolean enteringStep) {
         refreshConfigIfNecessary();
@@ -456,32 +453,33 @@ public class BpmNotificationEngine implements IBpmNotificationService
         notification.setRecipient(processedNotificationData.getRecipient().getEmail());
         notification.setSendAsHtml(processedNotificationData.isSendAsHtml());
         notification.setProfileName(processedNotificationData.getProfileName());
-        String isGroup = null;
-        
-        try
+        Boolean isGroup = null;
+
+
+        Boolean aperteDelayEmails = (Boolean)processedNotificationData.getRecipient().getAttribute("aperte-delay-emails");
+        if(aperteDelayEmails != null && aperteDelayEmails)
         {
-        	isGroup = processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingCheckbox")).toString();
+            isGroup = true;
+            Date d = (Date)processedNotificationData.getRecipient().getAttribute("aperte-delay-wait-until");
+            int time = 1000*((d.getHours()) * 3600 + d.getMinutes() * 60 + d.getSeconds());
+            notification.setSendAfterHour(time);
         }
-        catch(Exception e)
+        else if(processedNotificationData.getRecipient() != null && processedNotificationData.getRecipient().hasRole(GROUP_MAIL_ROLE))
         {
-        	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
+            isGroup = true;
+            int time = 1000*(15 * 3600);//GMT+2 17:00
+            notification.setSendAfterHour(time);
         }
-        
-        if(isGroup == null) {
-        	notification.setGroupNotifications(false);
+        else
+        {
+            isGroup = false;
         }
-        
-        if (notification.isGroupNotifications()){
-        	Date d = (Date)processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingSendHour"));
-        	Calendar cal = Calendar.getInstance();
-    		cal.set(Calendar.SECOND, d.getSeconds());
-    		cal.set(Calendar.HOUR_OF_DAY, d.getHours());
-    		cal.set(Calendar.MINUTE, d.getMinutes());
-    		
-    		//int time = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
-	        
-	        notification.setSendAfterHour(cal.getTime());
-        }
+
+		if(isGroup == null)
+            logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
+
+        else
+            notification.setGroupNotifications(isGroup);
 
         notification.encodeAttachments(processedNotificationData.getAttachments());
 		notification.setSource(processedNotificationData.getSource());
