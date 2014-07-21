@@ -6,6 +6,7 @@ import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.ActionPseudoTaskBean;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
+import org.aperteworkflow.webapi.main.processes.TasksListViewBeanFactoryWrapper;
 import org.aperteworkflow.webapi.main.processes.action.domain.PerformActionResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean;
@@ -31,6 +32,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,6 +60,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
     private static final String CREATOR_NAME_COLUMN = "creator";
     private static final String ASSIGNEE_NAME_COLUMN = "assignee";
     private static final String CREATED_DATE_COLUMN = "creationDate";
+
+    private static final String TASKS_LIST_VIEW_NAME_PARAM = "taskListViewName";
 
     private static final String EMPTY_JSON = "[{}]";
     
@@ -99,6 +103,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             final String changeOwner = request.getParameter("changeOwner");
             final String changeOwnerAttributeKey = request.getParameter("changeOwnerAttributeKey");
             final String changeOwnerAttributeValue = request.getParameter("changeOwnerAttributeValue");
+            final String viewName = request.getParameter(TASKS_LIST_VIEW_NAME_PARAM);
 
             if(isNull(taskId))
             {
@@ -134,9 +139,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 			long t1 = System.currentTimeMillis();
 
-            BpmTaskBean bpmTaskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+            TasksListViewBean bpmTaskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<TasksListViewBean>() {
                 @Override
-                public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+                public TasksListViewBean processWithContext(ProcessToolContext ctx) {
                     try {
                         logger.log(Level.INFO, "performAction.withContext ... ");
 
@@ -167,13 +172,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 							if (actionPseudoState != null) {
 								I18NSource messageSource = context.getMessageSource();
 
-								return ActionPseudoTaskBean.createTask(task, actionPseudoState, actionName, messageSource);
+								return ActionPseudoTaskBean.createTask(task, actionPseudoState, actionName, viewName, messageSource);
 							}
 							return null;
                         }
 
                         I18NSource messageSource = context.getMessageSource();
-                        BpmTaskBean processBean = BpmTaskBean.createFrom(newTasks.get(0), messageSource);
+                        TasksListViewBean processBean= new TasksListViewBeanFactoryWrapper().createFrom(newTasks.get(0), messageSource, viewName);
 
                         long t4 = System.currentTimeMillis();
 
@@ -486,19 +491,19 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
     @RequestMapping(method = RequestMethod.POST, value = "/processes/searchTasks.json")
     @ResponseBody
-    public DataPagingBean<BpmTaskBean> searchTasks(final HttpServletRequest request)
+    public DataPagingBean<TasksListViewBean> searchTasks(final HttpServletRequest request)
     {
 		logger.info("searchTasks ...");
 		long t0 = System.currentTimeMillis();
 
     	final JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(request.getParameterMap());
 
-        final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
+        final List<TasksListViewBean> adminAlertBeanList = new ArrayList<TasksListViewBean>();
 
         final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 
         if(!context.isUserAuthorized())
-            return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
+            return new DataPagingBean<TasksListViewBean>(adminAlertBeanList, 0, dataTable.getEcho());
 
         final String sortCol = request.getParameter("iSortCol_0");
         final String sortDir = request.getParameter("sSortDir_0");
@@ -506,11 +511,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         final String searchProcessKey = request.getParameter("processKey");
         String displayStartString = request.getParameter("iDisplayStart");
         String displayLengthString = request.getParameter("iDisplayLength");
+        final String viewName = request.getParameter(TASKS_LIST_VIEW_NAME_PARAM);
 
         final Integer displayStart = Integer.parseInt(displayStartString);
         final Integer displayLength = Integer.parseInt(displayLengthString);
 
-        final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
+        final DataPagingBean<TasksListViewBean> pagingCollection = new DataPagingBean<TasksListViewBean>(
                 adminAlertBeanList, 100, dataTable.getEcho());
 
 		long t1 = System.currentTimeMillis();
@@ -546,9 +552,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, displayStart, displayLength);
 
                 for (BpmTask task : tasks) {
-                    BpmTaskBean processBean = BpmTaskBean.createFrom(task, messageSource);
+                    TasksListViewBean taskViewBean = new TasksListViewBeanFactoryWrapper().createFrom(task, messageSource, viewName);
 
-                    adminAlertBeanList.add(processBean);
+                    adminAlertBeanList.add(taskViewBean);
                 }
 
                 long t2 = System.currentTimeMillis();
@@ -581,7 +587,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/processes/loadProcessesList.json")
 	@ResponseBody
-	public DataPagingBean<BpmTaskBean> loadProcessesList(final HttpServletRequest request)
+	public DataPagingBean<TasksListViewBean> loadProcessesList(final HttpServletRequest request)
 	{
 		logger.info("loadProcessesList ...");
 		long t0 = System.currentTimeMillis();
@@ -591,12 +597,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final String queueName = request.getParameter("queueName");
 		final String queueType = request.getParameter("queueType");
 		final String ownerLogin = request.getParameter("ownerLogin");
+        final String viewName = request.getParameter(TASKS_LIST_VIEW_NAME_PARAM);
 
-		final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
+		final List<TasksListViewBean> adminAlertBeanList = new ArrayList<TasksListViewBean>();
 		
 		if(isNull(queueName) || isNull(queueType) || isNull(ownerLogin))
 		{
-			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
+			return new DataPagingBean<TasksListViewBean>(adminAlertBeanList, 0, dataTable.getEcho());
 		}
 
         Locale locale = request.getLocale();
@@ -604,12 +611,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
-			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
+			return new DataPagingBean<TasksListViewBean>(adminAlertBeanList, 0, dataTable.getEcho());
 
 		final String searchString = request.getParameter("sSearch");
 
 		
-		final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
+		final DataPagingBean<TasksListViewBean> pagingCollection = new DataPagingBean<TasksListViewBean>(
 				adminAlertBeanList, 100, dataTable.getEcho());
 
 		long t1 = System.currentTimeMillis();
@@ -650,16 +657,16 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 long t2 = System.currentTimeMillis();
 
                 for (BpmTask task : tasks) {
-                    BpmTaskBean taskBean = BpmTaskBean.createFrom(task, messageSource);
+                    TasksListViewBean taskViewBean = new TasksListViewBeanFactoryWrapper().createFrom(task, messageSource, viewName);
 
                     if (isQueue) {
-                        taskBean.setQueueName(queueName);
+                        taskViewBean.setQueueName(queueName);
                     }
 
                     if(hasUserRightsToTask(context, task))
-                        taskBean.setUserCanClaim(true);
+                        taskViewBean.setUserCanClaim(true);
 
-                    adminAlertBeanList.add(taskBean);
+                    adminAlertBeanList.add(taskViewBean);
                 }
 
 

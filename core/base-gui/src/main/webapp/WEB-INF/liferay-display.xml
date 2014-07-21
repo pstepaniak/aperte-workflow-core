@@ -10,6 +10,7 @@
         <portlet id="AperteWorkflow Complaint Registry Portlet"/>
 		<portlet id="AperteWorkflow Interactive Reports"/>
         <portlet id="AperteWorkflow Dictionary Editor Portlet"/>
+		<portlet id="AperteWorkflow User Substitutions HTML"/>
 	</category>
     <category name="category.hidden">
         <portlet id="Aperte Workflow Plugin Manager"/>

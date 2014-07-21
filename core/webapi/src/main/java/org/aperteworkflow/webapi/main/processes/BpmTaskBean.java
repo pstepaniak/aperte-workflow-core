@@ -1,10 +1,9 @@
 package org.aperteworkflow.webapi.main.processes;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import static pl.net.bluesoft.util.lang.Formats.nvl;
@@ -15,7 +14,7 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class BpmTaskBean extends AbstractResultBean
+public class BpmTaskBean extends TasksListViewBean
 {
 	private static final long serialVersionUID = 8814138252434090661L;
 	
@@ -23,18 +22,16 @@ public class BpmTaskBean extends AbstractResultBean
 	private String processName;
 	private String code;
     private String businessStatus;
-	private String creator;
 	private String assignee;
-	private Date creationDate;
+
 	private Date deadline;
-	private String taskId;
+
 	private String internalProcessId;
 	private String processStateConfigurationId;
 	private String tooltip;
-	private String queueName;
+
     private String step;
 	private String stepInfo;
-    private Boolean userCanClaim = false;
 
 	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
 	{
@@ -66,10 +63,10 @@ public class BpmTaskBean extends AbstractResultBean
 		processBean.processName = messageSource.getMessage(task.getProcessDefinition().getDescription());
 		processBean.name = task.getTaskName();
 		processBean.code = nvl(processCode);
-		processBean.creationDate = task.getCreateDate();
+		processBean.setCreationDate(task.getCreateDate());
 		processBean.assignee = task.getAssignee();
-		processBean.creator = task.getCreator();
-		processBean.taskId = task.getInternalTaskId();
+		processBean.setCreator(task.getCreator());
+		processBean.setTaskId(task.getInternalTaskId());
 		processBean.internalProcessId = task.getInternalProcessId();
         processBean.businessStatus = messageSource.getMessage(processStatus);
 		processBean.processStateConfigurationId = task.getCurrentProcessStateConfiguration().getId().toString();
@@ -104,14 +101,6 @@ public class BpmTaskBean extends AbstractResultBean
 		this.code = code;
 	}
 
-	public String getCreator() {
-		return creator;
-	}
-
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
-
 	public String getAssignee() {
 		return assignee;
 	}
@@ -120,28 +109,12 @@ public class BpmTaskBean extends AbstractResultBean
 		this.assignee = assignee;
 	}
 
-	public Date getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
-	}
-
 	public Date getDeadline() {
 		return deadline;
 	}
 
 	public void setDeadline(Date deadline) {
 		this.deadline = deadline;
-	}
-
-	public String getTaskId() {
-		return taskId;
-	}
-
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
 	}
 
 	public String getInternalProcessId() {
@@ -176,14 +149,6 @@ public class BpmTaskBean extends AbstractResultBean
 		this.tooltip = tooltip;
 	}
 
-	public String getQueueName() {
-		return queueName;
-	}
-
-	public void setQueueName(String queueName) {
-		this.queueName = queueName;
-	}
-
     public String getStep() {
         return step;
     }
@@ -199,12 +164,4 @@ public class BpmTaskBean extends AbstractResultBean
 	public void setStepInfo(String stepInfo) {
 		this.stepInfo = stepInfo;
 	}
-
-    public Boolean getUserCanClaim() {
-        return userCanClaim;
-    }
-
-    public void setUserCanClaim(Boolean userCanClaim) {
-        this.userCanClaim = userCanClaim;
-    }
 }
