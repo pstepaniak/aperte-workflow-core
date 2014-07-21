@@ -8,7 +8,6 @@ import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
