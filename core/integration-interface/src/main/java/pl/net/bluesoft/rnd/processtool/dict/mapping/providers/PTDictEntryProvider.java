@@ -10,7 +10,6 @@ import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.entry.EntryInfo;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.entry.ExtInfo;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -218,11 +217,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		if (value == null) {
 			return null;
 		}
-		for(ProcessDictionaryItemExtension ext: value.getItemExtensions())
-			if(name.equals(ext.getName()))
-				return ext.getValue();
-			
-		return null;
+		return value.getExtValue(name);
 	}
 
 	private Object convert(Object value, Class<?> type, String defaultValue) {

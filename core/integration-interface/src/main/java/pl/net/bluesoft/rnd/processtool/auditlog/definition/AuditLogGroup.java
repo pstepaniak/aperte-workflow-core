@@ -13,17 +13,27 @@ import java.util.Map;
 public class AuditLogGroup {
 	private final String groupKey;
 	private final String messageKey;
+	private final boolean singleRow;
 
 	private final Map<String, SimpleAuditConfig> simpleAttrConfigs = new LinkedHashMap<String, SimpleAuditConfig>();
 	private final Map<Class, AuditedEntityHandler> entityConfigs = new LinkedHashMap<Class, AuditedEntityHandler>();
 
 	public AuditLogGroup(String groupKey) {
-		this(groupKey, groupKey);
+		this(groupKey, groupKey, false);
+	}
+
+	public AuditLogGroup(String groupKey, boolean singleRow) {
+		this(groupKey, groupKey, singleRow);
 	}
 
 	public AuditLogGroup(String groupKey, String messageKey) {
+		this(groupKey, messageKey, false);
+	}
+
+	public AuditLogGroup(String groupKey, String messageKey, boolean singleRow) {
 		this.groupKey = groupKey;
 		this.messageKey = messageKey;
+		this.singleRow = singleRow;
 	}
 
 	public String getGroupKey() {
@@ -35,15 +45,32 @@ public class AuditLogGroup {
 	}
 
 	public AuditLogGroup add(String attributeName) {
-		return add(new SimpleAuditConfig(attributeName));
+		return add(attributeName, null, null, null);
 	}
 
 	public AuditLogGroup add(String attributeName, String dictKey) {
-		return add(attributeName, StringUtils.isNotEmpty(dictKey) ? new DirectDictResolver(dictKey) : null);
+		DirectDictResolver dictResolver = StringUtils.isNotEmpty(dictKey) ? new DirectDictResolver(dictKey) : null;
+		return add(attributeName, dictResolver, null, null);
 	}
 
 	public AuditLogGroup add(String attributeName, DictResolver dictResolver) {
-		return add(new SimpleAuditConfig(attributeName, dictResolver));
+		return add(attributeName, dictResolver, null, null);
+	}
+
+	public AuditLogGroup add(String attributeName, DictResolver dictResolver, String annotation) {
+		return add(attributeName, dictResolver, null, annotation);
+	}
+
+	public AuditLogGroup add(String attributeName, AuditContextChecker contextChecker) {
+		return add(attributeName, null, contextChecker);
+	}
+
+	public AuditLogGroup add(String attributeName, DictResolver dictResolver, AuditContextChecker contextChecker) {
+		return add(attributeName, dictResolver, contextChecker, null);
+	}
+
+	public AuditLogGroup add(String attributeName, DictResolver dictResolver, AuditContextChecker contextChecker, String annotation) {
+		return add(new SimpleAuditConfig(attributeName, dictResolver, contextChecker, annotation));
 	}
 
 	private AuditLogGroup add(SimpleAuditConfig config) {
@@ -81,5 +108,9 @@ public class AuditLogGroup {
 			}
 		}
 		return null;
+	}
+
+	public boolean isSingleRow() {
+		return singleRow;
 	}
 }

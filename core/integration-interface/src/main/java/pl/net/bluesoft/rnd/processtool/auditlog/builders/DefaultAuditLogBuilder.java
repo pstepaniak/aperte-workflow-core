@@ -34,11 +34,16 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 
 		if (group != null) {
 			SimpleAuditConfig auditConfig = group.getAuditConfig(key);
-			AuditLog auditLog = getAuditLog(group.getGroupKey(), null);
-			String messageKey = getMessageKey(group, key);
 
-			auditLog.addPre(messageKey, key, blankToNull(oldValue), auditConfig.getDictKey(provider));
-			auditLog.addPost(messageKey, key, blankToNull(newValue), auditConfig.getDictKey(provider));
+			if (auditConfig.canBeLogged(provider)) {
+				AuditLog auditLog = getAuditLog(group.getGroupKey(), null, group.isSingleRow());
+				String messageKey = getMessageKey(group, key);
+				String dictKey = auditConfig.getDictKey(provider);
+				String annotation = auditConfig.annotation;
+
+				auditLog.addPre(new AuditedProperty(messageKey, key, blankToNull(oldValue), dictKey, annotation));
+				auditLog.addPost(new AuditedProperty(messageKey, key, blankToNull(newValue), dictKey, annotation));
+			}
 		}
 	}
 
@@ -70,18 +75,43 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 
 			if (group != null) {
 				AuditedEntityHandler<T> handler = group.getAuditedEntityHandler(entity.getClass());
-				final AuditLog auditLog = getAuditLog(group.getGroupKey(), entity);
+				final AuditLog auditLog = getAuditLog(group.getGroupKey(), entity, group.isSingleRow());
 
 				handler.auditLog(entity, new AuditedEntityCallback() {
 					@Override
 					public void add(String name, String value) {
-						add(name, value, null);
+						add(name, value, null, null, null);
 					}
 
 					@Override
 					public void add(String name, String value, String dictKey) {
+						add(name, value, new DirectDictResolver(dictKey), null,  null);
+					}
+
+					@Override
+					public void add(String name, String value, DictResolver dictResolver) {
+						add(name, value, dictResolver, null, null);
+					}
+
+					@Override
+					public void add(String name, String value, DictResolver dictResolver, String annotation) {
+						add(name, value, dictResolver, null, annotation);
+					}
+
+					@Override
+					public void add(String name, String value, DictResolver dictResolver, AuditContextChecker contextChecker) {
+						add(name, value, dictResolver, contextChecker, null);
+					}
+
+					@Override
+					public void add(String name, String value, DictResolver dictResolver, AuditContextChecker contextChecker, String annotation) {
+						if (contextChecker != null && !contextChecker.canBeLogged(provider)) {
+							return;
+						}
+
 						String messageKey = getMessageKey(group, name);
-						AuditedProperty property = new AuditedProperty(messageKey, name, value, dictKey);
+						String dictKey = dictResolver != null ? dictResolver.getDictKey(provider) : null;
+						AuditedProperty property = new AuditedProperty(messageKey, name, value, dictKey, annotation);
 
 						if (logTarget == LogTarget.PRE) {
 							auditLog.addPre(property);
@@ -99,7 +129,7 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 		return group.getMessageKey() + '.' + name;
 	}
 
-	private AuditLog getAuditLog(String groupKey, Object object) {
+	private AuditLog getAuditLog(String groupKey, Object object, boolean singleRow) {
 		Object objectId = getObjectId(object);
 		Pair<String, Object> key = new Pair<String, Object>(groupKey, objectId);
 
@@ -107,6 +137,7 @@ public class DefaultAuditLogBuilder implements AuditLogBuilder {
 
 		if(enityLog == null){
 			enityLog = new AuditLog(groupKey);
+			enityLog.setSingleRow(singleRow);
 			map.put(key, enityLog);
 			list.add(enityLog);
 		}

@@ -1,20 +1,16 @@
 package pl.net.bluesoft.rnd.pt.dict.global.facade;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryItemExt;
 import pl.net.bluesoft.rnd.processtool.dict.IDictionaryFacade;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
-import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
-import pl.net.bluesoft.rnd.processtool.dict.DictionaryItemExt;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -78,7 +74,7 @@ public class GlobalDictionaryFacade implements IDictionaryFacade
             dictionaryItem.setDescription(desc);
 
 
-         ProcessDictionaryItemValue valueForDate = pdi.getValueForDate(date);
+        ProcessDictionaryItemValue valueForDate = pdi.getValueForDate(date);
             if(valueForDate == null || valueForDate instanceof ProcessDBDictionaryItem.EMPTY_VALUE)
             {
                 dictionaryItem.setValid(false);

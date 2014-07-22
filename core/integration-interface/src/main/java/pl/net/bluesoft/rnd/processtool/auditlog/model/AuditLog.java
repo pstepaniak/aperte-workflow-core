@@ -1,10 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.auditlog.model;
 
-import pl.net.bluesoft.util.lang.Lang;
+import pl.net.bluesoft.rnd.util.CollectionComparer;
 
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,8 +15,9 @@ import java.util.TreeSet;
  */
 public class AuditLog {
 	private String groupKey;
-	private SortedSet<AuditedProperty> pre = new TreeSet<AuditedProperty>();
-	private SortedSet<AuditedProperty> post = new TreeSet<AuditedProperty>();
+	private boolean singleRow;
+	private List<AuditedProperty> pre = new ArrayList<AuditedProperty>();
+	private List<AuditedProperty> post = new ArrayList<AuditedProperty>();
 
 	public AuditLog(String groupKey) {
 		this.groupKey = groupKey;
@@ -29,40 +31,25 @@ public class AuditLog {
 		pre.add(prop);
 	}
 
-	public void addPre(String messageKey, String name, String value, String dictKey) {
-		addPre(new AuditedProperty(messageKey, name, value, dictKey));
-	}
-
-	public void addPre(String messageKey, String name, String value) {
-		addPre(new AuditedProperty(messageKey, name, value));
-	}
-
 	public void addPost(AuditedProperty prop){
 		post.add(prop);
 	}
 
-	public void addPost(String messageKey, String name, String value, String dictKey) {
-		addPost(new AuditedProperty(messageKey, name, value, dictKey));
-	}
-
-	public void addPost(String messageKey, String name, String value) {
-		addPost(new AuditedProperty(messageKey, name, value));
-	}
-
 	public boolean isDifferent() {
-		if(pre.size() == post.size()) {
-			Iterator<AuditedProperty> preIterator = pre.iterator();
-			Iterator<AuditedProperty> postIterator = post.iterator();
-
-			while (preIterator.hasNext()){
-				if(!Lang.equals(preIterator.next().getValue(), postIterator.next().getValue())) {
-					return true;
-				}
-			}
-			return false;
-		}
-		return true;
+		return !PROP_COMPARER.compare(pre, post);
 	}
+
+	private static final CollectionComparer<AuditedProperty> PROP_COMPARER = new CollectionComparer<AuditedProperty>() {
+		@Override
+		protected String getKey(AuditedProperty item) {
+			return item.getName();
+		}
+
+		@Override
+		protected boolean compareItems(AuditedProperty item1, AuditedProperty item2) {
+			return nvl(item1.getValue()).equals(nvl(item2.getValue()));
+		}
+	};
 
 	public String getGroupKey() {
 		return groupKey;
@@ -72,19 +59,27 @@ public class AuditLog {
 		this.groupKey = groupKey;
 	}
 
-	public SortedSet<AuditedProperty> getPre() {
+	public boolean isSingleRow() {
+		return singleRow;
+	}
+
+	public void setSingleRow(boolean singleRow) {
+		this.singleRow = singleRow;
+	}
+
+	public List<AuditedProperty> getPre() {
 		return pre;
 	}
 
-	public void setPre(SortedSet<AuditedProperty> pre) {
+	public void setPre(List<AuditedProperty> pre) {
 		this.pre = pre;
 	}
 
-	public SortedSet<AuditedProperty> getPost() {
+	public List<AuditedProperty> getPost() {
 		return post;
 	}
 
-	public void setPost(SortedSet<AuditedProperty> post) {
+	public void setPost(List<AuditedProperty> post) {
 		this.post = post;
 	}
 }

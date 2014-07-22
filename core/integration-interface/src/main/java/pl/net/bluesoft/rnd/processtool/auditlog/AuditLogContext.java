@@ -46,8 +46,7 @@ public class AuditLogContext {
 				throw new RuntimeException(e);
 			}
 			List<AuditLog> result = get().toAuditLogs();
-			postProcess(provider, result);
-			return toHandlingResults(result);
+			return toHandlingResults(provider, result);
 		}
 		finally {
 			cleanUp();
@@ -75,7 +74,7 @@ public class AuditLogContext {
 		return null;
 	}
 
-	private static void postProcess(IAttributesProvider provider, List<AuditLog> result) {
+	private static void postProcess(IAttributesProvider provider, List<HandlingResult> result) {
 		if (result.isEmpty()) {
 			return;
 		}
@@ -87,7 +86,7 @@ public class AuditLogContext {
 		}
 	}
 
-	private static List<HandlingResult> toHandlingResults(List<AuditLog> auditLogs) {
+	private static List<HandlingResult> toHandlingResults(IAttributesProvider provider, List<AuditLog> auditLogs) {
 		if (auditLogs.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -99,6 +98,7 @@ public class AuditLogContext {
 			if (enityLog.isDifferent()) {
 				try {
 					result.add(new HandlingResult(new Date(), enityLog.getGroupKey(),
+							enityLog.isSingleRow(),
 							mapper.writeValueAsString(enityLog.getPre()),
 							mapper.writeValueAsString(enityLog.getPost())));
 				}
@@ -107,6 +107,7 @@ public class AuditLogContext {
 				}
 			}
 		}
+		postProcess(provider, result);
 		return result;
 	}
 

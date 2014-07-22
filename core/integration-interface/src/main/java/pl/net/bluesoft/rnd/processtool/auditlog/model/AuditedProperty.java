@@ -1,7 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.auditlog.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,36 +9,22 @@ import java.util.Map;
  * Time: 16:18
  */
 public class AuditedProperty implements Comparable<AuditedProperty> {
-	public static final String EMPTY = "";
-
 	private String messageKey;
 	private String name;
 	private String value;
 	private String dictKey;
-	private boolean useDict = false;
-	private Map<String, String> additionalAttributes = new HashMap<String, String>();
+	private String annotation;
 
 	public AuditedProperty() {
 	}
 
-	public AuditedProperty(String messageKey, String name, String value) {
-		this.messageKey = nvl(messageKey, EMPTY);
-		this.name = nvl(name, EMPTY);
-		this.value = nvl(value, EMPTY);
+	public AuditedProperty(String messageKey, String name, String value, String dictKey, String annotation) {
+		this.messageKey = messageKey;
+		this.name = name;
+		this.value = value;
+		this.dictKey = dictKey;
+		this.annotation = annotation;
 	}
-
-	public AuditedProperty(String messageKey, String name, String value, String dictKey) {
-		this(messageKey, name, value);
-		if (dictKey != null) {
-			this.dictKey = dictKey;
-			useDict = true;
-		}
-	}
-
-	private String nvl(String first, String second) {
-		return first != null ? first : second;
-	}
-
 
 	public String getMessageKey() {
 		return messageKey;
@@ -73,28 +58,17 @@ public class AuditedProperty implements Comparable<AuditedProperty> {
 		this.dictKey = dictKey;
 	}
 
+	@JsonIgnore
 	public boolean isUseDict() {
-		return useDict;
+		return dictKey != null;
 	}
 
-	public void setUseDict(boolean useDict) {
-		this.useDict = useDict;
+	public String getAnnotation() {
+		return annotation;
 	}
 
-	public Map<String, String> getAdditionalAttributes() {
-		return additionalAttributes;
-	}
-
-	public void setAdditionalAttributes(Map<String, String> additionalAttributes) {
-		this.additionalAttributes = additionalAttributes;
-	}
-
-	public String getAdditionalAttribute(String key) {
-		return additionalAttributes.get(key);
-	}
-
-	public void setAdditionalAttribute(String key, String value) {
-		additionalAttributes.put(key, value);
+	public void setAnnotation(String annotation) {
+		this.annotation = annotation;
 	}
 
 	@Override
@@ -104,13 +78,12 @@ public class AuditedProperty implements Comparable<AuditedProperty> {
 
 	@Override
 	public String toString() {
-		return '{' +
+		return "AuditedProperty{" +
 				"messageKey='" + messageKey + '\'' +
 				", name='" + name + '\'' +
 				", value='" + value + '\'' +
 				", dictKey='" + dictKey + '\'' +
-				", useDict=" + useDict +
-				", additionalAttributes='" + additionalAttributes + '\'' +
+				", annotation='" + annotation + '\'' +
 				'}';
 	}
 }
