@@ -1,7 +1,8 @@
 package org.aperteworkflow.admin.controller;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+
+import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
 
 public class ProcessDefinition {
 	private Long id;

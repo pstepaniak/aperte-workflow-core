@@ -5,7 +5,6 @@ import org.aperteworkflow.ui.help.datatable.JQueryDataTableColumn;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.ActionPseudoTaskBean;
-import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.processes.TasksListViewBeanFactoryWrapper;
 import org.aperteworkflow.webapi.main.processes.action.domain.PerformActionResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;

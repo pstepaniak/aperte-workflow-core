@@ -1,8 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
-import org.apache.commons.io.IOUtils;
 import org.aperteworkflow.ui.view.IViewRegistry;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -14,8 +12,6 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.NotificationsConstants.ProviderType;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsManager;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.mock.impl.NotificationAddonsMockManager;

@@ -1,15 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.controller;
 
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
@@ -28,6 +19,13 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistoryEn
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
 import pl.net.bluesoft.util.lang.cquery.func.F;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * @author: mkrol@bluesoft.net.pl
