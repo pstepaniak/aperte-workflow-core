@@ -106,7 +106,6 @@
                             org.springframework.jdbc,
                             org.springframework.jdbc.datasource,
                             org.hibernate.exception,
-                            javax.mail.internet;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
                             pl.net.bluesoft.rnd.pt.ext.sched.service,
