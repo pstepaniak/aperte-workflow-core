@@ -128,7 +128,11 @@
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade,
+							org.codehaus.jackson;version="1.9.13",
+							org.codehaus.jackson.map;version="1.9.13",
+							org.codehaus.jackson.type;version="1.9.13",
+							org.codehaus.jackson.map.type;version="1.9.13"
                         </Import-Package>
                         <Private-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
