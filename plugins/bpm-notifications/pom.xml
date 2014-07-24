@@ -106,12 +106,18 @@
                             org.springframework.jdbc,
                             org.springframework.jdbc.datasource,
                             org.hibernate.exception,
+                            javax.mail.internet;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
                             pl.net.bluesoft.rnd.pt.ext.sched.service,
                             pl.net.bluesoft.rnd.processtool.di,
                             pl.net.bluesoft.rnd.processtool.plugins,
                             pl.net.bluesoft.rnd.processtool.plugins.osgi,
+                            pl.net.bluesoft.rnd.processtool.hibernate,
+                            pl.net.bluesoft.rnd.processtool.hibernate.lock,
+                            pl.net.bluesoft.rnd.processtool.hibernate.lock.exception,
+                            pl.net.bluesoft.rnd.processtool.hibernate.transform,
+                            pl.net.bluesoft.rnd.processtool.hibernate.types,
                             org.aperteworkflow.util.vaadin,
                             org.aperteworkflow.util.vaadin.ui,
                             org.aperteworkflow.util.vaadin.ui.table,
@@ -122,11 +128,7 @@
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade,
-							org.codehaus.jackson;version="1.9.13",
-							org.codehaus.jackson.map;version="1.9.13",
-							org.codehaus.jackson.type;version="1.9.13",
-							org.codehaus.jackson.map.type;version="1.9.13"
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade
                         </Import-Package>
                         <Private-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
