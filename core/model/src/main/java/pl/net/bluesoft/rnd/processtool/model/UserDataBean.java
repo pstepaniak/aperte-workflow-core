@@ -137,7 +137,10 @@ public class UserDataBean implements UserData {
 
     @Override
     public Object getAttribute(String key) {
-        return attributes.get(key);
+        if (attributes != null)
+            return attributes.get(key);
+        else
+            return null;
     }
 
     @Override
