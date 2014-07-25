@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -34,10 +33,7 @@ import javax.activation.DataHandler;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.*;
 import javax.mail.util.ByteArrayDataSource;
 import java.net.ConnectException;
 import java.sql.Connection;
@@ -46,6 +42,8 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
@@ -607,6 +605,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		message.setSubject(notification.getSubject());
         message.setSentDate(new Date());
 
+		List<ExtractedImage> extractedImages = extractImages(notification);
+
         //body
 
 		MimeBodyPart bodyPart = createBodyPart(notification);
@@ -614,12 +614,13 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
         //zalaczniki
 
-        if(notification.getAttachments() != null && !notification.getAttachments().isEmpty())
-        {
+		if(notification.hasAttachments() || !extractedImages.isEmpty()) {
 			MimeBodyPart contentPart = new MimeBodyPart();
 			contentPart.setContent(content);
 			content = wrapInMimeMultipart(contentPart, "mixed");
+		}
 
+		if(notification.hasAttachments()) {
 			List<BpmAttachment> attachments = notification.decodeAttachments();
 
 	        for (BpmAttachment attachment : attachments) {
@@ -632,8 +633,16 @@ public class BpmNotificationEngine implements IBpmNotificationService
 				}
 	        }       
         }
-        
-        message.setContent(content);
+
+		for (int i = 0; i < extractedImages.size(); ++i) {
+			ExtractedImage extractedImage = extractedImages.get(i);
+
+			MimeBodyPart imagePart = createInlineImagePart(extractedImage, i);
+
+			content.addBodyPart(imagePart);
+		}
+
+		message.setContent(content);
         message.setSentDate(new Date());
 
         return message;
@@ -654,6 +663,81 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		attachmentPart.setDataHandler(new DataHandler(ds));
 		attachmentPart.setFileName(attachment.getName());
 		return attachmentPart;
+	}
+
+	private static MimeBodyPart createInlineImagePart(ExtractedImage extractedImage, int imgIdx) throws MessagingException {
+		InternetHeaders headers = new InternetHeaders();
+
+		headers.addHeader("Content-Type", "image/" + extractedImage.type);
+		headers.addHeader("Content-Transfer-Encoding", "base64");
+
+		MimeBodyPart imagePart = new MimeBodyPart(headers, extractedImage.base64);
+
+		imagePart.setDisposition(MimeBodyPart.INLINE);
+		imagePart.setContentID("&lt;image&gt;");
+		imagePart.setFileName(extractedImage.name);
+		return imagePart;
+	}
+
+	private static class ExtractedImage {
+		public final String type;
+		public final String name;
+		public final byte[] base64;
+
+		public ExtractedImage(String type, String name, byte[] base64) {
+			this.type = type;
+			this.name = name;
+			this.base64 = base64;
+		}
+	}
+
+	private static final Pattern IMG_REGEX = Pattern.compile("<img([^>]+)>", Pattern.CASE_INSENSITIVE);
+
+	private static List<ExtractedImage> extractImages(BpmNotification notification) {
+		if (!notification.getBody().contains("<img")) {
+			return Collections.emptyList();
+		}
+
+		List<ExtractedImage> result = new ArrayList<ExtractedImage>();
+
+		StringBuffer sb = new StringBuffer(512);
+		Matcher matcher = IMG_REGEX.matcher(notification.getBody());
+
+		while (matcher.find()) {
+			String img = matcher.group(1);
+
+			ExtractedImage extractedImage = extractImage(img, 1 + result.size());
+
+			if (extractedImage != null) {
+				result.add(extractedImage);
+				String replacement = "<img src=\"" + extractedImage.name + "\">";
+				matcher.appendReplacement(sb, replacement);
+			}
+			else {
+				matcher.appendReplacement(sb, matcher.group());
+			}
+		}
+
+		matcher.appendTail(sb);
+
+		notification.setBody(sb.toString());
+
+		return result;
+	}
+
+	private static final Pattern IMG_DATA_REGEX = Pattern.compile(
+			"src=\"data:image/([^;]+);base64,([^\"]+)\"", Pattern.CASE_INSENSITIVE);
+
+	private static ExtractedImage extractImage(String img, int idx) {
+		Matcher matcher = IMG_DATA_REGEX.matcher(img);
+
+		if (matcher.find()) {
+			String type = matcher.group(1);
+			String content = matcher.group(2);
+
+			return new ExtractedImage(type, "image" + idx + '.' + type, content.getBytes());
+		}
+		return null;
 	}
 
 	private static MimeMultipart wrapInMimeMultipart(MimeBodyPart bodyPart, String type) throws MessagingException {

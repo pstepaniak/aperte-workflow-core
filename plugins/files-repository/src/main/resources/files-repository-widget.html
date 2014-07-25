@@ -144,7 +144,7 @@
             var row = $(this).closest('tr');
             var itemId = row.find('td.fileId').text();
             var fileName = row.find('td.fileName').text();
-            var msgConfirm = '${deleteAreYouSure}?js_string';
+            var msgConfirm = '${deleteAreYouSure?js_string}';
             msgConfirm = msgConfirm.replace('{0}', fileName);
             if (confirm(msgConfirm)) {
                 $.getJSON(urlDeleteFile + '&filesRepositoryItemId=' + itemId)
