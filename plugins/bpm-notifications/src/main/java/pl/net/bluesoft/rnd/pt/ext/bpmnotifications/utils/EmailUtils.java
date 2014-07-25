@@ -103,6 +103,8 @@ public class EmailUtils {
 
     public static String getDefaultSender(String profileName) {
         BpmNotificationMailProperties profile = new BpmNotificationMailPropertiesDAO().getProfile(profileName);
+        if(profile == null)
+            throw new RuntimeException("There is no profile in database with name: "+profileName);
         return profile.getDefaultSender();
     }
 
