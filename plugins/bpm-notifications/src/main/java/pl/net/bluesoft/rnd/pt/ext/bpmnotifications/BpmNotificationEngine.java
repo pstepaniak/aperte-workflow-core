@@ -612,14 +612,13 @@ public class BpmNotificationEngine implements IBpmNotificationService
         //body
 
 		MimeBodyPart bodyPart = createBodyPart(notification);
-		MimeMultipart content = wrapInMimeMultipart(bodyPart, "alternative");
+		MimeMultipart bodyContent = wrapInMimeMultipart(bodyPart, "related");
+		MimeMultipart content = wrapInMimeMultipart(wrapContentInBodyPart(bodyContent), "alternative");
 
         //zalaczniki
 
-		if(notification.hasAttachments() || !extractedImages.isEmpty()) {
-			MimeBodyPart contentPart = new MimeBodyPart();
-			contentPart.setContent(content);
-			content = wrapInMimeMultipart(contentPart, "mixed");
+		if(notification.hasAttachments()) {
+			content = wrapInMimeMultipart(wrapContentInBodyPart(content), "mixed");
 		}
 
 		if(notification.hasAttachments()) {
@@ -641,7 +640,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 			MimeBodyPart imagePart = createInlineImagePart(extractedImage, i);
 
-			content.addBodyPart(imagePart);
+			bodyContent.addBodyPart(imagePart);
 		}
 
 		message.setContent(content);
@@ -649,6 +648,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
         return message;
     }
+
+	private static MimeBodyPart wrapContentInBodyPart(MimeMultipart content) throws MessagingException {
+		MimeBodyPart contentPart = new MimeBodyPart();
+		contentPart.setContent(content);
+		return contentPart;
+	}
 
 	private static MimeBodyPart createBodyPart(BpmNotification notification) throws MessagingException {
 		MimeBodyPart bodyPart = new MimeBodyPart();
@@ -675,8 +680,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 		MimeBodyPart imagePart = new MimeBodyPart(headers, extractedImage.base64);
 
+		imagePart.setContentID('<' + extractedImage.cid + '>');
 		imagePart.setDisposition(MimeBodyPart.INLINE);
-		imagePart.setContentID("&lt;image&gt;");
 		imagePart.setFileName(extractedImage.name);
 		return imagePart;
 	}
@@ -684,11 +689,13 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	private static class ExtractedImage {
 		public final String type;
 		public final String name;
+		public final String cid;
 		public final byte[] base64;
 
-		public ExtractedImage(String type, String name, byte[] base64) {
+		public ExtractedImage(String type, String name, String cid, byte[] base64) {
 			this.type = type;
 			this.name = name;
+			this.cid = cid;
 			this.base64 = base64;
 		}
 	}
@@ -712,7 +719,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 			if (extractedImage != null) {
 				result.add(extractedImage);
-				String replacement = "<img src=\"" + extractedImage.name + "\">";
+
+				String replacement = "<img src=\"cid:" + extractedImage.cid + "\" />";
 				matcher.appendReplacement(sb, replacement);
 			}
 			else {
@@ -736,8 +744,9 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		if (matcher.find()) {
 			String type = matcher.group(1);
 			String content = matcher.group(2);
+			String name = "image" + idx;
 
-			return new ExtractedImage(type, "image" + idx + '.' + type, content.getBytes());
+			return new ExtractedImage(type, name + '.' + type, name, content.getBytes());
 		}
 		return null;
 	}
