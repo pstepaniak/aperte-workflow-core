@@ -9,6 +9,8 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.hibernate.lock.OperationWithLock;
@@ -155,7 +157,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
             if (lock.tryLock()) {
                 registry.withOperationLock(new OperationWithLock<Object>() {
                     @Override
-                    public Object action(ProcessToolContext ctx)
+                    public Object action()
                     {
                         handleNotificationsWithContext();
                         return null;
@@ -247,7 +249,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
         {
             try
             {
-                sendNotification(notification);
+                sendNotification(connection, notification);
 
                 /* Notification was sent, so remove it from te queue */
                 NotificationsJdbcFacade.removeNotification(connection, notification);
@@ -545,12 +547,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
     			+ "\n body=" + processedNotificationData.getBody());
     }
     
-    private void sendNotification(BpmNotification notification) throws Exception 
+    private void sendNotification(Connection connection, BpmNotification notification) throws Exception
     {
     	javax.mail.Session mailSession = mailSessionProvider.getSession(notification.getProfileName());
     	
     	/* Create javax mail message from notification bean */
-        Message message = createMessageFromNotification(notification, mailSession);
+        Message message = createMessageFromNotification(connection, notification, mailSession);
         
         try 
         {
@@ -590,14 +592,14 @@ public class BpmNotificationEngine implements IBpmNotificationService
             throw new RuntimeException("Problem during notification sending...", e);
         }
     }
-
-	public static Message createMessageFromNotification(BpmNotification notification, javax.mail.Session mailSession) throws Exception
+    
+    public static Message createMessageFromNotification(Connection connection, BpmNotification notification, javax.mail.Session mailSession) throws Exception
     {
         Message message = new MimeMessage(mailSession);
         message.setFrom(new InternetAddress(notification.getSender()));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(notification.getRecipient()));
 
-		String recipientSubstiteEmails = getRecipientSubstiteEmails(notification);
+		String recipientSubstiteEmails = getRecipientSubstiteEmails(connection, notification);
 
 		if (recipientSubstiteEmails != null) {
 			message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(recipientSubstiteEmails));
@@ -662,7 +664,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		return bodyContent;
 	}
 
-	private static String getRecipientSubstiteEmails(BpmNotification notification) {
+	private static String getRecipientSubstiteEmails(Connection connection, BpmNotification notification) {
 		if (!hasText(notification.getRecipient())) {
 			 return null;
 		}
@@ -673,8 +675,11 @@ public class BpmNotificationEngine implements IBpmNotificationService
 			return null;
 		}
 
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        List <String> substitutesLogins = ctx.getUserSubstitutionDAO().getCurrentSubstitutedUserLogins(recipient.getLogin());
+        Session session = getRegistry().getDataRegistry().getSessionFactory().openSession(connection);
+
+        UserSubstitutionDAO userSubstitutionDAO = new UserSubstitutionDAOImpl(session);
+
+        List <String> substitutesLogins = userSubstitutionDAO.getCurrentSubstitutedUserLogins(recipient.getLogin());
 
 		if (substitutesLogins.isEmpty()) {
 			return null;
