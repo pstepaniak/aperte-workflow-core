@@ -26,14 +26,17 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * Created by pkuciapski on 2014-07-25.
  */
 public class EmailUtils {
-    public static enum EmailScope
+    public enum EmailScope
     {
         ALL,
         MAIL,
         STANDARD
     }
-    public static void sendMail(String template, IAttributesProvider attributesProvider, String recipient, String templateArgumentProvider, String profileName,
-                                IFilesRepositoryFacade filesRepository, List<Long> attachmentIds, String source, EmailScope scope) throws Exception {
+
+    public static void sendMail(String recipient, String template, String templateArgumentProvider, String profileName,
+								String source, EmailScope scope, IAttributesProvider attributesProvider,
+								IFilesRepositoryFacade filesRepository, List<Long> attachmentIds,
+								Map<String, Object> attributes) throws Exception {
         IBpmNotificationService service = getRegistry().getRegisteredService(IBpmNotificationService.class);
         TemplateData templateData =	service.createTemplateData(template, Locale.getDefault());
         UserData user = getRecipient(recipient);
@@ -41,7 +44,8 @@ public class EmailUtils {
         service.getTemplateDataProvider()
                 .addProcessData(templateData, attributesProvider)
                 .addUserToNotifyData(templateData, user)
-                .addArgumentProvidersData(templateData, templateArgumentProvider, attributesProvider);
+                .addArgumentProvidersData(templateData, templateArgumentProvider, attributesProvider)
+				.addAttributes(templateData, attributes);
 
         NotificationData notificationData = new NotificationData()
                 .setProfileName(profileName)
@@ -53,7 +57,7 @@ public class EmailUtils {
         if (hasText(source)) {
             notificationData.setSource(source);
         }
-        else {
+        else if (attributesProvider != null) {
             notificationData.setSource(String.valueOf(attributesProvider.getId()));
         }
 
@@ -73,7 +77,7 @@ public class EmailUtils {
     }
 
     public static List<BpmAttachment> getAttachments(IAttributesProvider provider, List<Long> attachmentIds, IFilesRepositoryFacade filesRepository, EmailScope scope) {
-        if (attachmentIds == null || (attachmentIds != null && attachmentIds.size() == 0)) {
+        if (attachmentIds == null || attachmentIds.isEmpty()) {
             return Collections.emptyList();
         }
 
