@@ -64,6 +64,7 @@ public class BpmNotification extends PersistentEntity
 	private String body;
 
 	private String source;
+	private String tag;
 	
 	public BpmNotification(){
 		/*Calendar cal = Calendar.getInstance();
@@ -186,6 +187,14 @@ public class BpmNotification extends PersistentEntity
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 	public boolean hasAttachments() {

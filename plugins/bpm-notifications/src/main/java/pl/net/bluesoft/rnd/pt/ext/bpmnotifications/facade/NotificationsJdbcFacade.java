@@ -50,6 +50,7 @@ public class NotificationsJdbcFacade
                 String sender = resultSet.getString("SENDER");
                 String subject = resultSet.getString("SUBJECT");
 				String source = resultSet.getString("SOURCE");
+				String tag = resultSet.getString("TAG");
 
                 notification.setId(id);
                 notification.setAttachments(attachments);
@@ -63,6 +64,7 @@ public class NotificationsJdbcFacade
                 notification.setSender(sender);
                 notification.setSubject(subject);
 				notification.setSource(source);
+				notification.setTag(tag);
 
                 notifications.add(notification);
             }
