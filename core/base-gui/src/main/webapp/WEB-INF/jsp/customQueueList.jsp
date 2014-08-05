@@ -11,9 +11,12 @@
 			<tr>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
+				<th style="width:12%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creationdate" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.clientType" /></th>
+				<th style="width:9%;"><spring:message code="processes.list.table.process.deadline" /></th>
+				<th style="width:12%;"><spring:message code="processes.list.table.process.stepinfo" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.actions" /></th>
 			</tr>
 		</thead>
@@ -33,38 +36,41 @@
 			[
 				 { "sName":"name", "bSortable": true,"bVisible":parsedCustom.name,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true,"bVisible":parsedCustom.step, "mData": "step" },
+				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedCustom.step, "mData": "businessStatus" },
+				 { "sName":"code", "bSortable": true,"bVisible":parsedCustom.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
-				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yy, HH:mm:ss');}},
-				 { "sName":"clientType","bVisible":true ,"bVisible":parsedCustom.clientType, "bSortable": true,"mData": function(object){ if(object.highlight) return '<font color="red">'+object.clientType+'<span class="glyphicon glyphicon-exclamation-sign" style="margin-left: 5px" /></font>'; else return object.clientType;}},
+				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
+				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedCustom.stepInfo, "mData":"stepInfo" },
 				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}}
 			 ],
-			 [[ 4, "desc" ]]
+			 [[ 6, "desc" ]]
 			);
-
-        dataTable.addParameter('taskListViewName','LOTComplaintView');
-
+			
 		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');
 			
 		dataTable.enableMobileMode = function()
 		{
-			//this.toggleColumnButton("deadline", false);
+			this.toggleColumnButton("deadline", false);
 			this.toggleColumnButton("creationDate", false);
 		}
 		
 		dataTable.enableTabletMode = function()
 		{
 			this.toggleColumnButton("creator", false);
+			this.toggleColumnButton("code", false);
 		}
 		
 		dataTable.disableMobileMode = function()
 		{
-			//this.toggleColumnButton("deadline", true);
+			this.toggleColumnButton("deadline", true);
 			this.toggleColumnButton("creationDate", true);
 		}
 		
 		dataTable.disableTabletMode = function()
 		{
 			this.toggleColumnButton("creator", true);
+			this.toggleColumnButton("code", true);
 		}
 	});
 	
