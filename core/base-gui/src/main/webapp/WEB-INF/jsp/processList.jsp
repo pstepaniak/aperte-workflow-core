@@ -29,19 +29,19 @@
   	$(document).ready(function()
 	{
 		var loadedProcess = loadCookies("process");
-		var parsedProcess = parseCookie(loadedProcess);
+		//var parsedProcess = parseCookie(loadedProcess);
 		
 		var dataTable = new AperteDataTable("processesTable", 
 			[
-				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
-				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
-				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){return generateStatusColumn(object);}},
-				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
-				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
-				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": function(object){return generateAssigneColumn(object);} },
-				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
-				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedProcess.stepInfo, "mData":"stepInfo" }
+				 { "sName":"name", "bSortable": true ,"bVisible":true, "mData": function(object){return generateNameColumn(object);}},
+				 { "sName":"step", "bSortable": true ,"bVisible":true, "mData": "step" },
+				 { "sName":"businessStatus", "bSortable": true ,"bVisible":false, "mData": function(object){return generateStatusColumn(object);}},
+				 { "sName":"code", "bSortable": true ,"bVisible":true, "mData": "code" },
+				 { "sName":"creator", "bSortable": true ,"bVisible":true,"mData": "creator" },
+				 { "sName":"assignee", "bSortable": true ,"bVisible":true,"mData": function(object){return generateAssigneColumn(object);} },
+				 { "sName":"creationDate", "bSortable": true ,"bVisible":true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
+				 { "sName":"deadline","bVisible":true ,"bVisible":false, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"stepInfo", "bSortable": true ,"bVisible":false, "mData":"stepInfo" }
 			 ],
 			 [[ 6, "desc" ]]
 			);

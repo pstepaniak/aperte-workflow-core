@@ -22,12 +22,12 @@
 				<button  type="button" class="btn btn-success" id="process-start-button" onClick="windowManager.showNewProcessPanel();">
 					<i class="icon-briefcase icon-white" ></i><spring:message code="processes.start.new.process" />
 				</button >
-				<button  type="button" class="btn btn-default" id="show-search-view-button" onClick="windowManager.showSearchProcessPanel();">
+				<!--<button  type="button" class="btn btn-default" id="show-search-view-button" onClick="windowManager.showSearchProcessPanel();">
 					<i class="icon-search icon-white" ></i><spring:message code="processes.search.process" />
 				</button >
 				<button type="button" class="btn btn-default"  id="show-configuration-view-button" onClick="windowManager.showConfiguration();">
 					<i class="icon-wrench icon-white" ></i><spring:message code="processes.show.configuration" />
-				</button>
+				</button>-->
 			</div>
 			<br>
 			<div id="inner-queues">

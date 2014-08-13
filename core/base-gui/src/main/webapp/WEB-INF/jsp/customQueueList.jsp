@@ -30,19 +30,19 @@
   	$(document).ready(function()
 	{
 		var loadedCustom = loadCookies("queue");
-		var parsedCustom = parseCookie(loadedCustom);
+		//var parsedCustom = parseCookie(loadedCustom);
 	
 		var dataTable = new AperteDataTable("customQueueTable", 
 			[
-				 { "sName":"name", "bSortable": true,"bVisible":parsedCustom.name,"mData": function(object){return generateNameColumn(object);}},
-				 { "sName":"step", "bSortable": true,"bVisible":parsedCustom.step, "mData": "step" },
-				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedCustom.step, "mData": "businessStatus" },
-				 { "sName":"code", "bSortable": true,"bVisible":parsedCustom.code, "mData": "code" },
-				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
-				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
-				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedCustom.stepInfo, "mData":"stepInfo" },
-				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}}
+				 { "sName":"name", "bSortable": true,"bVisible":true,"mData": function(object){return generateNameColumn(object);}},
+				 { "sName":"step", "bSortable": true,"bVisible":true, "mData": "step" },
+				 { "sName":"businessStatus", "bSortable": true ,"bVisible":false, "mData": "businessStatus" },
+				 { "sName":"code", "bSortable": true,"bVisible":true, "mData": "code" },
+				 { "sName":"creator", "bSortable": true,"bVisible":true,"mData": "creator" },
+				 { "sName":"creationDate", "bSortable": true,"bVisible":true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
+				 { "sName":"deadline", "bSortable": true,"bVisible":false,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"stepInfo", "bSortable": true ,"bVisible":false, "mData":"stepInfo" },
+				 { "sName":"actions", "bSortable": false,"bVisible":true,"mData": function(object){return generateButtons(object)}}
 			 ],
 			 [[ 6, "desc" ]]
 			);
